@@ -1,0 +1,332 @@
+/**
+ * CropTrackingPage — "The Botanical Journal" Krishi redesign.
+ *
+ * - Serif font for crop name title (Merriweather)
+ * - FarmDiaryInput looks like ruled paper / textured card
+ * - Submit button: deep emerald-800
+ * - Progress bar: chunky (h-3)
+ * - Warm earthy color palette throughout
+ */
+
+import React, { useState } from 'react';
+import {
+  Sprout, CalendarDays, MessageSquareText, Mic,
+  Image as ImageIcon, Clock, Leaf, Loader2,
+  Plus, CheckCircle2, Timer, Trash2,
+} from 'lucide-react';
+import { useActiveFarm } from '../context/ActiveFarmContext';
+import { useCrops, useAddCropLog, useDeleteCrop } from '../hooks/useCrop';
+import CropVisualizer from '../features/crops/CropVisualizer';
+import FarmDiaryInput from '../features/crops/FarmDiaryInput';
+import AddCropModal from '../features/crops/AddCropModal';
+
+const CropTrackingPage = () => {
+  const { activeFarm } = useActiveFarm();
+  const farmId = activeFarm?.id;
+
+  const { data: allCrops, isLoading, isError } = useCrops(farmId);
+  const activeCrops = allCrops?.filter((c) => c.status === 'ACTIVE') || [];
+
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [lastLogResult, setLastLogResult] = useState({});
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+
+  const addLogMutation = useAddCropLog();
+  const deleteMutation = useDeleteCrop();
+
+  const handleSubmitLog = (cropId, logData) => {
+    setLastLogResult((prev) => ({ ...prev, [cropId]: null }));
+    addLogMutation.mutate({ cropId, logData }, {
+      onSuccess: (newLog) => {
+        setLastLogResult((prev) => ({ ...prev, [cropId]: newLog }));
+        setTimeout(() => setLastLogResult((prev) => ({ ...prev, [cropId]: null })), 5000);
+      },
+      onError: () => {
+        setLastLogResult((prev) => ({ ...prev, [cropId]: { ai_analysis_failed: true } }));
+        setTimeout(() => setLastLogResult((prev) => ({ ...prev, [cropId]: null })), 5000);
+      },
+    });
+  };
+
+  const handleDelete = (cropId) => {
+    deleteMutation.mutate({ cropId }, { onSuccess: () => setShowDeleteConfirm(null) });
+  };
+
+  const getInputTypeIcon = (type) => {
+    switch (type) {
+      case 'audio': return <Mic size={12} className="text-purple-400" />;
+      case 'image': return <ImageIcon size={12} className="text-blue-400" />;
+      default:      return <MessageSquareText size={12} className="text-emerald-600" />;
+    }
+  };
+
+  const formatLogDate = (dateStr) => {
+    const date = new Date(dateStr + 'T00:00:00');
+    const today = new Date();
+    const diff = Math.floor((today - date) / (1000 * 60 * 60 * 24));
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Yesterday';
+    if (diff < 7)  return `${diff} days ago`;
+    return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  };
+
+  // ── No farm selected ─────────────────────────────────────
+  if (!activeFarm) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
+        <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mb-4">
+          <Sprout size={28} className="text-stone-300" />
+        </div>
+        <p className="text-stone-400 text-sm font-medium">Select a farm to view crops</p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6">
+        <Loader2 size={28} className="text-emerald-700 animate-spin mb-3" />
+        <p className="text-stone-400 text-sm font-medium">Loading crop data...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div id="crop-tracking-page" className="px-4 pt-4 pb-24 max-w-lg mx-auto space-y-4">
+
+      {/* ── Page Header ──────────────────────────────────── */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg, #166534, #14532d)', boxShadow: '0 4px 16px rgba(22,101,52,0.3)' }}
+          >
+            <Sprout size={20} className="text-white" />
+          </div>
+          <div>
+            {/* Serif crop tracking title */}
+            <h2
+              className="text-lg font-bold font-serif-accent leading-tight"
+              style={{ color: 'var(--color-forest)' }}
+            >
+              Fasal Diary
+            </h2>
+            <p className="text-xs text-stone-400 font-medium">{activeFarm.name}</p>
+          </div>
+        </div>
+        {activeCrops.length > 0 && (
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-emerald-100 active:scale-95 transition-all"
+            style={{ background: '#ecfdf5', color: '#166534' }}
+            title="Plant Another Crop"
+          >
+            <Plus size={20} strokeWidth={2.5} />
+          </button>
+        )}
+      </div>
+
+      {/* ── EMPTY STATE ──────────────────────────────────── */}
+      {activeCrops.length === 0 && !isLoading && (
+        <div className="krishi-card p-8 text-center">
+          <div className="relative mx-auto w-32 h-32 mb-6">
+            <div className="absolute inset-0 rounded-full" style={{ background: 'linear-gradient(135deg,#ecfdf5,#d1fae5)' }} />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <img src="/stages/seedling.png" alt="Plant a crop" className="w-20 h-20 object-contain opacity-80" />
+            </div>
+            <div className="absolute inset-0 border-2 border-dashed border-emerald-200 rounded-full animate-spin" style={{ animationDuration: '20s' }} />
+          </div>
+
+          <h3
+            className="text-lg font-bold font-serif-accent mb-1.5"
+            style={{ color: 'var(--color-forest)' }}
+          >
+            Koi Fasal Nahi
+          </h3>
+          <p className="text-sm text-stone-400 font-medium mb-6 max-w-xs mx-auto">
+            Start tracking your farm's journey. Plant a crop and watch it grow stage by stage.
+          </p>
+
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center gap-2 px-6 py-3.5 text-white font-bold rounded-2xl text-sm transition-all active:scale-[0.97]"
+            style={{
+              background: 'linear-gradient(135deg, #166534, #14532d)',
+              boxShadow: '0 6px 24px rgba(22,101,52,0.35)',
+            }}
+          >
+            <Plus size={18} strokeWidth={2.5} />
+            Nayi Fasal Lagao
+          </button>
+        </div>
+      )}
+
+      {/* ── ACTIVE CROP CARDS ────────────────────────────── */}
+      {activeCrops.map((activeCrop) => (
+        <div
+          key={activeCrop.id}
+          className="rounded-3xl p-4 space-y-4"
+          style={{
+            background: 'rgba(255,253,249,0.85)',
+            border: '1.5px solid #e5e0d8',
+            boxShadow: '0 4px 20px rgba(5,46,22,0.08)',
+          }}
+        >
+          {/* Crop name — serif font, botanical journal */}
+          <div className="flex items-center justify-between mb-2 px-1">
+            <h3
+              className="text-xl font-bold font-serif-accent flex-1"
+              style={{ color: 'var(--color-forest)' }}
+            >
+              {activeCrop.crop_name}
+            </h3>
+            {!showDeleteConfirm || showDeleteConfirm !== activeCrop.id ? (
+              <button
+                onClick={() => setShowDeleteConfirm(activeCrop.id)}
+                className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                title="Delete Crop"
+              >
+                <Trash2 size={18} />
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-red-500 font-medium">Delete?</span>
+                <button
+                  onClick={() => handleDelete(activeCrop.id)}
+                  disabled={deleteMutation.isPending}
+                  className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 active:scale-95 transition-all"
+                >
+                  {deleteMutation.isPending && showDeleteConfirm === activeCrop.id
+                    ? <Loader2 size={14} className="animate-spin" />
+                    : <CheckCircle2 size={14} />
+                  }
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(null)}
+                  className="p-1.5 bg-stone-200 text-stone-600 rounded-lg hover:bg-stone-300 active:scale-95 transition-all"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Days since planting badge */}
+          <div
+            className="krishi-card px-4 py-3 flex items-center justify-between"
+            style={{ boxShadow: 'none', border: '1px solid #e5e0d8' }}
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center">
+                <Timer size={18} className="text-amber-600" />
+              </div>
+              <div>
+                <p className="text-xs text-stone-400 font-bold uppercase tracking-wider">Days Since Planting</p>
+                <p className="text-lg font-extrabold" style={{ color: 'var(--color-forest)' }}>
+                  {activeCrop.days_since_planting}
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] text-stone-400 font-medium">Planted</p>
+              <p className="text-xs font-bold text-stone-600">
+                {new Date(activeCrop.planting_date + 'T00:00:00').toLocaleDateString('en-IN', {
+                  day: 'numeric', month: 'short', year: 'numeric',
+                })}
+              </p>
+            </div>
+          </div>
+
+          {/* Crop Visualizer */}
+          <CropVisualizer growth_stage={activeCrop.current_stage} cropName={activeCrop.crop_name} />
+
+          {/* Farm Diary Input */}
+          <FarmDiaryInput
+            onSubmit={(logData) => handleSubmitLog(activeCrop.id, logData)}
+            isSubmitting={addLogMutation.isPending && addLogMutation.variables?.cropId === activeCrop.id}
+            lastResult={lastLogResult[activeCrop.id]}
+          />
+
+          {/* Diary Timeline */}
+          {activeCrop.logs && activeCrop.logs.length > 0 && (
+            <div
+              className="krishi-card overflow-hidden"
+              style={{ boxShadow: 'none', border: '1px solid #e5e0d8' }}
+            >
+              <div className="px-4 pt-4 pb-2 flex items-center gap-2">
+                <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center">
+                  <Clock size={16} className="text-indigo-500" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold" style={{ color: 'var(--color-forest)' }}>Diary Timeline</h4>
+                  <p className="text-[10px] text-stone-400 font-medium">
+                    {activeCrop.logs.length} entr{activeCrop.logs.length === 1 ? 'y' : 'ies'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="px-4 pb-4">
+                {activeCrop.logs.map((log, index) => (
+                  <div
+                    key={log.id}
+                    className={`relative flex gap-3 ${index < activeCrop.logs.length - 1 ? 'pb-4' : ''}`}
+                  >
+                    {index < activeCrop.logs.length - 1 && (
+                      <div className="absolute left-[15px] top-8 bottom-0 w-px bg-stone-200" />
+                    )}
+                    <div className="shrink-0 mt-1">
+                      <div className="w-8 h-8 rounded-full bg-stone-50 border-2 border-stone-200 flex items-center justify-center">
+                        {getInputTypeIcon(log.input_type)}
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[11px] font-bold text-stone-500">{formatLogDate(log.log_date)}</span>
+                        <span className="text-[9px] text-stone-300">•</span>
+                        <span className="text-[10px] font-medium text-stone-300 capitalize">{log.input_type}</span>
+                      </div>
+                      <p className="text-xs text-stone-600 leading-relaxed line-clamp-3">{log.raw_content}</p>
+                      {(log.ai_extracted_stage || log.ai_health_notes) && (
+                        <div className="mt-2 bg-gradient-to-r from-violet-50 to-indigo-50 rounded-lg px-2.5 py-1.5 border border-violet-100/50">
+                          <div className="flex items-center gap-1 mb-0.5">
+                            <Leaf size={10} className="text-violet-400" />
+                            <span className="text-[9px] font-bold text-violet-400 uppercase tracking-wider">AI Insights</span>
+                          </div>
+                          {log.ai_extracted_stage && (
+                            <p className="text-[10px] text-violet-600 font-medium">Stage: {log.ai_extracted_stage}</p>
+                          )}
+                          {log.ai_health_notes && (
+                            <p className="text-[10px] text-violet-500">{log.ai_health_notes}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Empty diary state */}
+          {(!activeCrop.logs || activeCrop.logs.length === 0) && (
+            <div
+              className="krishi-card p-6 text-center"
+              style={{ boxShadow: 'none', border: '1px solid #e5e0d8' }}
+            >
+              <div className="w-12 h-12 bg-stone-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <CalendarDays size={20} className="text-stone-300" />
+              </div>
+              <p className="text-sm text-stone-400 font-medium">No diary entries yet</p>
+              <p className="text-[11px] text-stone-300 mt-1">Start tracking your crop's journey above ☝️</p>
+            </div>
+          )}
+        </div>
+      ))}
+
+      {/* ── Add Crop Modal ──────────────────────────────── */}
+      <AddCropModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} farmId={farmId} />
+    </div>
+  );
+};
+
+export default CropTrackingPage;
