@@ -35,35 +35,35 @@ const formatINR = (value) =>
     maximumFractionDigits: 0 
   }).format(value);
 
-// ── Spacious Horizontal Price Card (Grid-Safe, Truncate-Free) ──
+// ── Vertical Bento Price Card (Surgical Flex Layout Fix) ────────────
 const PriceCard = ({ item }) => {
   const meta = COMMODITY_META[item.commodity] || DEFAULT_META;
 
   return (
     <div 
-      className={`bg-gradient-to-br ${meta.gradient} shadow-sm rounded-2xl border ${meta.border} p-3 active:scale-[0.98] hover:shadow-md transition-all duration-150 cursor-pointer flex items-center justify-between gap-2.5`}
+      className={`bg-gradient-to-br ${meta.gradient} shadow-sm rounded-2xl border ${meta.border} p-3 sm:p-4 lg:p-5 flex flex-col gap-2 min-w-0 w-full active:scale-[0.98] hover:shadow-md transition-all duration-150 cursor-pointer`}
     >
-      {/* Left Portion: Emoji Visual Anchor + Text stack */}
-      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-        <div className="w-9 h-9 rounded-xl bg-white/95 border border-stone-100/80 flex items-center justify-center text-lg shrink-0 shadow-sm">
+      {/* Top: Icon + Name horizontally */}
+      <div className="flex items-center gap-2 min-w-0 w-full">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/95 border border-stone-100/80 flex items-center justify-center text-base sm:text-xl shrink-0 shadow-sm">
           {meta.emoji}
         </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-serif-accent font-bold text-emerald-950 text-sm sm:text-base leading-tight break-words">
-            {item.commodity}
-          </h3>
-          <p className="text-[10px] sm:text-xs font-sans text-stone-500 font-medium leading-none mt-0.5 break-words">
-            {item.market}
-          </p>
-        </div>
+        <h3 className="font-serif-accent text-lg sm:text-xl font-bold text-emerald-950 truncate min-w-0 flex-1">
+          {item.commodity}
+        </h3>
       </div>
 
-      {/* Right Portion: Clean Bhav Indicator + crisp geometric price */}
-      <div className="text-right shrink-0">
-        <span className="block text-[8px] sm:text-[9px] uppercase font-bold tracking-widest text-stone-400 font-sans mb-0.5">
-          Bhav
+      {/* Middle: Market Location */}
+      <p className="text-xs sm:text-sm text-stone-500 font-medium truncate min-w-0 w-full">
+        {item.market}
+      </p>
+
+      {/* Bottom: Price pushed to bottom */}
+      <div className="mt-auto pt-2 sm:pt-3 flex flex-col min-w-0">
+        <span className="text-[9px] sm:text-[10px] tracking-widest text-stone-400 uppercase">
+          BHAV
         </span>
-        <span className={`text-sm sm:text-base font-black ${meta.accent} font-sans leading-none`}>
+        <span className={`text-xl sm:text-2xl font-bold ${meta.accent} truncate min-w-0`}>
           {formatINR(item.modal_price)}
         </span>
       </div>
@@ -109,8 +109,8 @@ const MandiTicker = ({ data, isLoading, isError }) => {
         </h2>
       </div>
 
-      {/* Chunky Grid: Mobile uses 2-columns as requested, tablet/desktop uses 3/4-columns */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      {/* Chunky Grid Container */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {prices.map((item, index) => (
           <PriceCard key={`${item.commodity}-${item.market}-${index}`} item={item} />
         ))}
