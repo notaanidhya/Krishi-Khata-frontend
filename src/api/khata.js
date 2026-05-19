@@ -1,11 +1,9 @@
 /**
- * Khata API Layer — Axios fetchers for the Kisan Khata ledger.
+ * Khata API Layer — uses centralized apiClient with JWT interceptor.
  * All requests target /api/v1/khata on the FastAPI backend.
  */
 
-import axios from 'axios';
-
-const API_BASE = 'https://krishi-khata.onrender.com/api/v1/khata';
+import apiClient from './apiClient';
 
 /**
  * Fetch transactions with optional filters.
@@ -16,7 +14,7 @@ export const getTransactions = async (params = {}) => {
   const cleanParams = Object.fromEntries(
     Object.entries(params).filter(([_, v]) => v != null)
   );
-  const { data } = await axios.get(`${API_BASE}/transactions`, { params: cleanParams });
+  const { data } = await apiClient.get('/api/v1/khata/transactions', { params: cleanParams });
   return data;
 };
 
@@ -26,7 +24,7 @@ export const getTransactions = async (params = {}) => {
  */
 export const getSummary = async (farmId) => {
   const params = farmId ? { farm_id: farmId } : {};
-  const { data } = await axios.get(`${API_BASE}/summary`, { params });
+  const { data } = await apiClient.get('/api/v1/khata/summary', { params });
   return data;
 };
 
@@ -35,7 +33,7 @@ export const getSummary = async (farmId) => {
  * @param {Object} transaction - TransactionCreate payload
  */
 export const addTransaction = async (transaction) => {
-  const { data } = await axios.post(`${API_BASE}/transactions`, transaction);
+  const { data } = await apiClient.post('/api/v1/khata/transactions', transaction);
   return data;
 };
 
@@ -44,5 +42,5 @@ export const addTransaction = async (transaction) => {
  * @param {number} id
  */
 export const deleteTransaction = async (id) => {
-  await axios.delete(`${API_BASE}/transactions/${id}`);
+  await apiClient.delete(`/api/v1/khata/transactions/${id}`);
 };

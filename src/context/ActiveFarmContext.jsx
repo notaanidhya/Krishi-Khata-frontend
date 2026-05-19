@@ -4,17 +4,29 @@ const ActiveFarmContext = createContext();
 
 export const ActiveFarmProvider = ({ children }) => {
   const [activeFarm, setActiveFarm] = useState(null);
-  const [farms, setFarms] = useState([]); // Will be populated by an API call
+  const [farms, setFarms] = useState([]); // Populated by useFarms hook via App.jsx
+  const [isLoading, setIsLoading] = useState(true); // True until farms are first loaded
 
   // Persist selection to localStorage for better UX
   useEffect(() => {
-    const savedFarm = localStorage.getItem('activeFarmId');
-    if (savedFarm && farms.length > 0) {
-      const found = farms.find(f => f.id === parseInt(savedFarm));
-      if (found) setActiveFarm(found);
-    } else if (farms.length > 0 && !activeFarm) {
-      setActiveFarm(farms[0]); // Default to first farm
+    if (farms.length > 0) {
+      const savedFarmId = localStorage.getItem('activeFarmId');
+      if (savedFarmId) {
+        const found = farms.find(f => f.id === parseInt(savedFarmId));
+        if (found) {
+          setActiveFarm(found);
+          setIsLoading(false);
+          return;
+        }
+      }
+      // Default to first farm if none saved or saved ID not found
+      if (!activeFarm || !farms.find(f => f.id === activeFarm?.id)) {
+        setActiveFarm(farms[0]);
+      }
+    } else {
+      setActiveFarm(null);
     }
+    setIsLoading(false);
   }, [farms]);
 
   const changeActiveFarm = (farm) => {
@@ -23,7 +35,15 @@ export const ActiveFarmProvider = ({ children }) => {
   };
 
   return (
-    <ActiveFarmContext.Provider value={{ activeFarm, farms, setFarms, changeActiveFarm }}>
+    <ActiveFarmContext.Provider value={{
+      activeFarm,
+      farms,
+      setFarms,
+      changeActiveFarm,
+      isLoading,
+      setIsLoading,
+      hasFarms: farms.length > 0,
+    }}>
       {children}
     </ActiveFarmContext.Provider>
   );

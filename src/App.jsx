@@ -2,18 +2,30 @@
  * App.jsx — Root layout with Krishi warm aesthetic.
  * Bottom nav uses deep forest green active state.
  * Page background: warm stone-50 / clay.
+ *
+ * Auth flow:
+ *   1. New user → WelcomeScreen (name + PIN setup)
+ *   2. Returning user → PinEntryScreen (PIN verification)
+ *   3. Authenticated → Dashboard with farm-aware routing
+ *
+ * Farm-aware: fetches user farms from the API on load.
+ * Shows EmptyFarmState if no farms exist, otherwise renders the dashboard.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, NavLink } from 'react-router-dom';
-import { BookOpen, CloudSun, LayoutDashboard, Sprout, Users } from 'lucide-react';
+import { BookOpen, CloudSun, LayoutDashboard, Sprout, Users, Loader2 } from 'lucide-react';
 import TopBar from './components/layout/TopBar';
 import WelcomeScreen from './components/WelcomeScreen';
+import PinEntryScreen from './components/PinEntryScreen';
+import EmptyFarmState from './components/ui/EmptyFarmState';
+import AddFarmModal from './components/ui/AddFarmModal';
 import KhataPage from './pages/KhataPage';
 import DashboardPage from './pages/DashboardPage';
 import CropTrackingPage from './pages/CropTrackingPage';
 import CommunityPage from './pages/CommunityPage';
 import { useActiveFarm } from './context/ActiveFarmContext';
+import { useFarms } from './hooks/useFarm';
 import { useGhostAuth } from './hooks/useGhostAuth';
 
 const NAV_ITEMS = [
@@ -25,31 +37,79 @@ const NAV_ITEMS = [
 ];
 
 function App() {
-  const { setFarms } = useActiveFarm();
-  const { isAuthenticated, register } = useGhostAuth();
+  const { setFarms, setIsLoading, hasFarms, isLoading: farmContextLoading } = useActiveFarm();
+  const {
+    isNewUser,
+    needsPin,
+    isAuthenticated,
+    userName,
+    register,
+    login,
+    isLoading: authLoading,
+    error: authError,
+  } = useGhostAuth();
 
+  const { data: farmsData, isLoading: farmsQueryLoading } = useFarms();
+  const [showAddFarmModal, setShowAddFarmModal] = useState(false);
+
+  // Sync fetched farms into the ActiveFarmContext
   useEffect(() => {
-    setFarms([
-      { id: 1, name: 'Sukhdev Farm', location: 'Indore' },
-      { id: 2, name: 'Green Acres',  location: 'Bhopal' },
-    ]);
-  }, [setFarms]);
+    if (!farmsQueryLoading && farmsData) {
+      setFarms(farmsData);
+      setIsLoading(false);
+    }
+  }, [farmsData, farmsQueryLoading, setFarms, setIsLoading]);
 
-  if (!isAuthenticated) return <WelcomeScreen onRegister={register} />;
+  // ── Auth Gate: New User → WelcomeScreen ─────────────────────
+  if (isNewUser) {
+    return <WelcomeScreen onRegister={register} />;
+  }
+
+  // ── Auth Gate: Returning User → PIN Entry ────────────────────
+  if (needsPin) {
+    return (
+      <PinEntryScreen
+        userName={userName}
+        onLogin={login}
+        isLoading={authLoading}
+        error={authError}
+      />
+    );
+  }
+
+  // ── Authenticated but loading farms ──────────────────────────
+  if (!isAuthenticated || farmsQueryLoading || farmContextLoading) {
+    return (
+      <div
+        className="min-h-screen flex flex-col items-center justify-center gap-3"
+        style={{ backgroundColor: 'var(--color-soil)' }}
+      >
+        <Loader2 size={32} className="text-emerald-700 animate-spin" />
+        <p className="text-sm text-stone-400 font-medium">Loading your farms...</p>
+      </div>
+    );
+  }
 
   return (
     <Router>
       {/* Warm clay background fills the entire screen */}
       <div className="min-h-screen pb-20" style={{ backgroundColor: 'var(--color-soil)' }}>
-        <TopBar />
+        <TopBar onAddFarm={() => setShowAddFarmModal(true)} />
+
         <main>
-          <Routes>
-            <Route path="/"          element={<DashboardPage />} />
-            <Route path="/khata"     element={<KhataPage />} />
-            <Route path="/crops"     element={<CropTrackingPage />} />
-            <Route path="/community" element={<CommunityPage />} />
-            <Route path="*"          element={<Navigate to="/" replace />} />
-          </Routes>
+          {!hasFarms ? (
+            /* ── Empty State: No farms yet ─────────────────── */
+            <EmptyFarmState onCreateFarm={() => setShowAddFarmModal(true)} />
+          ) : (
+            /* ── Normal Routes ─────────────────────────────── */
+            <Routes>
+              <Route path="/"          element={<DashboardPage />} />
+              <Route path="/khata"     element={<KhataPage />} />
+              <Route path="/crops"     element={<CropTrackingPage />} />
+              <Route path="/community" element={<CommunityPage />} />
+              <Route path="*"          element={<Navigate to="/" replace />} />
+            </Routes>
+          )}
         </main>
 
         {/* ── Mobile Bottom Navigation ── */}
@@ -87,6 +147,16 @@ function App() {
             </NavLink>
           ))}
         </nav>
+
+        {/* ── Add Farm Modal (Global) ─────────────────────── */}
+        <AddFarmModal
+          isOpen={showAddFarmModal}
+          onClose={() => setShowAddFarmModal(false)}
+          onSuccess={(newFarm) => {
+            // Refetch happens via TanStack invalidation in the hook.
+            // The context will be updated via the useEffect above.
+          }}
+        />
       </div>
     </Router>
   );

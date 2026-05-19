@@ -1,19 +1,17 @@
 /**
- * Chat API Layer — Axios fetchers for community chat.
+ * Chat API Layer — uses centralized apiClient with JWT interceptor.
  * REST endpoints for history + image upload.
  * WebSocket is handled directly in the CommunityPage component.
  */
 
-import axios from 'axios';
-
-const API_BASE = 'https://krishi-khata.onrender.com/api/v1/chat';
+import apiClient from './apiClient';
 
 /**
  * Fetch the last 50 chat messages (oldest first).
  * @returns {Promise<Array>} List of ChatMessageResponse objects
  */
 export const getChatHistory = async () => {
-  const { data } = await axios.get(`${API_BASE}/history`);
+  const { data } = await apiClient.get('/api/v1/chat/history');
   return data;
 };
 
@@ -25,7 +23,7 @@ export const getChatHistory = async () => {
 export const uploadChatImage = async (file) => {
   const formData = new FormData();
   formData.append('file', file);
-  const { data } = await axios.post(`${API_BASE}/upload`, formData, {
+  const { data } = await apiClient.post('/api/v1/chat/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
   return data.url;

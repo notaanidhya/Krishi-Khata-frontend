@@ -1,11 +1,9 @@
 /**
- * Mandi API Layer — Axios fetchers for mandi price data.
+ * Mandi API Layer — uses centralized apiClient with JWT interceptor.
  * All requests target /api/v1/mandi on the FastAPI backend.
  */
 
-import axios from 'axios';
-
-const API_BASE = 'https://krishi-khata.onrender.com/api/v1/mandi';
+import apiClient from './apiClient';
 
 /**
  * Fetch mandi prices with optional filters.
@@ -16,7 +14,7 @@ export const getMandiPrices = async (params = {}) => {
   const cleanParams = Object.fromEntries(
     Object.entries(params).filter(([_, v]) => v != null)
   );
-  const { data } = await axios.get(`${API_BASE}/latest`, { params: cleanParams });
+  const { data } = await apiClient.get('/api/v1/mandi/latest', { params: cleanParams });
   return data;
 };
 
@@ -25,6 +23,6 @@ export const getMandiPrices = async (params = {}) => {
  * @returns {Promise<Object>} { commodities: string[] }
  */
 export const getCommodities = async () => {
-  const { data } = await axios.get(`${API_BASE}/commodities`);
+  const { data } = await apiClient.get('/api/v1/mandi/commodities');
   return data;
 };

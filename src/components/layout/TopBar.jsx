@@ -2,13 +2,15 @@
  * TopBar — Krishi redesign.
  * Deep matte forest green (emerald-900/950) with warm cream brand text.
  * Organic serif accent for "Krishi Khata" brand name.
+ *
+ * Now includes an "Add Farm" button in the farm selector dropdown.
  */
 
 import React, { useState } from 'react';
-import { Sprout, ChevronDown, MapPin } from 'lucide-react';
+import { Sprout, ChevronDown, MapPin, Plus } from 'lucide-react';
 import { useActiveFarm } from '../../context/ActiveFarmContext';
 
-const TopBar = () => {
+const TopBar = ({ onAddFarm }) => {
   const { activeFarm, farms, changeActiveFarm } = useActiveFarm();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -40,7 +42,7 @@ const TopBar = () => {
             {activeFarm && (
               <div className="flex items-center gap-1 mt-0.5" style={{ color: 'rgba(253,230,138,0.75)' }}>
                 <MapPin size={10} />
-                <span className="text-[10px] font-medium">{activeFarm.location}</span>
+                <span className="text-[10px] font-medium">{activeFarm.district || activeFarm.state}</span>
               </div>
             )}
           </div>
@@ -113,7 +115,7 @@ const TopBar = () => {
                       <div className="min-w-0">
                         <p className="truncate font-medium">{farm.name}</p>
                         <p className="text-[11px] text-stone-400 flex items-center gap-1">
-                          <MapPin size={9} /> {farm.location}
+                          <MapPin size={9} /> {farm.district || farm.state}
                         </p>
                       </div>
                       {activeFarm?.id === farm.id && (
@@ -121,6 +123,22 @@ const TopBar = () => {
                       )}
                     </button>
                   ))}
+
+                  {/* Divider + Add Farm Button */}
+                  <div className="border-t border-stone-200 mt-1.5 pt-1.5">
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        onAddFarm?.();
+                      }}
+                      className="w-full text-left px-3 py-2.5 rounded-xl text-sm transition-all flex items-center gap-3 text-emerald-700 hover:bg-emerald-50 active:bg-emerald-100 font-medium"
+                    >
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-50 text-emerald-700 shrink-0">
+                        <Plus size={16} strokeWidth={2.5} />
+                      </div>
+                      <span>Add New Farm</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </>

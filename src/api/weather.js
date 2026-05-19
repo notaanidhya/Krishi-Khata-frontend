@@ -3,9 +3,7 @@
  * All requests target /api/v1/weather on the FastAPI backend.
  */
 
-import axios from 'axios';
-
-const API_BASE = 'https://krishi-khata.onrender.com/api/v1/weather';
+import apiClient from './apiClient';
 
 /**
  * Fetch current weather conditions + 7-day forecast.
@@ -14,7 +12,7 @@ const API_BASE = 'https://krishi-khata.onrender.com/api/v1/weather';
  */
 export const getCurrentWeather = async (coords = null) => {
   const params = coords ? { lat: coords.lat, lon: coords.lon } : {};
-  const { data } = await axios.get(`${API_BASE}/current`, { params });
+  const { data } = await apiClient.get('/api/v1/weather/current', { params });
   return data;
 };
 
@@ -25,7 +23,7 @@ export const getCurrentWeather = async (coords = null) => {
  * @returns {Promise<Object>} { location, daily[] }
  */
 export const getForecast = async (lat = 23.2599, lon = 77.4126) => {
-  const { data } = await axios.get(`${API_BASE}/forecast`, {
+  const { data } = await apiClient.get('/api/v1/weather/forecast', {
     params: { lat, lon },
   });
   return data;

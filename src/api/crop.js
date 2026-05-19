@@ -1,11 +1,9 @@
 /**
- * Crop API Layer — Axios fetchers for crop tracking & farm diary.
+ * Crop API Layer — uses centralized apiClient with JWT interceptor.
  * All requests target /api/v1 on the FastAPI backend.
  */
 
-import axios from 'axios';
-
-const API_BASE = 'https://krishi-khata.onrender.com/api/v1';
+import apiClient from './apiClient';
 
 /**
  * Fetch the currently active crop for a farm (with calculated stage).
@@ -13,7 +11,7 @@ const API_BASE = 'https://krishi-khata.onrender.com/api/v1';
  */
 export const getActiveCrop = async (farmId) => {
   try {
-    const { data } = await axios.get(`${API_BASE}/farms/${farmId}/active_crop`);
+    const { data } = await apiClient.get(`/api/v1/farms/${farmId}/active_crop`);
     return data;
   } catch (err) {
     if (err.response?.status === 404) return null;
@@ -29,7 +27,7 @@ export const getActiveCrop = async (farmId) => {
 export const getCrops = async (farmId, statusFilter) => {
   const params = {};
   if (statusFilter) params.status_filter = statusFilter;
-  const { data } = await axios.get(`${API_BASE}/farms/${farmId}/crops`, { params });
+  const { data } = await apiClient.get(`/api/v1/farms/${farmId}/crops`, { params });
   return data;
 };
 
@@ -39,7 +37,7 @@ export const getCrops = async (farmId, statusFilter) => {
  * @param {Object} cropData - { crop_name, planting_date }
  */
 export const createCrop = async (farmId, cropData) => {
-  const { data } = await axios.post(`${API_BASE}/farms/${farmId}/crops`, cropData);
+  const { data } = await apiClient.post(`/api/v1/farms/${farmId}/crops`, cropData);
   return data;
 };
 
@@ -48,7 +46,7 @@ export const createCrop = async (farmId, cropData) => {
  * @param {number} cropId
  */
 export const deleteCrop = async (cropId) => {
-  const { data } = await axios.delete(`${API_BASE}/crops/${cropId}`);
+  const { data } = await apiClient.delete(`/api/v1/crops/${cropId}`);
   return data;
 };
 
@@ -56,7 +54,7 @@ export const deleteCrop = async (cropId) => {
  * Fetch crop name presets for the Add Crop dropdown.
  */
 export const getCropPresets = async () => {
-  const { data } = await axios.get(`${API_BASE}/crop-presets`);
+  const { data } = await apiClient.get('/api/v1/crop-presets');
   return data;
 };
 
@@ -65,7 +63,7 @@ export const getCropPresets = async () => {
  * @param {number} cropId
  */
 export const getCropLogs = async (cropId) => {
-  const { data } = await axios.get(`${API_BASE}/crops/${cropId}/logs`);
+  const { data } = await apiClient.get(`/api/v1/crops/${cropId}/logs`);
   return data;
 };
 
@@ -75,6 +73,6 @@ export const getCropLogs = async (cropId) => {
  * @param {Object} logData - { raw_content, input_type?, log_date? }
  */
 export const addCropLog = async (cropId, logData) => {
-  const { data } = await axios.post(`${API_BASE}/crops/${cropId}/logs`, logData);
+  const { data } = await apiClient.post(`/api/v1/crops/${cropId}/logs`, logData);
   return data;
 };

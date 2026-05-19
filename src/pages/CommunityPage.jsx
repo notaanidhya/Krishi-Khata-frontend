@@ -12,8 +12,11 @@ import { useQuery } from '@tanstack/react-query';
 import { Send, Paperclip, X, Loader2, Users, Wifi, WifiOff } from 'lucide-react';
 import { getChatHistory, uploadChatImage } from '../api/chat';
 
-const WS_URL = 'wss://krishi-khata.onrender.com/api/v1/chat/ws/chat';
-const BACKEND_BASE = 'https://krishi-khata.onrender.com';
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const WS_URL = isLocal 
+  ? 'ws://localhost:8001/api/v1/chat/ws/chat'
+  : 'wss://krishi-khata.onrender.com/api/v1/chat/ws/chat';
+const BACKEND_BASE = isLocal ? 'http://localhost:8001' : 'https://krishi-khata.onrender.com';
 
 const CommunityPage = () => {
   const deviceId = localStorage.getItem('agroo_device_id');
