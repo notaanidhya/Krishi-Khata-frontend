@@ -31,7 +31,8 @@ export const useFarms = () => {
       }
     },
     staleTime: 1000 * 60 * 5,
-    retry: 1,
+    retry: 2,                            // Retry twice for Render cold-start resilience
+    retryDelay: 3000,                     // 3s between retries
     enabled: hasToken, // Prevent fetching if no token
   });
 };

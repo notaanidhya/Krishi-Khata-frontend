@@ -35,7 +35,8 @@ export const useTransactions = (farmId) => {
     queryKey: KHATA_KEYS.transactions(farmId),
     queryFn:  withFallback(() => getTransactions({ farm_id: farmId }), EMPTY_TRANSACTIONS),
     staleTime: 1000 * 60 * 2,
-    retry: 1,
+    retry: 2,                            // Retry twice for Render cold-start resilience
+    retryDelay: 3000,                     // 3s between retries
     enabled: hasToken,
   });
 };
@@ -50,7 +51,8 @@ export const useSummary = (farmId) => {
     queryKey: KHATA_KEYS.summary(farmId),
     queryFn:  withFallback(() => getSummary(farmId), EMPTY_SUMMARY),
     staleTime: 1000 * 60 * 2,
-    retry: 1,
+    retry: 2,                            // Retry twice for Render cold-start resilience
+    retryDelay: 3000,                     // 3s between retries
     enabled: hasToken,
   });
 };
