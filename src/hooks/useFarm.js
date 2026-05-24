@@ -20,6 +20,7 @@ const FARM_KEYS = {
  * Falls back to [] on error so the empty state renders.
  */
 export const useFarms = () => {
+  const hasToken = !!localStorage.getItem('agroo_jwt');
   return useQuery({
     queryKey: FARM_KEYS.all(),
     queryFn: async () => {
@@ -31,6 +32,7 @@ export const useFarms = () => {
     },
     staleTime: 1000 * 60 * 5,
     retry: 1,
+    enabled: hasToken, // Prevent fetching if no token
   });
 };
 

@@ -30,11 +30,13 @@ const withFallback = (fn, fallback) => async (...args) => {
  * Falls back to [] so the empty state renders instead of an error.
  */
 export const useTransactions = (farmId) => {
+  const hasToken = !!localStorage.getItem('agroo_jwt');
   return useQuery({
     queryKey: KHATA_KEYS.transactions(farmId),
     queryFn:  withFallback(() => getTransactions({ farm_id: farmId }), EMPTY_TRANSACTIONS),
     staleTime: 1000 * 60 * 2,
     retry: 1,
+    enabled: hasToken,
   });
 };
 
@@ -43,11 +45,13 @@ export const useTransactions = (farmId) => {
  * Falls back to zeroes so the summary card renders instead of error.
  */
 export const useSummary = (farmId) => {
+  const hasToken = !!localStorage.getItem('agroo_jwt');
   return useQuery({
     queryKey: KHATA_KEYS.summary(farmId),
     queryFn:  withFallback(() => getSummary(farmId), EMPTY_SUMMARY),
     staleTime: 1000 * 60 * 2,
     retry: 1,
+    enabled: hasToken,
   });
 };
 

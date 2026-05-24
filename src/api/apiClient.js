@@ -38,11 +38,14 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Token expired or invalid — clear auth state
-      // The app will redirect to the PIN screen on next render
       localStorage.removeItem('agroo_jwt');
       localStorage.removeItem('agroo_device_id');
       localStorage.removeItem('agroo_user_name');
-      window.location.reload();
+      
+      // Redirect to root without triggering a hard reload loop
+      if (window.location.pathname !== '/') {
+        window.location.href = '/';
+      }
     }
     return Promise.reject(error);
   }
