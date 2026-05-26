@@ -1,16 +1,22 @@
 /**
  * useDashboard.js — TanStack Query hooks for Weather and Mandi.
  *
- * Strategy (fail-proof):
- * 1. Tries the real backend at https://krishi-khata.onrender.com
- * 2. On network failure → instantly falls back to rich client-side mock data
- * 3. No "unavailable" error state ever reaches the UI
+ * Strategy (fail-proof, zero-flash):
+ * 1. On page load → instantly renders cached weather from localStorage
+ *    (or realistic mock data for first-time visitors)
+ * 2. In the background → fetches live data from the backend
+ * 3. On success → seamlessly replaces placeholder with real data + caches it
+ * 4. On failure → keeps showing the placeholder (never shows an error state)
  */
 
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentWeather } from '../api/weather';
 import { getMandiPrices } from '../api/mandi';
+
+// ── localStorage cache key for persisting weather across refreshes ──
+const WEATHER_CACHE_KEY = 'agroo_weather_cache';
+const WEATHER_CACHE_MAX_AGE_MS = 1000 * 60 * 60; // 1 hour max staleness
 
 // ── CLIENT-SIDE WEATHER FALLBACK ───────────────────────────────
 // Used when the backend is unreachable. Always looks realistic.
@@ -60,6 +66,41 @@ const buildMockWeather = () => {
   };
 };
 
+/**
+ * Read the last-known-good weather from localStorage.
+ * Returns null if missing, corrupt, or older than WEATHER_CACHE_MAX_AGE_MS.
+ */
+const getCachedWeather = () => {
+  try {
+    const raw = localStorage.getItem(WEATHER_CACHE_KEY);
+    if (!raw) return null;
+    const { data, timestamp } = JSON.parse(raw);
+    if (Date.now() - timestamp > WEATHER_CACHE_MAX_AGE_MS) return null;
+    return data;
+  } catch {
+    return null;
+  }
+};
+
+/** Persist weather data to localStorage with a timestamp. */
+const setCachedWeather = (data) => {
+  try {
+    localStorage.setItem(
+      WEATHER_CACHE_KEY,
+      JSON.stringify({ data, timestamp: Date.now() }),
+    );
+  } catch {
+    // localStorage full or unavailable — silently ignore
+  }
+};
+
+/**
+ * Return the best available instant weather:
+ * 1. localStorage cache (real data from a recent session)
+ * 2. Freshly generated mock (always valid)
+ */
+const getInstantWeather = () => getCachedWeather() || buildMockWeather();
+
 // ── CLIENT-SIDE MANDI FALLBACK ─────────────────────────────────
 const buildMockMandi = () => ({
   count: 8,
@@ -91,8 +132,14 @@ const withFallback = (fn, fallback) => async (...args) => {
 };
 
 /**
- * useWeather — fetches live data from backend, falls back to mock immediately.
- * Never shows an error state.
+ * useWeather — instant weather on every page load, zero flash.
+ *
+ * Lifecycle:
+ * Frame 0   → placeholderData (localStorage cache or mock) renders instantly
+ * ~0-8s     → Geolocation resolves (or times out)
+ * ~0-45s    → Backend responds with live data → replaces placeholder seamlessly
+ *              + caches the fresh data to localStorage
+ * On error  → placeholder stays visible — user never sees "unavailable"
  */
 export const useWeather = () => {
   const [coords, setCoords]           = useState(null);
@@ -115,10 +162,23 @@ export const useWeather = () => {
 
   return useQuery({
     queryKey: DASHBOARD_KEYS.weather(coords),
-    queryFn:  withFallback(() => getCurrentWeather(coords), buildMockWeather),
-    staleTime: 1000 * 60 * 10,
-    gcTime:    1000 * 60 * 30,
-    refetchInterval: 1000 * 60 * 15,
+    queryFn: async () => {
+      const data = await withFallback(
+        () => getCurrentWeather(coords),
+        buildMockWeather,
+      )();
+      // Persist successful fetches so next page load is instant
+      setCachedWeather(data);
+      return data;
+    },
+    // ── Instant display: show cached/mock data from frame 0 ──
+    // placeholderData is shown while the real query is in-flight,
+    // preventing the "unavailable" flash during geolocation wait
+    // and Render cold-start delays.
+    placeholderData: getInstantWeather,
+    staleTime: 1000 * 60 * 10,        // 10 min — don't refetch if fresh
+    gcTime:    1000 * 60 * 30,         // 30 min — keep in memory
+    refetchInterval: 1000 * 60 * 15,   // Auto-refresh every 15 min
     retry: 0,                          // Don't retry — fall back instantly
     enabled: locationStatus !== 'pending',
   });
