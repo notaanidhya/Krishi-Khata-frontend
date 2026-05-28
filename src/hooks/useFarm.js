@@ -9,10 +9,11 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getFarms, createFarm } from '../api/farm';
+import { getFarms, createFarm, getLaborers, createLaborer } from '../api/farm';
 
 const FARM_KEYS = {
   all: () => ['farms'],
+  laborers: (farmId) => ['farms', 'laborers', farmId],
 };
 
 /**
@@ -38,6 +39,28 @@ export const useFarms = () => {
 };
 
 /**
+ * Fetch active laborers for a given farm.
+ * Falls back to [] on error so the laborer dropdown renders cleanly.
+ */
+export const useLaborers = (farmId) => {
+  const hasToken = !!localStorage.getItem('agroo_jwt');
+  return useQuery({
+    queryKey: FARM_KEYS.laborers(farmId),
+    queryFn: async () => {
+      try {
+        return await getLaborers(farmId);
+      } catch {
+        return [];
+      }
+    },
+    staleTime: 1000 * 60 * 2,
+    retry: 2,
+    retryDelay: 3000,
+    enabled: hasToken && !!farmId,
+  });
+};
+
+/**
  * Mutation: create a new farm.
  * Invalidates the farms list on success.
  */
@@ -47,6 +70,20 @@ export const useCreateFarm = () => {
     mutationFn: createFarm,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FARM_KEYS.all() });
+    },
+  });
+};
+
+/**
+ * Mutation: create a new laborer for a farm.
+ * Invalidates the laborers cache on success so dropdowns update.
+ */
+export const useCreateLaborer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ farmId, name }) => createLaborer(farmId, { name }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: FARM_KEYS.laborers(variables.farmId) });
     },
   });
 };

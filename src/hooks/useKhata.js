@@ -82,3 +82,37 @@ export const useDeleteTransaction = () => {
     },
   });
 };
+
+/**
+ * Fetch transactions for a specific laborer (labor_wage + labor_payment).
+ * Falls back to [] so the empty state renders cleanly.
+ */
+export const useTransactionsByLaborer = (farmId, laborerId) => {
+  const hasToken = !!localStorage.getItem('agroo_jwt');
+  return useQuery({
+    queryKey: [...KHATA_KEYS.transactions(farmId), 'laborer', laborerId],
+    queryFn: withFallback(
+      () => getTransactions({ farm_id: farmId, laborer_id: laborerId }),
+      EMPTY_TRANSACTIONS
+    ),
+    staleTime: 1000 * 60 * 2,
+    retry: 2,
+    retryDelay: 3000,
+    enabled: hasToken && !!farmId && !!laborerId,
+  });
+};
+
+/**
+ * Mutation: settle a laborer's account (labor_payment transaction).
+ * Invalidates both khata and farms/laborers caches so balances update.
+ */
+export const useSettleLaborer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: addTransaction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['khata'] });
+      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'] });
+    },
+  });
+};

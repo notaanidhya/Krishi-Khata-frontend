@@ -76,3 +76,14 @@ export const addCropLog = async (cropId, logData) => {
   const { data } = await apiClient.post(`/api/v1/crops/${cropId}/logs`, logData);
   return data;
 };
+
+/**
+ * Ask the AI Crop Doctor a question about a specific crop.
+ * @param {number} cropId
+ * @param {string} query - The farmer's question or issue description
+ * @returns {{ answer: string, crop_name: string, days_since_planting: number, current_stage: string }}
+ */
+export const askCropAI = async (cropId, query) => {
+  const { data } = await apiClient.post(`/api/v1/crops/${cropId}/ask_ai`, { query });
+  return data;
+};

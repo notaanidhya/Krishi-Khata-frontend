@@ -7,22 +7,10 @@ export const ActiveFarmProvider = ({ children }) => {
   const [farms, setFarms] = useState([]); // Populated by useFarms hook via App.jsx
   const [isLoading, setIsLoading] = useState(true); // True until farms are first loaded
 
-  // Persist selection to localStorage for better UX
   useEffect(() => {
     if (farms.length > 0) {
-      const savedFarmId = localStorage.getItem('activeFarmId');
-      if (savedFarmId) {
-        const found = farms.find(f => f.id === parseInt(savedFarmId));
-        if (found) {
-          setActiveFarm(found);
-          setIsLoading(false);
-          return;
-        }
-      }
-      // Default to first farm if none saved or saved ID not found
-      if (!activeFarm || !farms.find(f => f.id === activeFarm?.id)) {
-        setActiveFarm(farms[0]);
-      }
+      // Always select the first farm (Hidden Farm architecture)
+      setActiveFarm(farms[0]);
     } else {
       setActiveFarm(null);
     }
@@ -31,7 +19,6 @@ export const ActiveFarmProvider = ({ children }) => {
 
   const changeActiveFarm = (farm) => {
     setActiveFarm(farm);
-    localStorage.setItem('activeFarmId', farm.id);
   };
 
   return (

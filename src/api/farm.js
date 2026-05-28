@@ -31,3 +31,28 @@ export const createFarm = async (farmData) => {
 export const deleteFarm = async (farmId) => {
   await apiClient.delete(`/api/v1/farms/${farmId}`);
 };
+
+/**
+ * Fetch laborers for a specific farm.
+ * By default returns only active laborers.
+ * @param {number} farmId
+ * @param {boolean} [activeOnly=true]
+ * @returns {Promise<Array>} Array of laborer objects with current_balance
+ */
+export const getLaborers = async (farmId, activeOnly = true) => {
+  const { data } = await apiClient.get(`/api/v1/farms/${farmId}/laborers`, {
+    params: { active_only: activeOnly },
+  });
+  return data;
+};
+
+/**
+ * Create a new laborer for a specific farm.
+ * @param {number} farmId
+ * @param {Object} laborerData - { name, phone_number? }
+ * @returns {Promise<Object>} The created laborer object with current_balance
+ */
+export const createLaborer = async (farmId, laborerData) => {
+  const { data } = await apiClient.post(`/api/v1/farms/${farmId}/laborers`, laborerData);
+  return data;
+};

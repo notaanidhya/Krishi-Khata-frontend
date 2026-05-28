@@ -2,22 +2,22 @@
  * CropTrackingPage — "The Botanical Journal" Krishi redesign.
  *
  * - Serif font for crop name title (Merriweather)
- * - FarmDiaryInput looks like ruled paper / textured card
- * - Submit button: deep emerald-800
+ * - AI Crop Doctor for proactive issue diagnosis
+ * - Smart Schedule timeline for milestone tracking
  * - Progress bar: chunky (h-3)
  * - Warm earthy color palette throughout
  */
 
 import React, { useState } from 'react';
 import {
-  Sprout, CalendarDays, MessageSquareText, Mic,
-  Image as ImageIcon, Clock, Leaf, Loader2,
+  Sprout, Loader2,
   Plus, CheckCircle2, Timer, Trash2,
 } from 'lucide-react';
 import { useActiveFarm } from '../context/ActiveFarmContext';
-import { useCrops, useAddCropLog, useDeleteCrop } from '../hooks/useCrop';
+import { useCrops, useDeleteCrop } from '../hooks/useCrop';
 import CropVisualizer from '../features/crops/CropVisualizer';
-import FarmDiaryInput from '../features/crops/FarmDiaryInput';
+import CropDoctor from '../features/crops/CropDoctor';
+import SmartSchedule from '../features/crops/SmartSchedule';
 import AddCropModal from '../features/crops/AddCropModal';
 
 const CropTrackingPage = () => {
@@ -28,46 +28,12 @@ const CropTrackingPage = () => {
   const activeCrops = allCrops?.filter((c) => c.status === 'ACTIVE') || [];
 
   const [showAddModal, setShowAddModal] = useState(false);
-  const [lastLogResult, setLastLogResult] = useState({});
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
 
-  const addLogMutation = useAddCropLog();
   const deleteMutation = useDeleteCrop();
-
-  const handleSubmitLog = (cropId, logData) => {
-    setLastLogResult((prev) => ({ ...prev, [cropId]: null }));
-    addLogMutation.mutate({ cropId, logData }, {
-      onSuccess: (newLog) => {
-        setLastLogResult((prev) => ({ ...prev, [cropId]: newLog }));
-        setTimeout(() => setLastLogResult((prev) => ({ ...prev, [cropId]: null })), 5000);
-      },
-      onError: () => {
-        setLastLogResult((prev) => ({ ...prev, [cropId]: { ai_analysis_failed: true } }));
-        setTimeout(() => setLastLogResult((prev) => ({ ...prev, [cropId]: null })), 5000);
-      },
-    });
-  };
 
   const handleDelete = (cropId) => {
     deleteMutation.mutate({ cropId }, { onSuccess: () => setShowDeleteConfirm(null) });
-  };
-
-  const getInputTypeIcon = (type) => {
-    switch (type) {
-      case 'audio': return <Mic size={12} className="text-purple-400" />;
-      case 'image': return <ImageIcon size={12} className="text-blue-400" />;
-      default:      return <MessageSquareText size={12} className="text-emerald-600" />;
-    }
-  };
-
-  const formatLogDate = (dateStr) => {
-    const date = new Date(dateStr + 'T00:00:00');
-    const today = new Date();
-    const diff = Math.floor((today - date) / (1000 * 60 * 60 * 24));
-    if (diff === 0) return 'Today';
-    if (diff === 1) return 'Yesterday';
-    if (diff < 7)  return `${diff} days ago`;
-    return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
   };
 
   // ── No farm selected ─────────────────────────────────────
@@ -240,86 +206,19 @@ const CropTrackingPage = () => {
           {/* Crop Visualizer */}
           <CropVisualizer growth_stage={activeCrop.current_stage} cropName={activeCrop.crop_name} />
 
-          {/* Farm Diary Input */}
-          <FarmDiaryInput
-            onSubmit={(logData) => handleSubmitLog(activeCrop.id, logData)}
-            isSubmitting={addLogMutation.isPending && addLogMutation.variables?.cropId === activeCrop.id}
-            lastResult={lastLogResult[activeCrop.id]}
+          {/* AI Crop Doctor */}
+          <CropDoctor
+            cropId={activeCrop.id}
+            cropName={activeCrop.crop_name}
+            daysSincePlanting={activeCrop.days_since_planting}
           />
 
-          {/* Diary Timeline */}
-          {activeCrop.logs && activeCrop.logs.length > 0 && (
-            <div
-              className="krishi-card overflow-hidden"
-              style={{ boxShadow: 'none', border: '1px solid #e5e0d8' }}
-            >
-              <div className="px-4 pt-4 pb-2 flex items-center gap-2">
-                <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center">
-                  <Clock size={16} className="text-indigo-500" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold" style={{ color: 'var(--color-forest)' }}>Diary Timeline</h4>
-                  <p className="text-[10px] text-stone-400 font-medium">
-                    {activeCrop.logs.length} entr{activeCrop.logs.length === 1 ? 'y' : 'ies'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="px-4 pb-4">
-                {activeCrop.logs.map((log, index) => (
-                  <div
-                    key={log.id}
-                    className={`relative flex gap-3 ${index < activeCrop.logs.length - 1 ? 'pb-4' : ''}`}
-                  >
-                    {index < activeCrop.logs.length - 1 && (
-                      <div className="absolute left-[15px] top-8 bottom-0 w-px bg-stone-200" />
-                    )}
-                    <div className="shrink-0 mt-1">
-                      <div className="w-8 h-8 rounded-full bg-stone-50 border-2 border-stone-200 flex items-center justify-center">
-                        {getInputTypeIcon(log.input_type)}
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[11px] font-bold text-stone-500">{formatLogDate(log.log_date)}</span>
-                        <span className="text-[9px] text-stone-300">•</span>
-                        <span className="text-[10px] font-medium text-stone-300 capitalize">{log.input_type}</span>
-                      </div>
-                      <p className="text-xs text-stone-600 leading-relaxed line-clamp-3">{log.raw_content}</p>
-                      {(log.ai_extracted_stage || log.ai_health_notes) && (
-                        <div className="mt-2 bg-gradient-to-r from-violet-50 to-indigo-50 rounded-lg px-2.5 py-1.5 border border-violet-100/50">
-                          <div className="flex items-center gap-1 mb-0.5">
-                            <Leaf size={10} className="text-violet-400" />
-                            <span className="text-[9px] font-bold text-violet-400 uppercase tracking-wider">AI Insights</span>
-                          </div>
-                          {log.ai_extracted_stage && (
-                            <p className="text-[10px] text-violet-600 font-medium">Stage: {log.ai_extracted_stage}</p>
-                          )}
-                          {log.ai_health_notes && (
-                            <p className="text-[10px] text-violet-500">{log.ai_health_notes}</p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Empty diary state */}
-          {(!activeCrop.logs || activeCrop.logs.length === 0) && (
-            <div
-              className="krishi-card p-6 text-center"
-              style={{ boxShadow: 'none', border: '1px solid #e5e0d8' }}
-            >
-              <div className="w-12 h-12 bg-stone-50 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <CalendarDays size={20} className="text-stone-300" />
-              </div>
-              <p className="text-sm text-stone-400 font-medium">No diary entries yet</p>
-              <p className="text-[11px] text-stone-300 mt-1">Start tracking your crop's journey above ☝️</p>
-            </div>
-          )}
+          {/* Smart Schedule Timeline */}
+          <SmartSchedule
+            cropName={activeCrop.crop_name}
+            daysSincePlanting={activeCrop.days_since_planting}
+            plantingDate={activeCrop.planting_date}
+          />
         </div>
       ))}
 

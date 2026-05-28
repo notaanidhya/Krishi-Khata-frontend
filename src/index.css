@@ -131,11 +131,32 @@ html { scroll-behavior: smooth; }
   box-shadow: 0 2px 12px 0 rgba(5, 46, 22, 0.07), 0 1px 3px 0 rgba(5, 46, 22, 0.04);
 }
 
-/* ── Tactile press effect ────────────────────────────────── */
+/* ── Tactile press effect ────────────────────────────────────── */
 .tactile {
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .tactile:active {
   transform: scale(0.97);
   box-shadow: 0 1px 4px 0 rgba(5, 46, 22, 0.08);
+}
+
+/* ── Labor paid-off row indicator ───────────────────────────── */
+.labor-paid-off {
+  opacity: 0.5;
+  position: relative;
+}
+.labor-paid-off::after {
+  content: '✓ Paid';
+  position: absolute;
+  top: 6px;
+  right: 12px;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #16a34a;
+  background: #f0fdf4;
+  padding: 1px 6px;
+  border-radius: 6px;
+  border: 1px solid #bbf7d0;
 }

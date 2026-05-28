@@ -6,12 +6,15 @@
  * - Large rounded-xl inputs (krishi style)
  * - Save button: bg-emerald-800
  * - Serif "Add Transaction" header
+ * - Conditional laborer dropdown when "Labor" category is selected
+ * - Inline "+ Add New Majdoor" flow for creating laborers without leaving the form
  */
 
 import React, { useState } from 'react';
-import { X, IndianRupee, Calendar, Tag, FileText } from 'lucide-react';
+import { X, IndianRupee, Calendar, Tag, FileText, Users, UserPlus, Loader2, Check } from 'lucide-react';
 import { useActiveFarm } from '../../context/ActiveFarmContext';
 import { useAddTransaction } from '../../hooks/useKhata';
+import { useLaborers, useCreateLaborer } from '../../hooks/useFarm';
 
 const EXPENSE_CATEGORIES = [
   { value: 'seeds',         label: '🌱 Seeds' },
@@ -37,42 +40,120 @@ const inputClass =
 
 const inputStyle = { background: '#fffdf9', borderColor: '#d6cfc6', color: 'var(--color-forest)' };
 
+const ADD_NEW_VALUE = '__add_new__';
+const ADD_CUSTOM_VALUE = '__add_custom__';
+
 const TransactionForm = ({ isOpen, onClose }) => {
   const { activeFarm } = useActiveFarm();
   const addMutation = useAddTransaction();
+  const createLaborerMutation = useCreateLaborer();
 
   const [type, setType] = useState('expense');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
+  const [customCategoryName, setCustomCategoryName] = useState('');
+  const [laborerId, setLaborerId] = useState('');
   const [description, setDescription] = useState('');
   const [transactionDate, setTransactionDate] = useState(
     new Date().toISOString().split('T')[0]
   );
 
+  // Inline laborer creation state
+  const [isAddingLaborer, setIsAddingLaborer] = useState(false);
+  const [newLaborerName, setNewLaborerName] = useState('');
+
+  // Fetch laborers for the active farm (only fires when farmId is truthy)
+  const { data: laborers = [], isLoading: laborersLoading } = useLaborers(activeFarm?.id);
+
   const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+
+  // Whether the laborer dropdown should be shown
+  const isLaborCategory = type === 'expense' && category === 'labor';
 
   const handleTypeChange = (newType) => {
     setType(newType);
     setCategory('');
+    setLaborerId(''); // Clear laborer when switching type
+    setIsAddingLaborer(false);
+    setNewLaborerName('');
+    setCustomCategoryName('');
+  };
+
+  const handleCategoryChange = (newCategory) => {
+    setCategory(newCategory);
+    if (newCategory !== ADD_CUSTOM_VALUE) {
+      setCustomCategoryName('');
+    }
+    // Clear laborer selection when switching away from "labor"
+    if (newCategory !== 'labor') {
+      setLaborerId('');
+      setIsAddingLaborer(false);
+      setNewLaborerName('');
+    }
+  };
+
+  const handleLaborerSelectChange = (value) => {
+    if (value === ADD_NEW_VALUE) {
+      setIsAddingLaborer(true);
+      setLaborerId('');
+      setNewLaborerName('');
+    } else {
+      setIsAddingLaborer(false);
+      setNewLaborerName('');
+      setLaborerId(value);
+    }
+  };
+
+  const handleSaveNewLaborer = () => {
+    const trimmed = newLaborerName.trim();
+    if (!trimmed || !activeFarm?.id) return;
+
+    createLaborerMutation.mutate(
+      { farmId: activeFarm.id, name: trimmed },
+      {
+        onSuccess: (newLaborer) => {
+          // Auto-select the newly created laborer and hide the input
+          setLaborerId(String(newLaborer.id));
+          setIsAddingLaborer(false);
+          setNewLaborerName('');
+        },
+      }
+    );
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!amount || !category) return;
 
+    const finalCategory = category === ADD_CUSTOM_VALUE ? customCategoryName.trim() : category;
+    if (!finalCategory) return;
+
+    // Build the payload
+    const payload = {
+      type,
+      amount: parseFloat(amount),
+      category: finalCategory,
+      description: description.trim() || null,
+      farm_id: activeFarm?.id || null,
+      transaction_date: transactionDate,
+    };
+
+    // If a specific laborer is selected (not "general"), include laborer_id
+    // and override the transaction type and category to "labor_wage"
+    if (isLaborCategory && laborerId && laborerId !== 'general') {
+      payload.laborer_id = parseInt(laborerId, 10);
+      payload.type = 'labor_wage';
+      payload.category = 'labor_wage';
+    }
+
     addMutation.mutate(
-      {
-        type,
-        amount: parseFloat(amount),
-        category,
-        description: description.trim() || null,
-        farm_id: activeFarm?.id || null,
-        transaction_date: transactionDate,
-      },
+      payload,
       {
         onSuccess: () => {
-          setAmount(''); setCategory(''); setDescription('');
+          setAmount(''); setCategory(''); setCustomCategoryName(''); setDescription(''); setLaborerId('');
           setTransactionDate(new Date().toISOString().split('T')[0]);
+          setIsAddingLaborer(false);
+          setNewLaborerName('');
           onClose();
         },
       }
@@ -178,7 +259,7 @@ const TransactionForm = ({ isOpen, onClose }) => {
             </label>
             <select
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => handleCategoryChange(e.target.value)}
               required
               className={`${inputClass} appearance-none`}
               style={inputStyle}
@@ -187,8 +268,130 @@ const TransactionForm = ({ isOpen, onClose }) => {
               {categories.map((cat) => (
                 <option key={cat.value} value={cat.value}>{cat.label}</option>
               ))}
+              <option value={ADD_CUSTOM_VALUE} style={{ fontWeight: 'bold', color: '#166534' }}>
+                ＋ Add Custom Category
+              </option>
             </select>
+
+            {/* ── Custom Category Text Input ──────────────── */}
+            {category === ADD_CUSTOM_VALUE && (
+              <div
+                className="mt-3 animate-slide-up"
+                style={{ animationDuration: '0.2s' }}
+              >
+                <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
+                  Custom Category Name
+                </label>
+                <input
+                  type="text"
+                  value={customCategoryName}
+                  onChange={(e) => setCustomCategoryName(e.target.value)}
+                  placeholder="e.g. Electricity, Cow Feed, Seedlings"
+                  maxLength={50}
+                  required
+                  className={inputClass}
+                  style={inputStyle}
+                />
+              </div>
+            )}
           </div>
+
+          {/* ── Laborer Dropdown (conditional) ────────────── */}
+          {isLaborCategory && (
+            <div
+              className="animate-slide-up"
+              style={{ animationDuration: '0.2s' }}
+            >
+              <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
+                <Users size={14} /> Select Laborer (Majdoor)
+              </label>
+              <select
+                id="laborer-select"
+                value={isAddingLaborer ? ADD_NEW_VALUE : laborerId}
+                onChange={(e) => handleLaborerSelectChange(e.target.value)}
+                className={`${inputClass} appearance-none`}
+                style={inputStyle}
+              >
+                <option value="" disabled>
+                  {laborersLoading ? 'Loading laborers…' : 'Choose a laborer…'}
+                </option>
+                <option value="general">🏗️ Other / General</option>
+                {laborers.map((lab) => (
+                  <option key={lab.id} value={lab.id}>
+                    👷 {lab.name}{lab.phone_number ? ` (${lab.phone_number})` : ''}
+                  </option>
+                ))}
+                <option value={ADD_NEW_VALUE} style={{ fontWeight: 'bold', color: '#166534' }}>
+                  ＋ Add New Majdoor
+                </option>
+              </select>
+
+              {/* ── Inline Laborer Creation ────────────────── */}
+              {isAddingLaborer && (
+                <div
+                  className="mt-3 p-3.5 rounded-xl border-2 border-dashed animate-slide-up"
+                  style={{
+                    borderColor: '#a7c4a0',
+                    background: 'linear-gradient(135deg, #f0fdf4, #ecfdf5)',
+                    animationDuration: '0.2s',
+                  }}
+                >
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <UserPlus size={14} className="text-emerald-700" />
+                    <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                      New Laborer
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newLaborerName}
+                      onChange={(e) => setNewLaborerName(e.target.value)}
+                      placeholder="Enter Laborer Name"
+                      maxLength={150}
+                      autoFocus
+                      className={`${inputClass} flex-1 py-2.5 text-sm`}
+                      style={{ ...inputStyle, background: '#ffffff', borderColor: '#a7c4a0' }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleSaveNewLaborer();
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSaveNewLaborer}
+                      disabled={!newLaborerName.trim() || createLaborerMutation.isPending}
+                      className="px-4 py-2.5 rounded-xl font-bold text-sm text-white transition-all active:scale-[0.96] disabled:opacity-50 disabled:cursor-not-allowed shrink-0 flex items-center gap-1.5"
+                      style={{
+                        background: 'linear-gradient(135deg, #166534, #14532d)',
+                        boxShadow: '0 2px 10px rgba(22,101,52,0.3)',
+                      }}
+                    >
+                      {createLaborerMutation.isPending ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Check size={14} strokeWidth={3} />
+                      )}
+                      Save
+                    </button>
+                  </div>
+                  {createLaborerMutation.isError && (
+                    <p className="text-xs text-red-500 mt-1.5 pl-1">
+                      Failed to create. Please try again.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {laborers.length === 0 && !laborersLoading && !isAddingLaborer && (
+                <p className="text-xs text-stone-400 mt-1.5 pl-1">
+                  No laborers registered yet. Use "+ Add New Majdoor" above or save as general labor.
+                </p>
+              )}
+            </div>
+          )}
 
           {/* ── Date ─────────────────────────────────────── */}
           <div>
@@ -224,7 +427,12 @@ const TransactionForm = ({ isOpen, onClose }) => {
           {/* ── Submit Button ─────────────────────────────── */}
           <button
             type="submit"
-            disabled={addMutation.isPending || !amount || !category}
+            disabled={
+              addMutation.isPending ||
+              !amount ||
+              !category ||
+              (category === ADD_CUSTOM_VALUE && !customCategoryName.trim())
+            }
             className="w-full py-4 rounded-xl font-bold text-base text-white transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background: type === 'expense'

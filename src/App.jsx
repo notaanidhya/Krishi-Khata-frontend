@@ -18,11 +18,11 @@ import { BookOpen, CloudSun, LayoutDashboard, Sprout, Users, Loader2 } from 'luc
 import TopBar from './components/layout/TopBar';
 import WelcomeScreen from './components/WelcomeScreen';
 import PinEntryScreen from './components/PinEntryScreen';
-import EmptyFarmState from './components/ui/EmptyFarmState';
-import AddFarmModal from './components/ui/AddFarmModal';
+
 import KhataPage from './pages/KhataPage';
 import DashboardPage from './pages/DashboardPage';
 import CropTrackingPage from './pages/CropTrackingPage';
+import WeatherPage from './pages/WeatherPage';
 import CommunityPage from './pages/CommunityPage';
 import { useActiveFarm } from './context/ActiveFarmContext';
 import { useFarms } from './hooks/useFarm';
@@ -50,7 +50,6 @@ function App() {
   } = useGhostAuth();
 
   const { data: farmsData, isLoading: farmsQueryLoading } = useFarms();
-  const [showAddFarmModal, setShowAddFarmModal] = useState(false);
 
   // Sync fetched farms into the ActiveFarmContext
   useEffect(() => {
@@ -94,22 +93,18 @@ function App() {
     <Router>
       {/* Warm clay background fills the entire screen */}
       <div className="min-h-screen pb-20" style={{ backgroundColor: 'var(--color-soil)' }}>
-        <TopBar onAddFarm={() => setShowAddFarmModal(true)} />
+        <TopBar />
 
         <main>
-          {!hasFarms ? (
-            /* ── Empty State: No farms yet ─────────────────── */
-            <EmptyFarmState onCreateFarm={() => setShowAddFarmModal(true)} />
-          ) : (
-            /* ── Normal Routes ─────────────────────────────── */
-            <Routes>
-              <Route path="/"          element={<DashboardPage />} />
-              <Route path="/khata"     element={<KhataPage />} />
-              <Route path="/crops"     element={<CropTrackingPage />} />
-              <Route path="/community" element={<CommunityPage />} />
-              <Route path="*"          element={<Navigate to="/" replace />} />
-            </Routes>
-          )}
+          {/* ── Normal Routes ─────────────────────────────── */}
+          <Routes>
+            <Route path="/"          element={<DashboardPage />} />
+            <Route path="/khata"     element={<KhataPage />} />
+            <Route path="/crops"     element={<CropTrackingPage />} />
+            <Route path="/weather"   element={<WeatherPage />} />
+            <Route path="/community" element={<CommunityPage />} />
+            <Route path="*"          element={<Navigate to="/" replace />} />
+          </Routes>
         </main>
 
         {/* ── Mobile Bottom Navigation ── */}
@@ -148,15 +143,6 @@ function App() {
           ))}
         </nav>
 
-        {/* ── Add Farm Modal (Global) ─────────────────────── */}
-        <AddFarmModal
-          isOpen={showAddFarmModal}
-          onClose={() => setShowAddFarmModal(false)}
-          onSuccess={(newFarm) => {
-            // Refetch happens via TanStack invalidation in the hook.
-            // The context will be updated via the useEffect above.
-          }}
-        />
       </div>
     </Router>
   );

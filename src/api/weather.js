@@ -28,3 +28,22 @@ export const getForecast = async (lat = 23.2599, lon = 77.4126) => {
   });
   return data;
 };
+
+/**
+ * Fetch the comprehensive weather dashboard data.
+ * Includes AI summary, spraying windows, soil insights, and 7-day forecast.
+ * @param {number} [lat] - Latitude of the farm
+ * @param {number} [lon] - Longitude of the farm
+ * @param {string} [city] - City name
+ * @param {string} [state] - State name
+ * @returns {Object} Full dashboard payload
+ */
+export const getWeatherDashboard = async (lat, lon, city, state) => {
+  const params = {};
+  if (lat != null) params.lat = lat;
+  if (lon != null) params.lon = lon;
+  if (city) params.city = city;
+  if (state) params.state = state;
+  const { data } = await apiClient.get('/api/v1/weather/dashboard', { params });
+  return data;
+};

@@ -2,6 +2,7 @@
  * KhataPage — "The Digital Bahi-Khata" Krishi redesign.
  *
  * - bg-stone-50 warm background
+ * - Tab toggle: "General Hisab" | "Labor Hisab"
  * - Premium dark forest green Net Profit card (emerald-950)
  * - Massive clean white numbers on dark card
  * - Serif "Mera Hisab" screen title
@@ -12,12 +13,13 @@
 import React, { useState } from 'react';
 import {
   Plus, TrendingUp, TrendingDown, Wallet,
-  Trash2, Loader2, AlertCircle, BookOpen,
+  Trash2, Loader2, AlertCircle, BookOpen, Users,
 } from 'lucide-react';
 
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useTransactions, useSummary, useDeleteTransaction } from '../hooks/useKhata';
 import TransactionForm from '../features/khata/TransactionForm';
+import LaborDashboard from '../features/khata/LaborDashboard';
 
 // ── Category label + emoji map ─────────────────────────────────
 const CATEGORY_META = {
@@ -25,6 +27,8 @@ const CATEGORY_META = {
   fertilizer:    { label: 'Fertilizer',   icon: '🧪' },
   pesticide:     { label: 'Pesticide',    icon: '🐛' },
   labor:         { label: 'Labor',        icon: '👷' },
+  labor_wage:    { label: 'Labor Wage',   icon: '👷' },
+  labor_payment: { label: 'Labor Payment',icon: '💸' },
   tractor_rent:  { label: 'Tractor Rent', icon: '🚜' },
   equipment:     { label: 'Equipment',    icon: '🔧' },
   irrigation:    { label: 'Irrigation',   icon: '💧' },
@@ -40,6 +44,47 @@ const formatINR = (value) =>
 
 const formatDate = (dateStr) =>
   new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+// ═══════════════════════════════════════════════════════════════
+//  TAB TOGGLE — "General Hisab" | "Labor Hisab"
+// ═══════════════════════════════════════════════════════════════
+const TabToggle = ({ activeTab, onTabChange }) => (
+  <div
+    className="flex rounded-xl p-1 gap-1"
+    style={{ background: '#e7e2db' }}
+  >
+    <button
+      onClick={() => onTabChange('general')}
+      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-bold text-sm transition-all ${
+        activeTab === 'general'
+          ? 'text-white shadow-md scale-[1.02]'
+          : 'text-stone-500 hover:text-stone-700'
+      }`}
+      style={activeTab === 'general'
+        ? { background: 'linear-gradient(135deg, #166534, #14532d)', boxShadow: '0 2px 12px rgba(22,101,52,0.3)' }
+        : {}
+      }
+    >
+      <BookOpen size={16} strokeWidth={activeTab === 'general' ? 2.5 : 2} />
+      General Hisab
+    </button>
+    <button
+      onClick={() => onTabChange('labor')}
+      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-bold text-sm transition-all ${
+        activeTab === 'labor'
+          ? 'text-white shadow-md scale-[1.02]'
+          : 'text-stone-500 hover:text-stone-700'
+      }`}
+      style={activeTab === 'labor'
+        ? { background: 'linear-gradient(135deg, #1e1b4b, #312e81)', boxShadow: '0 2px 12px rgba(30,27,75,0.3)' }
+        : {}
+      }
+    >
+      <Users size={16} strokeWidth={activeTab === 'labor' ? 2.5 : 2} />
+      Labor Hisab
+    </button>
+  </div>
+);
 
 // ═══════════════════════════════════════════════════════════════
 //  SUMMARY CARD — Deep matte forest green, massive numbers
@@ -113,7 +158,7 @@ const SummaryCard = ({ summary, isLoading }) => {
 // ═══════════════════════════════════════════════════════════════
 const TransactionCard = ({ txn, onDelete, isDeleting }) => {
   const meta = CATEGORY_META[txn.category] || { label: txn.category, icon: '📋' };
-  const isExpense = txn.type === 'expense';
+  const isExpense = txn.type === 'expense' || txn.type === 'labor_wage';
 
   return (
     <div
@@ -184,6 +229,7 @@ const KhataPage = () => {
   const { activeFarm } = useActiveFarm();
   const farmId = activeFarm?.id || null;
 
+  const [activeTab, setActiveTab] = useState('general');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
@@ -207,56 +253,67 @@ const KhataPage = () => {
         Mera Hisab
       </h1>
 
-      {/* ── Summary Card ─────────────────────────────────── */}
-      <SummaryCard summary={summary} isLoading={summaryLoading} />
+      {/* ── Tab Toggle ────────────────────────────────────── */}
+      <TabToggle activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* ── Add Transaction Button ───────────────────────── */}
-      <button
-        onClick={() => setIsFormOpen(true)}
-        className="w-full py-4 text-white font-bold text-base rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-        style={{
-          background: 'linear-gradient(135deg, #166534, #14532d)',
-          boxShadow: '0 4px 20px rgba(22,101,52,0.35)',
-        }}
-      >
-        <Plus size={20} strokeWidth={3} />
-        Add Transaction
-      </button>
+      {/* ── General Hisab Tab ─────────────────────────────── */}
+      {activeTab === 'general' && (
+        <div className="space-y-5">
+          {/* ── Summary Card ─────────────────────────────────── */}
+          <SummaryCard summary={summary} isLoading={summaryLoading} />
 
-      {/* ── Transaction List ─────────────────────────────── */}
-      <div>
-        <h2 className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-3">
-          Recent Entries
-        </h2>
+          {/* ── Add Transaction Button ───────────────────────── */}
+          <button
+            onClick={() => setIsFormOpen(true)}
+            className="w-full py-4 text-white font-bold text-base rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+            style={{
+              background: 'linear-gradient(135deg, #166534, #14532d)',
+              boxShadow: '0 4px 20px rgba(22,101,52,0.35)',
+            }}
+          >
+            <Plus size={20} strokeWidth={3} />
+            Add Transaction
+          </button>
 
-        {txnLoading && (
-          <div className="flex justify-center py-12">
-            <Loader2 size={28} className="text-emerald-700 animate-spin" />
+          {/* ── Transaction List ─────────────────────────────── */}
+          <div>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-3">
+              Recent Entries
+            </h2>
+
+            {txnLoading && (
+              <div className="flex justify-center py-12">
+                <Loader2 size={28} className="text-emerald-700 animate-spin" />
+              </div>
+            )}
+
+            {txnError && (
+              <div className="flex items-center gap-2 bg-red-50 text-red-600 p-4 rounded-2xl border border-red-100">
+                <AlertCircle size={18} />
+                <p className="text-sm">Failed to load transactions. Pull down to retry.</p>
+              </div>
+            )}
+
+            {!txnLoading && !txnError && transactions.length === 0 && <EmptyState />}
+
+            {!txnLoading && !txnError && transactions.length > 0 && (
+              <div className="space-y-3">
+                {transactions.map((txn) => (
+                  <TransactionCard
+                    key={txn.id}
+                    txn={txn}
+                    onDelete={handleDelete}
+                    isDeleting={deletingId === txn.id}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
+      )}
 
-        {txnError && (
-          <div className="flex items-center gap-2 bg-red-50 text-red-600 p-4 rounded-2xl border border-red-100">
-            <AlertCircle size={18} />
-            <p className="text-sm">Failed to load transactions. Pull down to retry.</p>
-          </div>
-        )}
-
-        {!txnLoading && !txnError && transactions.length === 0 && <EmptyState />}
-
-        {!txnLoading && !txnError && transactions.length > 0 && (
-          <div className="space-y-3">
-            {transactions.map((txn) => (
-              <TransactionCard
-                key={txn.id}
-                txn={txn}
-                onDelete={handleDelete}
-                isDeleting={deletingId === txn.id}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      {/* ── Labor Hisab Tab ───────────────────────────────── */}
+      {activeTab === 'labor' && <LaborDashboard />}
 
       {/* ── Transaction Form Modal ───────────────────────── */}
       <TransactionForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
