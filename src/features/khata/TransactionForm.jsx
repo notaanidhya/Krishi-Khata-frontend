@@ -10,7 +10,7 @@
  * - Inline "+ Add New Majdoor" flow for creating laborers without leaving the form
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { X, IndianRupee, Calendar, Tag, FileText, Users, UserPlus, Loader2, Check } from 'lucide-react';
 import { useActiveFarm } from '../../context/ActiveFarmContext';
 import { useAddTransaction } from '../../hooks/useKhata';
@@ -47,6 +47,8 @@ const TransactionForm = ({ isOpen, onClose }) => {
   const { activeFarm } = useActiveFarm();
   const addMutation = useAddTransaction();
   const createLaborerMutation = useCreateLaborer();
+
+  const isSubmittingRef = useRef(false);
 
   const [type, setType] = useState('expense');
   const [amount, setAmount] = useState('');
@@ -123,6 +125,7 @@ const TransactionForm = ({ isOpen, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (isSubmittingRef.current) return;
     if (!amount || !category) return;
 
     const finalCategory = category === ADD_CUSTOM_VALUE ? customCategoryName.trim() : category;
@@ -146,15 +149,21 @@ const TransactionForm = ({ isOpen, onClose }) => {
       payload.category = 'labor_wage';
     }
 
+    isSubmittingRef.current = true;
+
     addMutation.mutate(
       payload,
       {
         onSuccess: () => {
+          isSubmittingRef.current = false;
           setAmount(''); setCategory(''); setCustomCategoryName(''); setDescription(''); setLaborerId('');
           setTransactionDate(new Date().toISOString().split('T')[0]);
           setIsAddingLaborer(false);
           setNewLaborerName('');
           onClose();
+        },
+        onError: () => {
+          isSubmittingRef.current = false;
         },
       }
     );

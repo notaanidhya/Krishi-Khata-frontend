@@ -14,23 +14,6 @@ export const getFarms = async () => {
   return data;
 };
 
-/**
- * Create a new farm.
- * @param {Object} farmData - { name, area_acres, state, district? }
- * @returns {Promise<Object>} The created farm object
- */
-export const createFarm = async (farmData) => {
-  const { data } = await apiClient.post('/api/v1/farms', farmData);
-  return data;
-};
-
-/**
- * Delete a farm by ID.
- * @param {number} farmId
- */
-export const deleteFarm = async (farmId) => {
-  await apiClient.delete(`/api/v1/farms/${farmId}`);
-};
 
 /**
  * Fetch laborers for a specific farm.

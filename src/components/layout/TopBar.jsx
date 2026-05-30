@@ -41,7 +41,11 @@ const TopBar = () => {
             {activeFarm && (
               <div className="flex items-center gap-1 mt-0.5" style={{ color: 'rgba(253,230,138,0.75)' }}>
                 <MapPin size={10} />
-                <span className="text-[10px] font-medium">{activeFarm.district || activeFarm.state}</span>
+                <span className="text-[10px] font-medium">
+                  {activeFarm?.district === "N/A"
+                    ? "My Farm"
+                    : `${activeFarm?.district || ""}, ${activeFarm?.state || ""}`}
+                </span>
               </div>
             )}
           </div>

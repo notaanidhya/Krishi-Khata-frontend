@@ -58,24 +58,6 @@ export const getCropPresets = async () => {
   return data;
 };
 
-/**
- * Fetch all diary logs for a specific crop cycle.
- * @param {number} cropId
- */
-export const getCropLogs = async (cropId) => {
-  const { data } = await apiClient.get(`/api/v1/crops/${cropId}/logs`);
-  return data;
-};
-
-/**
- * Submit a new diary log entry for a crop cycle.
- * @param {number} cropId
- * @param {Object} logData - { raw_content, input_type?, log_date? }
- */
-export const addCropLog = async (cropId, logData) => {
-  const { data } = await apiClient.post(`/api/v1/crops/${cropId}/logs`, logData);
-  return data;
-};
 
 /**
  * Ask the AI Crop Doctor a question about a specific crop.

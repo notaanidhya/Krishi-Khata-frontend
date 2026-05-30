@@ -9,7 +9,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getFarms, createFarm, getLaborers, createLaborer } from '../api/farm';
+import { getFarms, getLaborers, createLaborer } from '../api/farm';
 
 const FARM_KEYS = {
   all: () => ['farms'],
@@ -60,19 +60,6 @@ export const useLaborers = (farmId) => {
   });
 };
 
-/**
- * Mutation: create a new farm.
- * Invalidates the farms list on success.
- */
-export const useCreateFarm = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: createFarm,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: FARM_KEYS.all() });
-    },
-  });
-};
 
 /**
  * Mutation: create a new laborer for a farm.

@@ -9,12 +9,11 @@
  *   3. Authenticated → Dashboard with farm-aware routing
  *
  * Farm-aware: fetches user farms from the API on load.
- * Shows EmptyFarmState if no farms exist, otherwise renders the dashboard.
  */
 
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, NavLink } from 'react-router-dom';
-import { BookOpen, CloudSun, LayoutDashboard, Sprout, Users, Loader2 } from 'lucide-react';
+import { BookOpen, CloudSun, LayoutDashboard, Sprout, Users, Loader2, TrendingUp } from 'lucide-react';
 import TopBar from './components/layout/TopBar';
 import WelcomeScreen from './components/WelcomeScreen';
 import PinEntryScreen from './components/PinEntryScreen';
@@ -24,6 +23,7 @@ import DashboardPage from './pages/DashboardPage';
 import CropTrackingPage from './pages/CropTrackingPage';
 import WeatherPage from './pages/WeatherPage';
 import CommunityPage from './pages/CommunityPage';
+import MandiDashboard from './pages/MandiDashboard';
 import { useActiveFarm } from './context/ActiveFarmContext';
 import { useFarms } from './hooks/useFarm';
 import { useGhostAuth } from './hooks/useGhostAuth';
@@ -32,12 +32,13 @@ const NAV_ITEMS = [
   { to: '/',          end: true,  icon: LayoutDashboard, label: 'Home'   },
   { to: '/khata',     end: false, icon: BookOpen,        label: 'Khata'  },
   { to: '/crops',     end: false, icon: Sprout,          label: 'Crops'  },
+  { to: '/mandi',     end: false, icon: TrendingUp,      label: 'Mandi'  },
   { to: '/community', end: false, icon: Users,           label: 'Chaupal'},
   { to: '/weather',   end: false, icon: CloudSun,        label: 'Mausam' },
 ];
 
 function App() {
-  const { setFarms, setIsLoading, hasFarms, isLoading: farmContextLoading } = useActiveFarm();
+  const { setFarms, setIsLoading, isLoading: farmContextLoading } = useActiveFarm();
   const {
     isNewUser,
     needsPin,
@@ -101,6 +102,7 @@ function App() {
             <Route path="/"          element={<DashboardPage />} />
             <Route path="/khata"     element={<KhataPage />} />
             <Route path="/crops"     element={<CropTrackingPage />} />
+            <Route path="/mandi"     element={<MandiDashboard />} />
             <Route path="/weather"   element={<WeatherPage />} />
             <Route path="/community" element={<CommunityPage />} />
             <Route path="*"          element={<Navigate to="/" replace />} />

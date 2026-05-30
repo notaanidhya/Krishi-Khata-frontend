@@ -17,19 +17,13 @@ export const ActiveFarmProvider = ({ children }) => {
     setIsLoading(false);
   }, [farms]);
 
-  const changeActiveFarm = (farm) => {
-    setActiveFarm(farm);
-  };
-
   return (
     <ActiveFarmContext.Provider value={{
       activeFarm,
       farms,
       setFarms,
-      changeActiveFarm,
       isLoading,
       setIsLoading,
-      hasFarms: farms.length > 0,
     }}>
       {children}
     </ActiveFarmContext.Provider>

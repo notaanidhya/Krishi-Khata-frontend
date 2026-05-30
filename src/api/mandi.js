@@ -26,3 +26,16 @@ export const getCommodities = async () => {
   const { data } = await apiClient.get('/api/v1/mandi/commodities');
   return data;
 };
+
+/**
+ * Fetch mandi price history for a given commodity and district.
+ * @param {Object} params - { commodity, district }
+ * @returns {Promise<Array>} List of historical records
+ */
+export const getMandiHistory = async (params = {}) => {
+  const cleanParams = Object.fromEntries(
+    Object.entries(params).filter(([_, v]) => v != null)
+  );
+  const { data } = await apiClient.get('/api/v1/mandi/history', { params: cleanParams });
+  return data;
+};

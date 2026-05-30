@@ -16,8 +16,6 @@ import {
   getCropPresets,
   createCrop,
   deleteCrop,
-  getCropLogs,
-  addCropLog,
 } from '../api/crop';
 
 const CROP_KEYS = {
@@ -94,30 +92,3 @@ export const useDeleteCrop = () => {
   });
 };
 
-/**
- * Fetch all diary logs for a specific crop cycle.
- */
-export const useCropLogs = (cropId) => {
-  return useQuery({
-    queryKey: CROP_KEYS.logs(cropId),
-    queryFn: () => getCropLogs(cropId),
-    enabled: !!cropId,
-    staleTime: 1000 * 60 * 2,
-  });
-};
-
-/**
- * Mutation: add a new diary log entry.
- */
-export const useAddCropLog = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ cropId, logData }) => addCropLog(cropId, logData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeCrop'] });
-      queryClient.invalidateQueries({ queryKey: ['crops'] });
-      queryClient.invalidateQueries({ queryKey: ['cropLogs'] });
-    },
-  });
-};
