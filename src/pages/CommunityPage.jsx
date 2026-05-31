@@ -56,7 +56,18 @@ const CommunityPage = () => {
 
     const connect = () => {
       if (isClosingIntentionally) return;
-      ws = new WebSocket(WS_URL);
+
+      const token = localStorage.getItem('agroo_jwt');
+      if (!token) {
+        console.warn('No authentication token found. Skipping WebSocket connection.');
+        return;
+      }
+
+      const wsUrl = isLocal 
+        ? `ws://localhost:8001/api/v1/chat/ws/chat?token=${token}`
+        : `wss://${window.location.host}/api/v1/chat/ws/chat?token=${token}`;
+
+      ws = new WebSocket(wsUrl);
       ws.onopen  = () => setIsConnected(true);
       ws.onmessage = (event) => {
         try {
