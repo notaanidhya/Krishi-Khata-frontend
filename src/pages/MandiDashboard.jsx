@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { TrendingUp, MapPin, Search, LineChart as LineChartIcon } from 'lucide-react';
+import { TrendingUp, MapPin, Search, LineChart as LineChartIcon, Sprout, Flame, Database } from 'lucide-react';
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useCrops } from '../hooks/useCrop';
 import { getMandiHistory } from '../api/mandi';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+// ── Static regional fallback commodities ────────────────────────────
+const MARKET_FAVORITES = ['Wheat', 'Soybean', 'Mustard', 'Chana'];
 
 const formatINR = (value) =>
   new Intl.NumberFormat('en-IN', {
@@ -39,13 +42,49 @@ const MandiDashboard = () => {
     if (defaultCommodity) setSelectedCommodity(defaultCommodity);
   }, [activeFarm, defaultCommodity]);
 
-  const { data: history, isLoading, isError } = useQuery({
+  // ── Quick-Select Crop Hub: derive badge lists ─────────────────────
+  const myCropNames = useMemo(() => {
+    if (!crops || crops.length === 0) return [];
+    // Deduplicate crop names preserving order, active crops first
+    const seen = new Set();
+    const sorted = [...crops].sort((a, b) => {
+      if (a.status === 'ACTIVE' && b.status !== 'ACTIVE') return -1;
+      if (a.status !== 'ACTIVE' && b.status === 'ACTIVE') return 1;
+      return 0;
+    });
+    return sorted.reduce((acc, c) => {
+      const name = c.crop_name;
+      if (name && !seen.has(name.toLowerCase())) {
+        seen.add(name.toLowerCase());
+        acc.push(name);
+      }
+      return acc;
+    }, []);
+  }, [crops]);
+
+  // Fallback list minus anything already in the user's crops
+  const filteredFavorites = useMemo(() => {
+    const ownSet = new Set(myCropNames.map(n => n.toLowerCase()));
+    return MARKET_FAVORITES.filter(f => !ownSet.has(f.toLowerCase()));
+  }, [myCropNames]);
+
+  // ── Chip click handler ────────────────────────────────────────────
+  const handleChipClick = useCallback((commodity) => {
+    setSelectedCommodity(commodity);
+    // TanStack Query will auto-refetch because queryKey includes selectedCommodity
+  }, []);
+
+  const { data: historyResponse, isLoading, isFetching, isError } = useQuery({
     queryKey: ['mandiHistory', selectedCommodity, selectedDistrict],
     queryFn: () => getMandiHistory({ commodity: selectedCommodity, district: selectedDistrict }),
     enabled: !!selectedCommodity && !!selectedDistrict,
+    // JIT backfill may take 2-4s on first load — extend stale time
+    staleTime: 1000 * 60 * 5,
   });
 
-  const historyData = history || [];
+  // Handle new response shape: { records: [...], backfilled: bool }
+  const historyData = historyResponse?.records ?? historyResponse ?? [];
+  const wasBackfilled = historyResponse?.backfilled ?? false;
   
   // Calculations for KPI Cards
   const todayRecord = historyData.length > 0 ? historyData[historyData.length - 1] : null;
@@ -62,10 +101,21 @@ const MandiDashboard = () => {
 
   // Render Empty State if less than 2 days of history
   const renderChartOrEmptyState = () => {
-    if (isLoading) {
+    if (isLoading || isFetching) {
       return (
-        <div className="h-64 flex items-center justify-center bg-white rounded-3xl shadow-sm border border-stone-100/50">
-          <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="h-72 flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50/50 to-white rounded-3xl shadow-sm border border-stone-100/50 gap-4">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            <Database size={18} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-emerald-600" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-semibold text-emerald-900">
+              Fetching historical government data…
+            </p>
+            <p className="text-xs text-stone-400 mt-1">
+              Pulling real prices from data.gov.in — this may take a few seconds on the first load.
+            </p>
+          </div>
         </div>
       );
     }
@@ -165,6 +215,72 @@ const MandiDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* ── Quick-Select Crop Hub ──────────────────────────────────── */}
+      {(myCropNames.length > 0 || filteredFavorites.length > 0) && (
+        <div className="space-y-2">
+          <p className="text-xs font-bold uppercase tracking-wider text-stone-400">
+            Quick Select
+          </p>
+          <div
+            className="flex overflow-x-auto gap-2 pb-2"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {/* My Crops badges */}
+            {myCropNames.map((name) => {
+              const isActive = selectedCommodity.toLowerCase() === name.toLowerCase();
+              return (
+                <button
+                  key={`my-${name}`}
+                  id={`crop-chip-${name.toLowerCase().replace(/\s+/g, '-')}`}
+                  onClick={() => handleChipClick(name)}
+                  className={`
+                    inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2
+                    text-sm font-semibold transition-all duration-200 cursor-pointer
+                    border select-none shrink-0
+                    ${isActive
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-200 scale-105'
+                      : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 hover:shadow-sm'
+                    }
+                  `}
+                >
+                  <Sprout size={14} className={isActive ? 'text-emerald-200' : 'text-emerald-500'} />
+                  {name}
+                </button>
+              );
+            })}
+
+            {/* Divider between sections (only if both exist) */}
+            {myCropNames.length > 0 && filteredFavorites.length > 0 && (
+              <div className="shrink-0 w-px bg-stone-200 my-1" />
+            )}
+
+            {/* Market Favorites badges */}
+            {filteredFavorites.map((name) => {
+              const isActive = selectedCommodity.toLowerCase() === name.toLowerCase();
+              return (
+                <button
+                  key={`fav-${name}`}
+                  id={`fav-chip-${name.toLowerCase().replace(/\s+/g, '-')}`}
+                  onClick={() => handleChipClick(name)}
+                  className={`
+                    inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2
+                    text-sm font-semibold transition-all duration-200 cursor-pointer
+                    border select-none shrink-0
+                    ${isActive
+                      ? 'bg-stone-700 text-white border-stone-700 shadow-md shadow-stone-200 scale-105'
+                      : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100 hover:border-stone-300 hover:shadow-sm'
+                    }
+                  `}
+                >
+                  <Flame size={14} className={isActive ? 'text-amber-300' : 'text-amber-500/60'} />
+                  {name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
