@@ -12,11 +12,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Send, Paperclip, X, Loader2, Users, Wifi, WifiOff } from 'lucide-react';
 import { getChatHistory, uploadChatImage } from '../api/chat';
 
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const WS_URL = isLocal 
-  ? 'ws://localhost:8001/api/v1/chat/ws/chat'
-  : 'wss://krishi-khata.onrender.com/api/v1/chat/ws/chat';
-const BACKEND_BASE = isLocal ? 'http://localhost:8001' : 'https://krishi-khata.onrender.com';
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:8001'
+    : 'https://krishi-khata.onrender.com'
+);
+const BACKEND_BASE = apiBaseUrl;
 
 const CommunityPage = () => {
   const deviceId = localStorage.getItem('agroo_device_id');
@@ -63,9 +64,8 @@ const CommunityPage = () => {
         return;
       }
 
-      const wsUrl = isLocal 
-        ? `ws://localhost:8001/api/v1/chat/ws/chat?token=${token}`
-        : `wss://${window.location.host}/api/v1/chat/ws/chat?token=${token}`;
+      const wsBaseUrl = apiBaseUrl.replace(/^http/, 'ws');
+      const wsUrl = `${wsBaseUrl}/api/v1/chat/ws/chat?token=${token}`;
 
       ws = new WebSocket(wsUrl);
       ws.onopen  = () => setIsConnected(true);
