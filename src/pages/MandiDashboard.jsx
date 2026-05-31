@@ -3,7 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, MapPin, Search, LineChart as LineChartIcon, Sprout, Flame, Database } from 'lucide-react';
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useCrops } from '../hooks/useCrop';
-import { getMandiHistory } from '../api/mandi';
+import { getMandiHistory, getMandiMetadata } from '../api/mandi';
+import Combobox from '../components/ui/Combobox';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 // ── Static regional fallback commodities ────────────────────────────
@@ -41,6 +42,15 @@ const MandiDashboard = () => {
     if (activeFarm?.district) setSelectedDistrict(activeFarm.district);
     if (defaultCommodity) setSelectedCommodity(defaultCommodity);
   }, [activeFarm, defaultCommodity]);
+
+  // Fetch metadata for dropdowns
+  const { data: metadata } = useQuery({
+    queryKey: ['mandiMetadata'],
+    queryFn: getMandiMetadata,
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
+  });
+  const commodityOptions = metadata?.commodities || [];
+  const districtOptions = metadata?.districts || [];
 
   // ── Quick-Select Crop Hub: derive badge lists ─────────────────────
   const myCropNames = useMemo(() => {
@@ -195,21 +205,21 @@ const MandiDashboard = () => {
         <div className="flex gap-3 bg-white p-2 rounded-2xl shadow-sm border border-stone-100/50">
           <div className="flex items-center gap-2 bg-stone-50 rounded-xl px-3 py-2 border border-stone-200/50">
             <Search className="text-stone-400" size={18} />
-            <input 
-              type="text" 
+            <Combobox 
+              options={commodityOptions}
               value={selectedCommodity}
-              onChange={(e) => setSelectedCommodity(e.target.value)}
-              className="bg-transparent border-none outline-none text-sm font-medium text-emerald-950 w-24 sm:w-32"
+              onChange={setSelectedCommodity}
+              className="w-28 sm:w-36"
               placeholder="Commodity"
             />
           </div>
           <div className="flex items-center gap-2 bg-stone-50 rounded-xl px-3 py-2 border border-stone-200/50">
             <MapPin className="text-stone-400" size={18} />
-            <input 
-              type="text" 
+            <Combobox 
+              options={districtOptions}
               value={selectedDistrict}
-              onChange={(e) => setSelectedDistrict(e.target.value)}
-              className="bg-transparent border-none outline-none text-sm font-medium text-emerald-950 w-24 sm:w-32"
+              onChange={setSelectedDistrict}
+              className="w-28 sm:w-36"
               placeholder="District"
             />
           </div>

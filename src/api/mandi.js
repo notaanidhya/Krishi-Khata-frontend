@@ -39,3 +39,12 @@ export const getMandiHistory = async (params = {}) => {
   const { data } = await apiClient.get('/api/v1/mandi/history', { params: cleanParams });
   return data;
 };
+
+/**
+ * Fetch unique commodities and districts for the Searchable Dropdowns.
+ * @returns {Promise<Object>} { commodities: string[], districts: string[] }
+ */
+export const getMandiMetadata = async () => {
+  const { data } = await apiClient.get('/api/v1/mandi/metadata');
+  return data;
+};
