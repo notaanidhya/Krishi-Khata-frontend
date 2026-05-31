@@ -7,6 +7,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Store } from 'lucide-react';
 
 // ── Curated Commodity Profiles (Warm, Organic Aesthetics) ──────
@@ -37,6 +38,7 @@ const formatINR = (value) =>
 
 // ── Vertical Bento Price Card (Surgical Flex Layout Fix) ────────────
 const PriceCard = ({ item }) => {
+  const { t } = useTranslation();
   const meta = COMMODITY_META[item.commodity] || DEFAULT_META;
 
   return (
@@ -61,7 +63,7 @@ const PriceCard = ({ item }) => {
       {/* Bottom: Price pushed to bottom */}
       <div className="mt-auto pt-2 sm:pt-3 flex flex-col min-w-0">
         <span className="text-[9px] sm:text-[10px] tracking-widest text-stone-400 uppercase">
-          BHAV
+          {t('mandi.bhav')}
         </span>
         <span className={`text-xl sm:text-2xl font-bold ${meta.accent} truncate min-w-0`}>
           {formatINR(item.modal_price)}
@@ -72,27 +74,34 @@ const PriceCard = ({ item }) => {
 };
 
 // ── Loading Skeleton ───────────────────────────────────────────
-const MandiSkeleton = () => (
+const MandiSkeleton = () => {
+  const { t } = useTranslation();
+  return (
   <div className="bg-white rounded-3xl shadow-md p-6 flex flex-col items-center justify-center min-h-[220px]">
     <div className="w-10 h-10 rounded-full bg-amber-400 animate-pulse mb-3" />
-    <p className="text-stone-500 text-sm">Loading market prices...</p>
+    <p className="text-stone-500 text-sm">{t('mandi.loadingPrices')}</p>
   </div>
-);
+  );
+};
 
 // ── Empty State ────────────────────────────────────────────────
-const MandiEmpty = () => (
+const MandiEmpty = () => {
+  const { t } = useTranslation();
+  return (
   <div className="bg-white rounded-3xl shadow-md p-6 flex flex-col items-center justify-center min-h-[220px]">
     <Store size={36} className="text-emerald-950 mb-3 opacity-40" />
     <p className="font-serif text-emerald-950 text-center text-lg max-w-sm">
-      Fetching latest market prices... No data available for your region yet.
+      {t('mandi.emptyState')}
     </p>
   </div>
-);
+  );
+};
 
 // ═══════════════════════════════════════════════════════════════
 //  MANDI TICKER SECTION
 // ═══════════════════════════════════════════════════════════════
 const MandiTicker = ({ data, isLoading, isError }) => {
+  const { t } = useTranslation();
   if (isLoading) return <MandiSkeleton />;
   
   const prices = data?.prices || [];
@@ -105,7 +114,7 @@ const MandiTicker = ({ data, isLoading, isError }) => {
       <div className="flex items-center gap-2.5 mb-5">
         <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50" />
         <h2 className="text-emerald-950 font-serif-accent text-xl sm:text-2xl font-bold">
-          Aaj ke Mandi Bhav
+          {t('mandi.tickerTitle')}
         </h2>
       </div>
 

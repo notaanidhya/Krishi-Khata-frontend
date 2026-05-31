@@ -67,15 +67,21 @@ const CommunityPage = () => {
       }
 
       const wsBaseUrl = apiBaseUrl.replace(/^http/, 'ws');
-      const lang = localStorage.getItem('i18nextLng') || 'en';
-      const wsUrl = `${wsBaseUrl}/api/v1/chat/ws/chat?token=${token}&lang=${lang}`;
+      const wsUrl = `${wsBaseUrl}/api/v1/chat/ws/chat`;
 
       ws = new WebSocket(wsUrl);
-      ws.onopen  = () => setIsConnected(true);
+      ws.onopen  = () => {
+        // Send the authentication payload immediately upon opening
+        ws.send(JSON.stringify({ type: 'auth', token: token }));
+        setIsConnected(true);
+      };
       ws.onmessage = (event) => {
         try {
           const msg = JSON.parse(event.data);
           if (msg.error) return;
+          // Guard clause to ignore authentication acknowledgments
+          if (msg.type === 'auth_success' || msg.type === 'auth') return;
+          
           setMessages((prev) => {
             if (msg.id && prev.some((p) => p.id === msg.id)) return prev;
             return [...prev, msg];

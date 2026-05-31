@@ -43,8 +43,8 @@ const CATEGORY_META = {
 const formatINR = (value) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
 
-const formatDate = (dateStr) =>
-  new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+const formatDate = (dateStr, language = 'en') =>
+  new Date(dateStr).toLocaleDateString(language === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
 // ═══════════════════════════════════════════════════════════════
 //  TAB TOGGLE — "General Hisab" | "Labor Hisab"
@@ -162,7 +162,7 @@ const SummaryCard = ({ summary, isLoading }) => {
 //  TRANSACTION CARD — Clean, precise red/green indicators
 // ═══════════════════════════════════════════════════════════════
 const TransactionCard = ({ txn, onDelete, isDeleting }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const meta = CATEGORY_META[txn.category] || { label: txn.category, icon: '📋' };
   const catLabel = t(`khata.categories.${txn.category}`, { defaultValue: meta.label });
   const isExpense = txn.type === 'expense' || txn.type === 'labor_wage';
@@ -186,7 +186,7 @@ const TransactionCard = ({ txn, onDelete, isDeleting }) => {
         {txn.description && (
           <p className="text-xs text-stone-400 truncate">{txn.description}</p>
         )}
-        <p className="text-[11px] text-stone-400 mt-0.5">{formatDate(txn.transaction_date)}</p>
+        <p className="text-[11px] text-stone-400 mt-0.5">{formatDate(txn.transaction_date, i18n.language)}</p>
       </div>
 
       {/* Amount */}

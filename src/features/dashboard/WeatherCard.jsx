@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Sun, Cloud, CloudRain, CloudLightning, CloudSun,
   Droplets, Wind, Eye, AlertCircle, Sprout, MapPin,
@@ -67,24 +68,28 @@ const WeatherSkeleton = () => (
   </div>
 );
 
-const WeatherError = () => (
+const WeatherError = () => {
+  const { t } = useTranslation();
+  return (
   <div className="krishi-card p-5 border border-red-100">
     <div className="flex items-center gap-3">
       <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
         <AlertCircle size={20} className="text-red-400" />
       </div>
       <div>
-        <p className="font-semibold text-red-700 text-sm">Mausam Data Unavailable</p>
-        <p className="text-xs text-red-400">Unable to load weather data. Will retry automatically.</p>
+        <p className="font-semibold text-red-700 text-sm">{t('weather.errorTitle')}</p>
+        <p className="text-xs text-red-400">{t('weather.errorRetry')}</p>
       </div>
     </div>
   </div>
-);
+  );
+};
 
 // ═══════════════════════════════════════════════════════════════
 //  WEATHER CARD
 // ═══════════════════════════════════════════════════════════════
 const WeatherCard = ({ data, isLoading, isError }) => {
+  const { t } = useTranslation();
   if (isLoading) return <WeatherSkeleton />;
   if (isError || !data) return <WeatherError />;
 
@@ -120,7 +125,7 @@ const WeatherCard = ({ data, isLoading, isError }) => {
             <span className="text-lg font-medium text-white/60 ml-1">C</span>
           </div>
           <p className="text-sm font-medium text-white/80 mt-1">{current.condition_text}</p>
-          <p className="text-xs text-white/50 mt-0.5">Feels like {current.feels_like_c}°C</p>
+          <p className="text-xs text-white/50 mt-0.5">{`${t('weather.feelsLike')} ${current.feels_like_c}°C`}</p>
         </div>
         <div
           className="w-16 h-16 rounded-2xl flex items-center justify-center"

@@ -80,7 +80,7 @@ const getRainColor = (pct) => {
 
 
 const WeatherPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { activeFarm } = useActiveFarm();
   const { data, isLoading, isError } = useWeatherDashboard(
     activeFarm?.latitude,
@@ -368,7 +368,7 @@ const WeatherPage = () => {
                     {day.condition_text}
                   </p>
                   <p className="text-[10px] text-stone-400 font-medium">
-                    {new Date(day.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                    {new Date(day.date + 'T00:00:00').toLocaleDateString(i18n.language === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'short' })}
                   </p>
                 </div>
 

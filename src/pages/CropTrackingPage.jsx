@@ -22,7 +22,7 @@ import SmartSchedule from '../features/crops/SmartSchedule';
 import AddCropModal from '../features/crops/AddCropModal';
 
 const CropTrackingPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { activeFarm } = useActiveFarm();
   const farmId = activeFarm?.id;
 
@@ -198,7 +198,7 @@ const CropTrackingPage = () => {
             <div className="text-right">
               <p className="text-[10px] text-stone-400 font-medium">{t('crops.planted')}</p>
               <p className="text-xs font-bold text-stone-600">
-                {new Date(activeCrop.planting_date + 'T00:00:00').toLocaleDateString('en-IN', {
+                {new Date(activeCrop.planting_date + 'T00:00:00').toLocaleDateString(i18n.language === 'hi' ? 'hi-IN' : 'en-IN', {
                   day: 'numeric', month: 'short', year: 'numeric',
                 })}
               </p>

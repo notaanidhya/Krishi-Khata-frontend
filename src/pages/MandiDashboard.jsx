@@ -26,7 +26,13 @@ const MandiDashboard = () => {
   const { data: crops } = useCrops(farmId);
   
   // Default values based on active farm
-  const defaultDistrict = activeFarm?.district || 'Indore';
+  const defaultDistrict = useMemo(() => {
+    const rawDistrict = activeFarm?.district;
+    if (!rawDistrict || rawDistrict === 'N/A' || rawDistrict.toLowerCase() === 'madhya pradesh') {
+      return 'Indore';
+    }
+    return rawDistrict;
+  }, [activeFarm]);
   const defaultCommodity = useMemo(() => {
     if (crops && crops.length > 0) {
       const active = crops.find(c => c.status === 'ACTIVE');
@@ -41,7 +47,12 @@ const MandiDashboard = () => {
 
   // Sync state if farm changes
   useEffect(() => {
-    if (activeFarm?.district) setSelectedDistrict(activeFarm.district);
+    const rawDistrict = activeFarm?.district;
+    if (rawDistrict && rawDistrict !== 'N/A' && rawDistrict.toLowerCase() !== 'madhya pradesh') {
+      setSelectedDistrict(rawDistrict);
+    } else {
+      setSelectedDistrict('Indore');
+    }
     if (defaultCommodity) setSelectedCommodity(defaultCommodity);
   }, [activeFarm, defaultCommodity]);
 
@@ -50,6 +61,7 @@ const MandiDashboard = () => {
     queryKey: ['mandiMetadata'],
     queryFn: getMandiMetadata,
     staleTime: 1000 * 60 * 60 * 24, // 24 hours
+    gcTime: 1000 * 60 * 60 * 24,    // Prevent garbage collection before staleTime
   });
   const commodityOptions = metadata?.commodities || [];
   const districtOptions = metadata?.districts || [];

@@ -41,15 +41,18 @@ const TopBar = () => {
               className="text-lg leading-none tracking-tight font-serif-accent"
               style={{ color: '#fffdf9', fontWeight: 900 }}
             >
-              Krishi Khata
+              {isHindi ? 'कृषि खाता' : 'Krishi Khata'}
             </h1>
             {activeFarm && (
               <div className="flex items-center gap-1 mt-0.5" style={{ color: 'rgba(253,230,138,0.75)' }}>
                 <MapPin size={10} />
                 <span className="text-[10px] font-medium">
                   {activeFarm?.district === "N/A"
-                    ? "My Farm"
-                    : `${activeFarm?.district || ""}, ${activeFarm?.state || ""}`}
+                    ? (isHindi ? "मेरा खेत" : "My Farm")
+                    : (activeFarm?.district?.toLowerCase() === activeFarm?.state?.toLowerCase()
+                      ? activeFarm?.district
+                      : `${activeFarm?.district || ""}, ${activeFarm?.state || ""}`)
+                  }
                 </span>
               </div>
             )}

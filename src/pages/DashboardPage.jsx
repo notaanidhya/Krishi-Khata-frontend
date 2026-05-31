@@ -37,8 +37,8 @@ const getGreetingKey = () => {
 };
 
 // ── Format today's date ─────────────────────────────────────────
-const formatToday = () =>
-  new Date().toLocaleDateString('en-IN', {
+const formatToday = (language) =>
+  new Date().toLocaleDateString(language === 'hi' ? 'hi-IN' : 'en-IN', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   });
 
@@ -137,7 +137,7 @@ const KhataMiniSummary = ({ summary, isLoading, onViewAll }) => {
 //  DASHBOARD PAGE
 // ═══════════════════════════════════════════════════════════════
 const DashboardPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { activeFarm } = useActiveFarm();
   const farmId = activeFarm?.id || null;
@@ -159,7 +159,7 @@ const DashboardPage = () => {
         </h2>
         <div className="flex items-center gap-1.5 mt-1" style={{ color: '#9ca3af' }}>
           <CalendarDays size={13} />
-          <p className="text-xs font-medium">{formatToday()}</p>
+          <p className="text-xs font-medium">{formatToday(i18n.language)}</p>
         </div>
       </div>
 

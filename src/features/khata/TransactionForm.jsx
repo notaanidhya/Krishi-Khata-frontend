@@ -12,26 +12,27 @@
 
 import React, { useState, useRef } from 'react';
 import { X, IndianRupee, Calendar, Tag, FileText, Users, UserPlus, Loader2, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useActiveFarm } from '../../context/ActiveFarmContext';
 import { useAddTransaction } from '../../hooks/useKhata';
 import { useLaborers, useCreateLaborer } from '../../hooks/useFarm';
 
 const EXPENSE_CATEGORIES = [
-  { value: 'seeds',         label: '🌱 Seeds' },
-  { value: 'fertilizer',   label: '🧪 Fertilizer' },
-  { value: 'pesticide',    label: '🐛 Pesticide' },
-  { value: 'labor',        label: '👷 Labor' },
-  { value: 'tractor_rent', label: '🚜 Tractor Rent' },
-  { value: 'equipment',    label: '🔧 Equipment' },
-  { value: 'irrigation',   label: '💧 Irrigation' },
-  { value: 'transport',    label: '🚚 Transport' },
-  { value: 'other_expense',label: '📦 Other Expense' },
+  { value: 'seeds',         icon: '🌱' },
+  { value: 'fertilizer',    icon: '🧪' },
+  { value: 'pesticide',     icon: '🐛' },
+  { value: 'labor',         icon: '👷' },
+  { value: 'tractor_rent',  icon: '🚜' },
+  { value: 'equipment',     icon: '🔧' },
+  { value: 'irrigation',    icon: '💧' },
+  { value: 'transport',     icon: '🚚' },
+  { value: 'other_expense', icon: '📦' },
 ];
 
 const INCOME_CATEGORIES = [
-  { value: 'mandi_sale',   label: '🏪 Mandi Sale' },
-  { value: 'subsidy',      label: '🏛️ Subsidy' },
-  { value: 'other_income', label: '💰 Other Income' },
+  { value: 'mandi_sale',   icon: '🏪' },
+  { value: 'subsidy',      icon: '🏛️' },
+  { value: 'other_income', icon: '💰' },
 ];
 
 // ── Shared input style ─────────────────────────────────────────
@@ -44,6 +45,7 @@ const ADD_NEW_VALUE = '__add_new__';
 const ADD_CUSTOM_VALUE = '__add_custom__';
 
 const TransactionForm = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const { activeFarm } = useActiveFarm();
   const addMutation = useAddTransaction();
   const createLaborerMutation = useCreateLaborer();
@@ -192,12 +194,12 @@ const TransactionForm = ({ isOpen, onClose }) => {
             className="text-lg font-bold font-serif-accent"
             style={{ color: 'var(--color-forest)' }}
           >
-            Add Transaction
+            {t('khata.form.title')}
           </h2>
           <button
             onClick={onClose}
             className="p-2 rounded-full hover:bg-stone-200 active:bg-stone-300 transition-colors"
-            aria-label="Close"
+            aria-label={t('khata.form.close')}
           >
             <X size={20} className="text-stone-500" />
           </button>
@@ -220,7 +222,7 @@ const TransactionForm = ({ isOpen, onClose }) => {
                 : { background: '#e7e2db' }
               }
             >
-              ↗ Kharcha
+              ↗ {t('khata.form.kharcha')}
             </button>
             <button
               type="button"
@@ -235,14 +237,14 @@ const TransactionForm = ({ isOpen, onClose }) => {
                 : { background: '#e7e2db' }
               }
             >
-              ↙ Amdani
+              ↙ {t('khata.form.amdani')}
             </button>
           </div>
 
           {/* ── Amount ───────────────────────────────────── */}
           <div>
             <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
-              <IndianRupee size={14} /> Amount
+              <IndianRupee size={14} /> {t('khata.form.amount')}
             </label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-stone-400">₹</span>
@@ -264,7 +266,7 @@ const TransactionForm = ({ isOpen, onClose }) => {
           {/* ── Category ─────────────────────────────────── */}
           <div>
             <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
-              <Tag size={14} /> Category
+              <Tag size={14} /> {t('khata.form.category')}
             </label>
             <select
               value={category}
@@ -273,12 +275,12 @@ const TransactionForm = ({ isOpen, onClose }) => {
               className={`${inputClass} appearance-none`}
               style={inputStyle}
             >
-              <option value="" disabled>Select a category...</option>
+              <option value="" disabled>{t('khata.form.selectCategory')}</option>
               {categories.map((cat) => (
-                <option key={cat.value} value={cat.value}>{cat.label}</option>
+                <option key={cat.value} value={cat.value}>{cat.icon} {t(`khata.categories.${cat.value}`)}</option>
               ))}
               <option value={ADD_CUSTOM_VALUE} style={{ fontWeight: 'bold', color: '#166534' }}>
-                ＋ Add Custom Category
+                {t('khata.form.addCustomCategory')}
               </option>
             </select>
 
@@ -289,13 +291,13 @@ const TransactionForm = ({ isOpen, onClose }) => {
                 style={{ animationDuration: '0.2s' }}
               >
                 <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
-                  Custom Category Name
+                  {t('khata.form.customCategoryName')}
                 </label>
                 <input
                   type="text"
                   value={customCategoryName}
                   onChange={(e) => setCustomCategoryName(e.target.value)}
-                  placeholder="e.g. Electricity, Cow Feed, Seedlings"
+                  placeholder={t('khata.form.customPlaceholder')}
                   maxLength={50}
                   required
                   className={inputClass}
@@ -312,7 +314,7 @@ const TransactionForm = ({ isOpen, onClose }) => {
               style={{ animationDuration: '0.2s' }}
             >
               <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
-                <Users size={14} /> Select Laborer (Majdoor)
+                <Users size={14} /> {t('khata.form.selectLaborer')}
               </label>
               <select
                 id="laborer-select"
@@ -322,16 +324,16 @@ const TransactionForm = ({ isOpen, onClose }) => {
                 style={inputStyle}
               >
                 <option value="" disabled>
-                  {laborersLoading ? 'Loading laborers…' : 'Choose a laborer…'}
+                  {laborersLoading ? t('khata.form.loadingLaborers') : t('khata.form.chooseLaborer')}
                 </option>
-                <option value="general">🏗️ Other / General</option>
+                <option value="general">🏗️ {t('khata.form.otherGeneral')}</option>
                 {laborers.map((lab) => (
                   <option key={lab.id} value={lab.id}>
                     👷 {lab.name}{lab.phone_number ? ` (${lab.phone_number})` : ''}
                   </option>
                 ))}
                 <option value={ADD_NEW_VALUE} style={{ fontWeight: 'bold', color: '#166534' }}>
-                  ＋ Add New Majdoor
+                  {t('khata.form.addNewMajdoor')}
                 </option>
               </select>
 
@@ -348,7 +350,7 @@ const TransactionForm = ({ isOpen, onClose }) => {
                   <div className="flex items-center gap-1.5 mb-2">
                     <UserPlus size={14} className="text-emerald-700" />
                     <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
-                      New Laborer
+                      {t('khata.form.newLaborer')}
                     </span>
                   </div>
                   <div className="flex gap-2">
@@ -356,7 +358,7 @@ const TransactionForm = ({ isOpen, onClose }) => {
                       type="text"
                       value={newLaborerName}
                       onChange={(e) => setNewLaborerName(e.target.value)}
-                      placeholder="Enter Laborer Name"
+                      placeholder={t('khata.form.laborerNamePlaceholder')}
                       maxLength={150}
                       autoFocus
                       className={`${inputClass} flex-1 py-2.5 text-sm`}
@@ -383,12 +385,12 @@ const TransactionForm = ({ isOpen, onClose }) => {
                       ) : (
                         <Check size={14} strokeWidth={3} />
                       )}
-                      Save
+                      {t('khata.form.save')}
                     </button>
                   </div>
                   {createLaborerMutation.isError && (
                     <p className="text-xs text-red-500 mt-1.5 pl-1">
-                      Failed to create. Please try again.
+                      {t('khata.form.createFailed')}
                     </p>
                   )}
                 </div>
@@ -396,7 +398,7 @@ const TransactionForm = ({ isOpen, onClose }) => {
 
               {laborers.length === 0 && !laborersLoading && !isAddingLaborer && (
                 <p className="text-xs text-stone-400 mt-1.5 pl-1">
-                  No laborers registered yet. Use "+ Add New Majdoor" above or save as general labor.
+                  {t('khata.form.noLaborers')}
                 </p>
               )}
             </div>
@@ -405,7 +407,7 @@ const TransactionForm = ({ isOpen, onClose }) => {
           {/* ── Date ─────────────────────────────────────── */}
           <div>
             <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
-              <Calendar size={14} /> Date
+              <Calendar size={14} /> {t('khata.form.date')}
             </label>
             <input
               type="date"
@@ -420,13 +422,13 @@ const TransactionForm = ({ isOpen, onClose }) => {
           {/* ── Note ─────────────────────────────────────── */}
           <div>
             <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
-              <FileText size={14} /> Note (optional)
+              <FileText size={14} /> {t('khata.form.noteOptional')}
             </label>
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g. 2 bags of DAP fertilizer"
+              placeholder={t('khata.form.notePlaceholder')}
               maxLength={255}
               className={inputClass}
               style={inputStyle}
@@ -455,16 +457,16 @@ const TransactionForm = ({ isOpen, onClose }) => {
             {addMutation.isPending ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                Saving...
+                {t('khata.form.saving')}
               </span>
             ) : (
-              `Save ${type === 'expense' ? 'Kharcha' : 'Amdani'}`
+              type === 'expense' ? t('khata.form.saveKharcha') : t('khata.form.saveAmdani')
             )}
           </button>
 
           {addMutation.isError && (
             <p className="text-center text-sm text-red-500 bg-red-50 rounded-xl py-2 px-3">
-              Failed to save. Please try again.
+              {t('khata.form.saveFailed')}
             </p>
           )}
         </form>

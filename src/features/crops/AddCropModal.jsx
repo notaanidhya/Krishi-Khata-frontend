@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Sprout, Search, Calendar, ChevronDown, Loader2 } from 'lucide-react';
 import { useCropPresets, useCreateCrop } from '../../hooks/useCrop';
 
@@ -16,6 +17,7 @@ const inputStyle = {
 };
 
 const AddCropModal = ({ isOpen, onClose, farmId }) => {
+  const { t } = useTranslation();
   const [cropName, setCropName] = useState('');
   const [plantingDate, setPlantingDate] = useState(new Date().toISOString().split('T')[0]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -84,9 +86,9 @@ const AddCropModal = ({ isOpen, onClose, farmId }) => {
                 className="text-lg font-bold font-serif-accent"
                 style={{ color: 'var(--color-forest)' }}
               >
-                Nayi Fasal Lagao
+                {t('crops.plantNew')}
               </h3>
-              <p className="text-[11px] text-stone-400 font-medium">Start a new crop cycle</p>
+              <p className="text-[11px] text-stone-400 font-medium">{t('crops.newCycleSubtitle')}</p>
             </div>
           </div>
           <button
@@ -101,7 +103,7 @@ const AddCropModal = ({ isOpen, onClose, farmId }) => {
           {/* Crop Name */}
           <div ref={dropdownRef} className="relative">
             <label className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1.5 block">
-              Crop Name
+              {t('crops.cropName')}
             </label>
             <div className="relative">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400">
@@ -113,7 +115,7 @@ const AddCropModal = ({ isOpen, onClose, farmId }) => {
                 value={cropName}
                 onChange={(e) => { setCropName(e.target.value); setShowDropdown(true); }}
                 onFocus={() => setShowDropdown(true)}
-                placeholder="Search or type crop name..."
+                placeholder={t('crops.searchPlaceholder')}
                 className="w-full pl-10 pr-10 py-3 rounded-xl text-sm font-medium placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-emerald-700/25 border-2 transition-all"
                 style={{ ...inputStyle, borderColor: '#d6cfc6' }}
                 autoComplete="off"
@@ -157,7 +159,7 @@ const AddCropModal = ({ isOpen, onClose, farmId }) => {
           {/* Planting Date */}
           <div>
             <label className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1.5 block">
-              Planting Date
+              {t('crops.plantingDate')}
             </label>
             <div className="relative">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400">
@@ -178,7 +180,7 @@ const AddCropModal = ({ isOpen, onClose, farmId }) => {
           {createCropMutation.isError && (
             <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3">
               <p className="text-xs text-red-500 font-medium">
-                {createCropMutation.error?.response?.data?.detail || 'Failed to create crop. Please try again.'}
+                {createCropMutation.error?.response?.data?.detail || t('crops.createFailed')}
               </p>
             </div>
           )}
@@ -194,9 +196,9 @@ const AddCropModal = ({ isOpen, onClose, farmId }) => {
             }}
           >
             {createCropMutation.isPending ? (
-              <><Loader2 size={16} className="animate-spin" />Planting...</>
+              <><Loader2 size={16} className="animate-spin" />{t('crops.planting')}</>
             ) : (
-              <><Sprout size={16} />Plant Crop</>
+              <><Sprout size={16} />{t('crops.plantCrop')}</>
             )}
           </button>
         </form>

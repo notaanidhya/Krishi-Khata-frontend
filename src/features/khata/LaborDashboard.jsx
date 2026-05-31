@@ -16,6 +16,7 @@ import {
   Wallet, ArrowDownRight, ArrowUpRight, Calendar, X, Check,
   UserCheck, Clock, Banknote,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useActiveFarm } from '../../context/ActiveFarmContext';
 import { useLaborers } from '../../hooks/useFarm';
 import { useTransactionsByLaborer, useSettleLaborer } from '../../hooks/useKhata';
@@ -31,6 +32,7 @@ const formatDate = (dateStr) =>
 //  SETTLEMENT MODAL — Pay laborer prompt
 // ═══════════════════════════════════════════════════════════════
 const SettlementModal = ({ laborer, farmId, onClose }) => {
+  const { t } = useTranslation();
   const settleMutation = useSettleLaborer();
   const [payAmount, setPayAmount] = useState(
     laborer.current_balance > 0 ? String(laborer.current_balance) : ''
@@ -72,7 +74,7 @@ const SettlementModal = ({ laborer, farmId, onClose }) => {
         >
           <div className="flex items-center gap-2 text-white">
             <Banknote size={20} className="text-amber-300" />
-            <h3 className="font-bold font-serif-accent">Pay Laborer</h3>
+            <h3 className="font-bold font-serif-accent">{t('labor.payLaborer')}</h3>
           </div>
           <button
             onClick={onClose}
@@ -99,7 +101,7 @@ const SettlementModal = ({ laborer, farmId, onClose }) => {
                 {laborer.name}
               </p>
               <p className="text-xs text-stone-500">
-                Balance: <span className="font-bold text-red-500">{formatINR(laborer.current_balance)}</span>
+                {t('labor.balance')}: <span className="font-bold text-red-500">{formatINR(laborer.current_balance)}</span>
               </p>
             </div>
           </div>
@@ -107,7 +109,7 @@ const SettlementModal = ({ laborer, farmId, onClose }) => {
           {/* Payment Amount */}
           <div>
             <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
-              <IndianRupee size={14} /> Payment Amount
+              <IndianRupee size={14} /> {t('labor.paymentAmount')}
             </label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-stone-400">₹</span>
@@ -131,7 +133,7 @@ const SettlementModal = ({ laborer, farmId, onClose }) => {
                 onClick={() => setPayAmount(String(laborer.current_balance))}
                 className="text-xs text-emerald-700 font-bold mt-1.5 hover:underline"
               >
-                Pay full amount: {formatINR(laborer.current_balance)}
+                {t('labor.payFullAmount')} {formatINR(laborer.current_balance)}
               </button>
             )}
           </div>
@@ -144,7 +146,7 @@ const SettlementModal = ({ laborer, farmId, onClose }) => {
               className="flex-1 py-3 rounded-xl font-bold text-sm text-stone-500 transition-all hover:bg-stone-200 active:scale-[0.97]"
               style={{ background: '#e7e2db' }}
             >
-              Cancel
+              {t('labor.cancel')}
             </button>
             <button
               type="submit"
@@ -158,12 +160,12 @@ const SettlementModal = ({ laborer, farmId, onClose }) => {
               {settleMutation.isPending ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  Paying...
+                  {t('labor.paying')}
                 </>
               ) : (
                 <>
                   <Check size={16} strokeWidth={3} />
-                  Pay Now
+                  {t('labor.payNow')}
                 </>
               )}
             </button>
@@ -171,7 +173,7 @@ const SettlementModal = ({ laborer, farmId, onClose }) => {
 
           {settleMutation.isError && (
             <p className="text-center text-sm text-red-500 bg-red-50 rounded-xl py-2 px-3">
-              Payment failed. Please try again.
+              {t('labor.paymentFailed')}
             </p>
           )}
         </form>
@@ -184,6 +186,7 @@ const SettlementModal = ({ laborer, farmId, onClose }) => {
 //  LABORER DETAIL — Transaction ledger for a single laborer
 // ═══════════════════════════════════════════════════════════════
 const LaborerDetail = ({ laborer, farmId, onBack }) => {
+  const { t } = useTranslation();
   const { data: transactions = [], isLoading } = useTransactionsByLaborer(farmId, laborer.id);
   const [showSettleModal, setShowSettleModal] = useState(false);
 
@@ -198,7 +201,7 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
         style={{ color: 'var(--color-forest)' }}
       >
         <ChevronLeft size={18} strokeWidth={2.5} />
-        Back to All Laborers
+        {t('labor.backToAll')}
       </button>
 
       {/* Laborer Header Card */}
@@ -235,7 +238,7 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
           <div className="flex items-center gap-2">
             <Wallet size={16} className={isSettled ? 'text-emerald-300' : 'text-amber-300'} />
             <span className="text-xs font-bold uppercase tracking-wider opacity-80">
-              {isSettled ? 'All Settled ✓' : 'Balance Due'}
+              {isSettled ? t('labor.allSettled') : t('labor.balanceDue')}
             </span>
           </div>
           <p className="text-2xl font-black tracking-tight">
@@ -255,14 +258,14 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
           }}
         >
           <Banknote size={20} />
-          Pay {laborer.name}
+          {t('labor.pay')} {laborer.name}
         </button>
       )}
 
       {/* Transaction Ledger */}
       <div>
         <h3 className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-3">
-          Transaction History
+          {t('labor.transactionHistory')}
         </h3>
 
         {isLoading && (
@@ -279,7 +282,7 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
             >
               <Clock size={24} className="text-emerald-600" />
             </div>
-            <p className="text-sm text-stone-400">No transactions yet for {laborer.name}.</p>
+            <p className="text-sm text-stone-400">{t('labor.noTransactions', { name: laborer.name })}</p>
           </div>
         )}
 
@@ -320,7 +323,7 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
                       className={`font-bold text-sm ${isPaidOff ? 'line-through' : ''}`}
                       style={{ color: 'var(--color-forest)' }}
                     >
-                      {isPayment ? 'Payment Made' : 'Work Day / Wage'}
+                      {isPayment ? t('labor.paymentMade') : t('labor.workDayWage')}
                     </p>
                     {txn.description && (
                       <p className="text-xs text-stone-400 truncate">{txn.description}</p>
@@ -360,6 +363,7 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
 //  LABORER CARD — Grid card for the overview
 // ═══════════════════════════════════════════════════════════════
 const LaborerCard = ({ laborer, onClick }) => {
+  const { t } = useTranslation();
   const isSettled = laborer.current_balance <= 0;
   const initial = laborer.name.charAt(0).toUpperCase();
 
@@ -396,7 +400,7 @@ const LaborerCard = ({ laborer, onClick }) => {
               <Clock size={12} className="text-amber-600" />
             )}
             <span className={`text-xs font-semibold ${isSettled ? 'text-emerald-600' : 'text-amber-600'}`}>
-              {isSettled ? 'Settled' : 'Due'}
+              {isSettled ? t('labor.settled') : t('labor.due')}
             </span>
           </div>
         </div>
@@ -407,7 +411,7 @@ const LaborerCard = ({ laborer, onClick }) => {
             {formatINR(Math.abs(laborer.current_balance))}
           </p>
           <p className="text-[10px] text-stone-400 uppercase font-bold tracking-wide">
-            {isSettled ? 'clear' : 'owed'}
+            {isSettled ? t('labor.clear') : t('labor.owed')}
           </p>
         </div>
       </div>
@@ -419,6 +423,7 @@ const LaborerCard = ({ laborer, onClick }) => {
 //  LABOR DASHBOARD — Main exported component
 // ═══════════════════════════════════════════════════════════════
 const LaborDashboard = () => {
+  const { t } = useTranslation();
   const { activeFarm } = useActiveFarm();
   const farmId = activeFarm?.id || null;
   const { data: laborers = [], isLoading, isError } = useLaborers(farmId);
@@ -458,12 +463,12 @@ const LaborDashboard = () => {
             className="text-xs font-bold uppercase tracking-widest"
             style={{ color: 'rgba(196,181,253,0.8)' }}
           >
-            Labor Hisab
+            {t('labor.title')}
           </span>
         </div>
         <p className="text-3xl font-black mb-4 tracking-tight text-white">
           {formatINR(totalOwed)}
-          <span className="text-sm font-normal ml-2 opacity-60">total due</span>
+          <span className="text-sm font-normal ml-2 opacity-60">{t('labor.totalDue')}</span>
         </p>
 
         <div className="grid grid-cols-2 gap-3">
@@ -473,7 +478,7 @@ const LaborDashboard = () => {
           >
             <div className="flex items-center gap-1.5 mb-1">
               <Clock size={14} className="text-amber-300" />
-              <span className="text-[11px] font-bold uppercase tracking-wide text-amber-200">Pending</span>
+              <span className="text-[11px] font-bold uppercase tracking-wide text-amber-200">{t('labor.pending')}</span>
             </div>
             <p className="text-xl font-bold text-white">{pendingCount}</p>
           </div>
@@ -483,7 +488,7 @@ const LaborDashboard = () => {
           >
             <div className="flex items-center gap-1.5 mb-1">
               <UserCheck size={14} className="text-emerald-300" />
-              <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-200">Settled</span>
+              <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-200">{t('labor.settled')}</span>
             </div>
             <p className="text-xl font-bold text-white">{settledCount}</p>
           </div>
@@ -493,7 +498,7 @@ const LaborDashboard = () => {
       {/* ── Laborer List ──────────────────────────────── */}
       <div>
         <h2 className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-3">
-          Your Laborers ({laborers.length})
+          {t('labor.yourLaborers', { count: laborers.length })}
         </h2>
 
         {isLoading && (
@@ -505,7 +510,7 @@ const LaborDashboard = () => {
         {isError && (
           <div className="flex items-center gap-2 bg-red-50 text-red-600 p-4 rounded-2xl border border-red-100">
             <AlertCircle size={18} />
-            <p className="text-sm">Failed to load laborers. Pull down to retry.</p>
+            <p className="text-sm">{t('labor.errorLoad')}</p>
           </div>
         )}
 
@@ -518,10 +523,10 @@ const LaborDashboard = () => {
               <Users size={28} className="text-emerald-600" />
             </div>
             <h3 className="font-bold mb-1" style={{ color: 'var(--color-forest)' }}>
-              No laborers yet
+              {t('labor.emptyTitle')}
             </h3>
             <p className="text-sm text-stone-400 max-w-[260px]">
-              Add a laborer when recording a labor expense in the transaction form.
+              {t('labor.emptyText')}
             </p>
           </div>
         )}
