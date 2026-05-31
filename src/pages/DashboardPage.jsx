@@ -11,6 +11,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, BookOpen, ArrowRight, CalendarDays } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useWeather, useMandiPrices } from '../hooks/useDashboard';
@@ -27,12 +28,12 @@ const formatINR = (value) =>
   }).format(value);
 
 // ── Get greeting based on time ──────────────────────────────────
-const getGreeting = () => {
+const getGreetingKey = () => {
   const hour = new Date().getHours();
-  if (hour < 5)  return 'Good Night 🌙';
-  if (hour < 12) return 'Namaste 🌅';
-  if (hour < 17) return 'Good Afternoon ☀️';
-  return 'Shubh Sandhya 🌆';
+  if (hour < 5)  return 'dashboard.greetNight';
+  if (hour < 12) return 'dashboard.greetMorning';
+  if (hour < 17) return 'dashboard.greetAfternoon';
+  return 'dashboard.greetEvening';
 };
 
 // ── Format today's date ─────────────────────────────────────────
@@ -45,6 +46,7 @@ const formatToday = () =>
 //  KHATA MINI SUMMARY — Tactile bento tiles
 // ═══════════════════════════════════════════════════════════════
 const KhataMiniSummary = ({ summary, isLoading, onViewAll }) => {
+  const { t } = useTranslation();
   if (isLoading) {
     return (
       <div className="krishi-card p-4 animate-pulse">
@@ -70,14 +72,14 @@ const KhataMiniSummary = ({ summary, isLoading, onViewAll }) => {
         <div className="flex items-center gap-2">
           <BookOpen size={16} className="text-emerald-700" />
           <h2 className="text-xs font-bold uppercase tracking-wider" style={{ color: '#6b7280' }}>
-            Khata Summary
+            {t('dashboard.khataSummary')}
           </h2>
         </div>
         <button
           onClick={onViewAll}
           className="flex items-center gap-1 text-[11px] font-semibold text-emerald-700 hover:text-emerald-800 transition-colors"
         >
-          View All <ArrowRight size={12} />
+          {t('dashboard.viewAll')} <ArrowRight size={12} />
         </button>
       </div>
 
@@ -89,7 +91,7 @@ const KhataMiniSummary = ({ summary, isLoading, onViewAll }) => {
           style={{ background: 'linear-gradient(135deg, #ecfdf5, #d1fae5)', border: '1px solid #a7f3d0' }}
         >
           <p className="text-[10px] uppercase font-bold text-emerald-700 tracking-wider mb-1.5">
-            Income
+            {t('dashboard.income')}
           </p>
           <p className="text-sm font-extrabold text-emerald-900 leading-tight">
             {formatINR(data.total_income)}
@@ -101,7 +103,7 @@ const KhataMiniSummary = ({ summary, isLoading, onViewAll }) => {
           style={{ background: 'linear-gradient(135deg, #fff1f2, #ffe4e6)', border: '1px solid #fecdd3' }}
         >
           <p className="text-[10px] uppercase font-bold text-red-600 tracking-wider mb-1.5">
-            Kharcha
+            {t('dashboard.kharcha')}
           </p>
           <p className="text-sm font-extrabold text-red-700 leading-tight">
             {formatINR(data.total_expense)}
@@ -119,7 +121,7 @@ const KhataMiniSummary = ({ summary, isLoading, onViewAll }) => {
         >
           <p className="text-[10px] uppercase font-bold tracking-wider mb-1.5"
             style={{ color: data.net_profit >= 0 ? '#92400e' : '#9a3412' }}>
-            Munafa
+            {t('dashboard.munafa')}
           </p>
           <p className="text-sm font-extrabold leading-tight"
             style={{ color: data.net_profit >= 0 ? '#78350f' : '#7c2d12' }}>
@@ -135,6 +137,7 @@ const KhataMiniSummary = ({ summary, isLoading, onViewAll }) => {
 //  DASHBOARD PAGE
 // ═══════════════════════════════════════════════════════════════
 const DashboardPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { activeFarm } = useActiveFarm();
   const farmId = activeFarm?.id || null;
@@ -152,7 +155,7 @@ const DashboardPage = () => {
           className="text-2xl font-extrabold leading-tight"
           style={{ color: 'var(--color-forest)' }}
         >
-          {getGreeting()}
+          {t(getGreetingKey())}
         </h2>
         <div className="flex items-center gap-1.5 mt-1" style={{ color: '#9ca3af' }}>
           <CalendarDays size={13} />
@@ -184,7 +187,7 @@ const DashboardPage = () => {
         }}
       >
         <Plus size={22} strokeWidth={3} />
-        Quick Add Expense / Income
+        {t('dashboard.quickAdd')}
       </button>
     </div>
   );

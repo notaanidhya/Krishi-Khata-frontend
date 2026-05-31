@@ -12,6 +12,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   CloudSun, Sparkles, Droplets, Sprout,
   Wind, Thermometer, Loader2, CloudOff,
@@ -38,21 +39,21 @@ const getSprayStyle = (status) => {
         bg: 'linear-gradient(135deg, #ecfdf5, #d1fae5)',
         border: '1.5px solid #6ee7b7',
         badgeBg: '#059669', badgeText: '#fff',
-        label: '✓ Optimal', textColor: '#065f46',
+        label: 'weather.optimal', textColor: '#065f46',
       };
     case 'YELLOW':
       return {
         bg: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
         border: '1.5px solid #fcd34d',
         badgeBg: '#d97706', badgeText: '#fff',
-        label: '⚠ Caution', textColor: '#92400e',
+        label: 'weather.caution', textColor: '#92400e',
       };
     case 'RED':
       return {
         bg: 'linear-gradient(135deg, #fef2f2, #fee2e2)',
         border: '1.5px solid #fca5a5',
         badgeBg: '#dc2626', badgeText: '#fff',
-        label: '✕ Avoid', textColor: '#991b1b',
+        label: 'weather.avoid', textColor: '#991b1b',
       };
     default:
       return {
@@ -79,6 +80,7 @@ const getRainColor = (pct) => {
 
 
 const WeatherPage = () => {
+  const { t } = useTranslation();
   const { activeFarm } = useActiveFarm();
   const { data, isLoading, isError } = useWeatherDashboard(
     activeFarm?.latitude,
@@ -92,7 +94,7 @@ const WeatherPage = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-6">
         <Loader2 size={28} className="text-emerald-700 animate-spin mb-3" />
-        <p className="text-stone-400 text-sm font-medium">Loading weather data...</p>
+        <p className="text-stone-400 text-sm font-medium">{t('weather.loading')}</p>
       </div>
     );
   }
@@ -104,8 +106,8 @@ const WeatherPage = () => {
         <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mb-4">
           <CloudOff size={28} className="text-stone-300" />
         </div>
-        <p className="text-stone-500 text-sm font-bold mb-1">Could not load weather data</p>
-        <p className="text-stone-400 text-xs">Check your internet connection and try again.</p>
+        <p className="text-stone-500 text-sm font-bold mb-1">{t('weather.errorTitle')}</p>
+        <p className="text-stone-400 text-xs">{t('weather.errorText')}</p>
       </div>
     );
   }
@@ -130,7 +132,7 @@ const WeatherPage = () => {
             className="text-lg font-bold font-serif-accent leading-tight"
             style={{ color: 'var(--color-forest)' }}
           >
-            Mausam
+            {t('weather.title')}
           </h2>
           <p className="text-xs text-stone-400 font-medium">
             {location?.city || 'Local'}, {location?.state || ''}
@@ -161,11 +163,11 @@ const WeatherPage = () => {
         </div>
         <div className="flex gap-2">
           <div className="px-2.5 py-1.5 rounded-lg text-center" style={{ background: '#f0f9ff', border: '1px solid #bae6fd' }}>
-            <p className="text-[9px] text-sky-400 font-bold uppercase tracking-wider">Humidity</p>
+            <p className="text-[9px] text-sky-400 font-bold uppercase tracking-wider">{t('weather.humidity')}</p>
             <p className="text-xs font-extrabold text-sky-600">{current?.humidity_pct ?? '--'}%</p>
           </div>
           <div className="px-2.5 py-1.5 rounded-lg text-center" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
-            <p className="text-[9px] text-emerald-400 font-bold uppercase tracking-wider">Wind</p>
+            <p className="text-[9px] text-emerald-400 font-bold uppercase tracking-wider">{t('weather.wind')}</p>
             <p className="text-xs font-extrabold text-emerald-600">{current?.wind_speed_kmh ?? '--'} km/h</p>
           </div>
         </div>
@@ -189,11 +191,11 @@ const WeatherPage = () => {
               style={{ background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.3)' }}
             >
               <Sparkles size={11} className="text-amber-400" />
-              <span className="text-[9px] font-bold text-amber-400 uppercase tracking-wider">AI Advisory</span>
+              <span className="text-[9px] font-bold text-amber-400 uppercase tracking-wider">{t('weather.aiAdvisory')}</span>
             </div>
           </div>
           <p className="text-sm text-white/90 leading-relaxed font-medium">
-            {ai_summary || 'Weather analysis loading...'}
+            {ai_summary || t('weather.analysisLoading')}
           </p>
         </div>
       </div>
@@ -212,9 +214,9 @@ const WeatherPage = () => {
           </div>
           <div>
             <h4 className="text-sm font-bold font-serif-accent" style={{ color: 'var(--color-forest)' }}>
-              Spraying Windows (कीटनाशक छिड़काव)
+              {t('weather.sprayingTitle')}
             </h4>
-            <p className="text-[10px] text-stone-400 font-medium">Today's safe spraying schedule</p>
+            <p className="text-[10px] text-stone-400 font-medium">{t('weather.sprayingSubtitle')}</p>
           </div>
         </div>
 
@@ -233,7 +235,7 @@ const WeatherPage = () => {
                   className="inline-block px-2 py-0.5 rounded-md text-[9px] font-bold mb-2"
                   style={{ background: s.badgeBg, color: s.badgeText }}
                 >
-                  {s.label}
+                  {t(s.label)}
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center gap-1">
@@ -265,9 +267,9 @@ const WeatherPage = () => {
           </div>
           <div>
             <h4 className="text-sm font-bold font-serif-accent" style={{ color: 'var(--color-forest)' }}>
-              Soil & Water (मिट्टी और पानी)
+              {t('weather.soilTitle')}
             </h4>
-            <p className="text-[10px] text-stone-400 font-medium">How fast water is evaporating today</p>
+            <p className="text-[10px] text-stone-400 font-medium">{t('weather.soilSubtitle')}</p>
           </div>
         </div>
 
@@ -277,17 +279,17 @@ const WeatherPage = () => {
             className="rounded-xl p-3"
             style={{ background: 'linear-gradient(135deg, #fdf4ff, #fae8ff)', border: '1.5px solid #e9d5ff' }}
           >
-            <p className="text-[9px] text-purple-400 font-bold uppercase tracking-wider mb-1">Today's ET₀</p>
+            <p className="text-[9px] text-purple-400 font-bold uppercase tracking-wider mb-1">{t('weather.et0Today')}</p>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-black text-purple-700">
                 {soil_insights?.et0_today_mm ?? '--'}
               </span>
-              <span className="text-[10px] font-bold text-purple-400">mm/day</span>
+              <span className="text-[10px] font-bold text-purple-400">{t('weather.mmPerDay')}</span>
             </div>
             <div className="mt-2 flex items-center gap-1">
               <Thermometer size={10} className="text-purple-300" />
               <span className="text-[9px] text-purple-400 font-semibold">
-                7-day avg: {soil_insights?.et0_7day_avg_mm ?? '--'} mm
+                {t('weather.et07dayAvg', { value: soil_insights?.et0_7day_avg_mm ?? '--' })}
               </span>
             </div>
           </div>
@@ -301,7 +303,7 @@ const WeatherPage = () => {
                 style={{ background: mc.bg, border: `1.5px solid ${mc.border}` }}
               >
                 <p className="text-[9px] font-bold uppercase tracking-wider mb-1" style={{ color: mc.text, opacity: 0.7 }}>
-                  Moisture
+                  {t('weather.moisture')}
                 </p>
                 <div
                   className="inline-block px-2 py-0.5 rounded-md text-xs font-bold mb-2"
@@ -332,7 +334,7 @@ const WeatherPage = () => {
           </div>
           <div>
             <h4 className="text-sm font-bold font-serif-accent" style={{ color: 'var(--color-forest)' }}>
-              7-Day Forecast (7 दिन का पूर्वानुमान)
+              {t('weather.forecastTitle')}
             </h4>
           </div>
         </div>
@@ -356,7 +358,7 @@ const WeatherPage = () => {
                 <div className="w-12 text-center shrink-0">
                   <span className="text-lg leading-none">{getWeatherEmoji(day.condition)}</span>
                   <p className="text-[9px] font-bold text-stone-500 mt-0.5 uppercase tracking-wider">
-                    {isToday ? 'Today' : day.day_name?.slice(0, 3)}
+                    {isToday ? t('weather.today') : day.day_name?.slice(0, 3)}
                   </p>
                 </div>
 
@@ -386,7 +388,7 @@ const WeatherPage = () => {
                   <p className="text-[9px] font-bold" style={{ color: rain.text }}>
                     {day.precip_probability_pct}%
                   </p>
-                  <p className="text-[7px] font-semibold text-stone-400">rain</p>
+                  <p className="text-[7px] font-semibold text-stone-400">{t('weather.rain')}</p>
                 </div>
               </div>
             );

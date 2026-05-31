@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Send, Paperclip, X, Loader2, Users, Wifi, WifiOff } from 'lucide-react';
 import { getChatHistory, uploadChatImage } from '../api/chat';
@@ -20,6 +21,7 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (
 const BACKEND_BASE = apiBaseUrl;
 
 const CommunityPage = () => {
+  const { t } = useTranslation();
   const deviceId = localStorage.getItem('agroo_device_id');
   const userName  = localStorage.getItem('agroo_user_name');
 
@@ -65,7 +67,8 @@ const CommunityPage = () => {
       }
 
       const wsBaseUrl = apiBaseUrl.replace(/^http/, 'ws');
-      const wsUrl = `${wsBaseUrl}/api/v1/chat/ws/chat?token=${token}`;
+      const lang = localStorage.getItem('i18nextLng') || 'en';
+      const wsUrl = `${wsBaseUrl}/api/v1/chat/ws/chat?token=${token}&lang=${lang}`;
 
       ws = new WebSocket(wsUrl);
       ws.onopen  = () => setIsConnected(true);
@@ -99,8 +102,8 @@ const CommunityPage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowed.includes(file.type)) { alert('Please select an image file (JPG, PNG, GIF, or WEBP)'); return; }
-    if (file.size > 5 * 1024 * 1024)  { alert('Image must be under 5MB'); return; }
+    if (!allowed.includes(file.type)) { alert(t('community.imageError')); return; }
+    if (file.size > 5 * 1024 * 1024)  { alert(t('community.imageSizeError')); return; }
     setSelectedImage(file);
     setImagePreview(URL.createObjectURL(file));
   };
@@ -180,9 +183,9 @@ const CommunityPage = () => {
               style={{ color: 'var(--color-forest)' }}
             >
               <Users size={20} className="text-amber-600" />
-              Kisan Chaupal
+              {t('community.title')}
             </h1>
-            <p className="text-xs text-stone-400 mt-0.5">Share tips, ask questions, help each other</p>
+            <p className="text-xs text-stone-400 mt-0.5">{t('community.subtitle')}</p>
           </div>
           <div className="flex items-center gap-1.5">
             {isConnected
@@ -190,7 +193,7 @@ const CommunityPage = () => {
               : <WifiOff size={14} className="text-red-400" />
             }
             <span className={`text-[10px] font-bold ${isConnected ? 'text-emerald-700' : 'text-red-400'}`}>
-              {isConnected ? 'LIVE' : 'OFFLINE'}
+              {isConnected ? t('community.live') : t('community.offline')}
             </span>
           </div>
         </div>
@@ -201,8 +204,8 @@ const CommunityPage = () => {
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-stone-400">
             <Users size={48} className="mb-3 opacity-20" />
-            <p className="text-sm font-medium">No messages yet</p>
-            <p className="text-xs">Be the first to say hello! 👋</p>
+            <p className="text-sm font-medium">{t('community.noMessages')}</p>
+            <p className="text-xs">{t('community.firstHello')} 👋</p>
           </div>
         )}
 
@@ -247,7 +250,7 @@ const CommunityPage = () => {
                       className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
                       style={{ background: '#ecfdf5', color: '#166534' }}
                     >
-                      Kisan
+                      {t('community.kisan')}
                     </span>
                   </div>
                 )}
@@ -317,7 +320,7 @@ const CommunityPage = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Kuch poochho ya batao..."
+              placeholder={t('community.inputPlaceholder')}
               disabled={isUploading}
               className="w-full px-4 py-2.5 rounded-full text-sm focus:outline-none focus:ring-2 transition-all"
               style={{

@@ -15,6 +15,7 @@ import {
   Plus, TrendingUp, TrendingDown, Wallet,
   Trash2, Loader2, AlertCircle, BookOpen, Users,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useTransactions, useSummary, useDeleteTransaction } from '../hooks/useKhata';
@@ -48,7 +49,9 @@ const formatDate = (dateStr) =>
 // ═══════════════════════════════════════════════════════════════
 //  TAB TOGGLE — "General Hisab" | "Labor Hisab"
 // ═══════════════════════════════════════════════════════════════
-const TabToggle = ({ activeTab, onTabChange }) => (
+const TabToggle = ({ activeTab, onTabChange }) => {
+  const { t } = useTranslation();
+  return (
   <div
     className="flex rounded-xl p-1 gap-1"
     style={{ background: '#e7e2db' }}
@@ -66,7 +69,7 @@ const TabToggle = ({ activeTab, onTabChange }) => (
       }
     >
       <BookOpen size={16} strokeWidth={activeTab === 'general' ? 2.5 : 2} />
-      General Hisab
+      {t('khata.generalTab')}
     </button>
     <button
       onClick={() => onTabChange('labor')}
@@ -81,15 +84,17 @@ const TabToggle = ({ activeTab, onTabChange }) => (
       }
     >
       <Users size={16} strokeWidth={activeTab === 'labor' ? 2.5 : 2} />
-      Labor Hisab
+      {t('khata.laborTab')}
     </button>
   </div>
-);
+  );
+};
 
 // ═══════════════════════════════════════════════════════════════
 //  SUMMARY CARD — Deep matte forest green, massive numbers
 // ═══════════════════════════════════════════════════════════════
 const SummaryCard = ({ summary, isLoading }) => {
+  const { t } = useTranslation();
   if (isLoading) {
     return (
       <div
@@ -119,7 +124,7 @@ const SummaryCard = ({ summary, isLoading }) => {
       <div className="flex items-center gap-2 mb-1">
         <Wallet size={18} className="text-amber-300" />
         <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(253,230,138,0.8)' }}>
-          Mera Munafa
+          {t('khata.myProfit')}
         </span>
       </div>
       <p className={`text-4xl font-black mb-5 tracking-tight ${data.net_profit < 0 ? 'text-red-300' : 'text-white'}`}>
@@ -134,7 +139,7 @@ const SummaryCard = ({ summary, isLoading }) => {
         >
           <div className="flex items-center gap-1.5 mb-1.5">
             <TrendingUp size={14} className="text-emerald-300" />
-            <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-200">Income</span>
+            <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-200">{t('khata.income')}</span>
           </div>
           <p className="text-xl font-bold text-white">{formatINR(data.total_income)}</p>
         </div>
@@ -144,7 +149,7 @@ const SummaryCard = ({ summary, isLoading }) => {
         >
           <div className="flex items-center gap-1.5 mb-1.5">
             <TrendingDown size={14} className="text-red-300" />
-            <span className="text-[11px] font-bold uppercase tracking-wide text-red-200">Kharcha</span>
+            <span className="text-[11px] font-bold uppercase tracking-wide text-red-200">{t('khata.kharcha')}</span>
           </div>
           <p className="text-xl font-bold text-white">{formatINR(data.total_expense)}</p>
         </div>
@@ -157,7 +162,9 @@ const SummaryCard = ({ summary, isLoading }) => {
 //  TRANSACTION CARD — Clean, precise red/green indicators
 // ═══════════════════════════════════════════════════════════════
 const TransactionCard = ({ txn, onDelete, isDeleting }) => {
+  const { t } = useTranslation();
   const meta = CATEGORY_META[txn.category] || { label: txn.category, icon: '📋' };
+  const catLabel = t(`khata.categories.${txn.category}`, { defaultValue: meta.label });
   const isExpense = txn.type === 'expense' || txn.type === 'labor_wage';
 
   return (
@@ -175,7 +182,7 @@ const TransactionCard = ({ txn, onDelete, isDeleting }) => {
 
       {/* Details */}
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-sm truncate" style={{ color: 'var(--color-forest)' }}>{meta.label}</p>
+        <p className="font-bold text-sm truncate" style={{ color: 'var(--color-forest)' }}>{catLabel}</p>
         {txn.description && (
           <p className="text-xs text-stone-400 truncate">{txn.description}</p>
         )}
@@ -194,7 +201,7 @@ const TransactionCard = ({ txn, onDelete, isDeleting }) => {
         onClick={() => onDelete(txn.id)}
         disabled={isDeleting}
         className="p-2 rounded-lg hover:bg-red-50 active:bg-red-100 transition-colors shrink-0"
-        aria-label="Delete transaction"
+        aria-label={t('khata.deleteLabel')}
       >
         {isDeleting ? (
           <Loader2 size={16} className="text-red-400 animate-spin" />
@@ -207,7 +214,9 @@ const TransactionCard = ({ txn, onDelete, isDeleting }) => {
 };
 
 // ── Empty State ────────────────────────────────────────────────
-const EmptyState = () => (
+const EmptyState = () => {
+  const { t } = useTranslation();
+  return (
   <div className="flex flex-col items-center justify-center py-16 text-center">
     <div
       className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
@@ -215,17 +224,19 @@ const EmptyState = () => (
     >
       <BookOpen size={28} className="text-emerald-600" />
     </div>
-    <h3 className="font-bold mb-1" style={{ color: 'var(--color-forest)' }}>No entries yet</h3>
+    <h3 className="font-bold mb-1" style={{ color: 'var(--color-forest)' }}>{t('khata.emptyTitle')}</h3>
     <p className="text-sm text-stone-400 max-w-[240px]">
-      Tap the button below to record your first income or expense.
+      {t('khata.emptyText')}
     </p>
   </div>
-);
+  );
+};
 
 // ═══════════════════════════════════════════════════════════════
 //  KHATA PAGE
 // ═══════════════════════════════════════════════════════════════
 const KhataPage = () => {
+  const { t } = useTranslation();
   const { activeFarm } = useActiveFarm();
   const farmId = activeFarm?.id || null;
 
@@ -250,7 +261,7 @@ const KhataPage = () => {
         className="text-2xl font-bold font-serif-accent leading-tight"
         style={{ color: 'var(--color-forest)' }}
       >
-        Mera Hisab
+        {t('khata.title')}
       </h1>
 
       {/* ── Tab Toggle ────────────────────────────────────── */}
@@ -272,13 +283,13 @@ const KhataPage = () => {
             }}
           >
             <Plus size={20} strokeWidth={3} />
-            Add Transaction
+            {t('khata.addTransaction')}
           </button>
 
           {/* ── Transaction List ─────────────────────────────── */}
           <div>
             <h2 className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-3">
-              Recent Entries
+              {t('khata.recentEntries')}
             </h2>
 
             {txnLoading && (
@@ -290,7 +301,7 @@ const KhataPage = () => {
             {txnError && (
               <div className="flex items-center gap-2 bg-red-50 text-red-600 p-4 rounded-2xl border border-red-100">
                 <AlertCircle size={18} />
-                <p className="text-sm">Failed to load transactions. Pull down to retry.</p>
+                <p className="text-sm">{t('khata.errorLoad')}</p>
               </div>
             )}
 

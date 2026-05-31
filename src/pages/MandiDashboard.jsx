@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, MapPin, Search, LineChart as LineChartIcon, Sprout, Flame, Database } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useCrops } from '../hooks/useCrop';
 import { getMandiHistory, getMandiMetadata } from '../api/mandi';
@@ -18,6 +19,7 @@ const formatINR = (value) =>
   }).format(value);
 
 const MandiDashboard = () => {
+  const { t } = useTranslation();
   const { activeFarm } = useActiveFarm();
   const farmId = activeFarm?.id;
   
@@ -120,10 +122,10 @@ const MandiDashboard = () => {
           </div>
           <div className="text-center">
             <p className="text-sm font-semibold text-emerald-900">
-              Fetching historical government data…
+              {t('mandi.fetchingData')}
             </p>
             <p className="text-xs text-stone-400 mt-1">
-              Pulling real prices from data.gov.in — this may take a few seconds on the first load.
+              {t('mandi.fetchingSubtext')}
             </p>
           </div>
         </div>
@@ -135,10 +137,10 @@ const MandiDashboard = () => {
         <div className="h-72 flex flex-col items-center justify-center bg-gradient-to-br from-stone-50 to-white rounded-3xl shadow-sm border border-stone-100/50 p-6 text-center">
           <LineChartIcon size={48} className="text-emerald-800/20 mb-4" />
           <h3 className="font-serif-accent text-xl font-bold text-emerald-950 mb-2">
-            Gathering Market Data
+            {t('mandi.gatheringTitle')}
           </h3>
           <p className="text-stone-500 text-sm max-w-sm">
-            Historical data gathering initiated. Check back tomorrow to see price trends for this market.
+            {t('mandi.gatheringText')}
           </p>
         </div>
       );
@@ -169,7 +171,7 @@ const MandiDashboard = () => {
             />
             <Tooltip 
               contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
-              formatter={(value) => [formatINR(value), 'Price']}
+              formatter={(value) => [formatINR(value), t('mandi.price')]}
               labelStyle={{ color: '#052e16', fontWeight: 'bold', marginBottom: '4px' }}
             />
             <Area 
@@ -195,10 +197,10 @@ const MandiDashboard = () => {
         <div>
           <h1 className="text-2xl sm:text-3xl font-serif-accent font-bold text-emerald-950 flex items-center gap-3">
             <TrendingUp className="text-amber-500" size={32} />
-            Market Insights
+            {t('mandi.title')}
           </h1>
           <p className="text-stone-500 text-sm sm:text-base mt-1">
-            Track daily mandi bhav and historical price trends.
+            {t('mandi.subtitle')}
           </p>
         </div>
         
@@ -210,7 +212,7 @@ const MandiDashboard = () => {
               value={selectedCommodity}
               onChange={setSelectedCommodity}
               className="w-28 sm:w-36"
-              placeholder="Commodity"
+              placeholder={t('mandi.commodity')}
             />
           </div>
           <div className="flex items-center gap-2 bg-stone-50 rounded-xl px-3 py-2 border border-stone-200/50">
@@ -220,7 +222,7 @@ const MandiDashboard = () => {
               value={selectedDistrict}
               onChange={setSelectedDistrict}
               className="w-28 sm:w-36"
-              placeholder="District"
+              placeholder={t('mandi.district')}
             />
           </div>
         </div>
@@ -230,7 +232,7 @@ const MandiDashboard = () => {
       {(myCropNames.length > 0 || filteredFavorites.length > 0) && (
         <div className="space-y-2">
           <p className="text-xs font-bold uppercase tracking-wider text-stone-400">
-            Quick Select
+            {t('mandi.quickSelect')}
           </p>
           <div
             className="flex overflow-x-auto gap-2 pb-2"
@@ -295,14 +297,14 @@ const MandiDashboard = () => {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded-3xl p-5 shadow-sm border border-stone-100/50 flex flex-col justify-center transition-transform hover:scale-[1.02]">
-          <span className="text-stone-400 text-xs font-bold uppercase tracking-wider mb-1">Today's Price</span>
+          <span className="text-stone-400 text-xs font-bold uppercase tracking-wider mb-1">{t('mandi.todayPrice')}</span>
           <span className="text-3xl font-bold text-emerald-950">
             {todayPrice > 0 ? formatINR(todayPrice) : '---'}
           </span>
         </div>
         
         <div className="bg-white rounded-3xl p-5 shadow-sm border border-stone-100/50 flex flex-col justify-center transition-transform hover:scale-[1.02]">
-          <span className="text-stone-400 text-xs font-bold uppercase tracking-wider mb-1">Yesterday's Price</span>
+          <span className="text-stone-400 text-xs font-bold uppercase tracking-wider mb-1">{t('mandi.yesterdayPrice')}</span>
           <span className="text-2xl font-bold text-stone-600">
             {yesterdayPrice > 0 ? formatINR(yesterdayPrice) : '---'}
           </span>
@@ -313,7 +315,7 @@ const MandiDashboard = () => {
         }`}>
           <span className={`text-xs font-bold uppercase tracking-wider mb-1 ${
             isPositiveTrend ? 'text-emerald-600/80' : 'text-red-600/80'
-          }`}>Trend (24h)</span>
+          }`}>{t('mandi.trend24h')}</span>
           <span className={`text-2xl font-bold ${
             isPositiveTrend ? 'text-emerald-700' : 'text-red-700'
           }`}>
@@ -326,7 +328,7 @@ const MandiDashboard = () => {
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
-          <h2 className="text-lg font-bold text-emerald-950 font-serif-accent">30-Day Price Trend</h2>
+          <h2 className="text-lg font-bold text-emerald-950 font-serif-accent">{t('mandi.chartTitle')}</h2>
         </div>
         {renderChartOrEmptyState()}
       </div>

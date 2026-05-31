@@ -7,11 +7,16 @@
  */
 
 import React from 'react';
-import { Sprout, MapPin } from 'lucide-react';
+import { Sprout, MapPin, Languages } from 'lucide-react';
 import { useActiveFarm } from '../../context/ActiveFarmContext';
+import { useTranslation } from 'react-i18next';
 
 const TopBar = () => {
   const { activeFarm } = useActiveFarm();
+  const { t, i18n } = useTranslation();
+
+  const currentLanguage = i18n.language || 'en';
+  const isHindi = currentLanguage.startsWith('hi');
 
   return (
     <header
@@ -48,6 +53,55 @@ const TopBar = () => {
                 </span>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* ── Premium Segmented Language Selector ────────── */}
+        <div className="flex items-center gap-2">
+          <Languages size={15} className="text-amber-200 opacity-80" />
+          
+          <div 
+            className="relative flex items-center p-0.5 rounded-full overflow-hidden border"
+            style={{
+              background: 'rgba(5, 46, 22, 0.45)',
+              borderColor: 'rgba(255, 253, 249, 0.15)',
+              backdropFilter: 'blur(8px)',
+            }}
+          >
+            {/* Active indicator sliding background pill */}
+            <div 
+              className="absolute top-0.5 bottom-0.5 rounded-full transition-all duration-300 ease-out"
+              style={{
+                left: isHindi ? 'calc(50% + 1px)' : '2px',
+                width: 'calc(50% - 3px)',
+                background: 'linear-gradient(135deg, #fef08a 0%, #fcd34d 100%)', // warm amber-200 to amber-300
+                boxShadow: '0 2px 6px rgba(252, 211, 77, 0.25)',
+              }}
+            />
+
+            {/* English Option */}
+            <button
+              onClick={() => i18n.changeLanguage('en')}
+              title="English"
+              className="relative z-10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider transition-colors duration-300 focus:outline-none cursor-pointer"
+              style={{
+                color: isHindi ? 'rgba(255, 253, 249, 0.7)' : '#052e16',
+              }}
+            >
+              EN
+            </button>
+
+            {/* Hindi Option */}
+            <button
+              onClick={() => i18n.changeLanguage('hi')}
+              title="हिंदी"
+              className="relative z-10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider transition-colors duration-300 focus:outline-none cursor-pointer"
+              style={{
+                color: isHindi ? '#052e16' : 'rgba(255, 253, 249, 0.7)',
+              }}
+            >
+              हिंदी
+            </button>
           </div>
         </div>
 

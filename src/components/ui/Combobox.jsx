@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, ChevronDown, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Combobox = ({ options, value, onChange, placeholder, icon: Icon, className = '' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const { t } = useTranslation();
   const wrapperRef = useRef(null);
 
   // Filter options based on search input
@@ -71,7 +73,7 @@ const Combobox = ({ options, value, onChange, placeholder, icon: Icon, className
               ))
             ) : (
               <li className="px-4 py-6 text-sm text-center text-stone-400">
-                No results found.
+                {t('common.noResults')}
               </li>
             )}
           </ul>

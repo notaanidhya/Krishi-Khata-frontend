@@ -13,6 +13,7 @@ import {
   Sprout, Loader2,
   Plus, CheckCircle2, Timer, Trash2,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useCrops, useDeleteCrop } from '../hooks/useCrop';
 import CropVisualizer from '../features/crops/CropVisualizer';
@@ -21,6 +22,7 @@ import SmartSchedule from '../features/crops/SmartSchedule';
 import AddCropModal from '../features/crops/AddCropModal';
 
 const CropTrackingPage = () => {
+  const { t } = useTranslation();
   const { activeFarm } = useActiveFarm();
   const farmId = activeFarm?.id;
 
@@ -43,7 +45,7 @@ const CropTrackingPage = () => {
         <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mb-4">
           <Sprout size={28} className="text-stone-300" />
         </div>
-        <p className="text-stone-400 text-sm font-medium">Select a farm to view crops</p>
+        <p className="text-stone-400 text-sm font-medium">{t('crops.selectFarm')}</p>
       </div>
     );
   }
@@ -52,7 +54,7 @@ const CropTrackingPage = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-6">
         <Loader2 size={28} className="text-emerald-700 animate-spin mb-3" />
-        <p className="text-stone-400 text-sm font-medium">Loading crop data...</p>
+        <p className="text-stone-400 text-sm font-medium">{t('crops.loading')}</p>
       </div>
     );
   }
@@ -75,7 +77,7 @@ const CropTrackingPage = () => {
               className="text-lg font-bold font-serif-accent leading-tight"
               style={{ color: 'var(--color-forest)' }}
             >
-              Fasal Diary
+              {t('crops.title')}
             </h2>
             <p className="text-xs text-stone-400 font-medium">{activeFarm.name}</p>
           </div>
@@ -85,7 +87,7 @@ const CropTrackingPage = () => {
             onClick={() => setShowAddModal(true)}
             className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-emerald-100 active:scale-95 transition-all"
             style={{ background: '#ecfdf5', color: '#166534' }}
-            title="Plant Another Crop"
+            title={t('crops.plantAnother')}
           >
             <Plus size={20} strokeWidth={2.5} />
           </button>
@@ -107,10 +109,10 @@ const CropTrackingPage = () => {
             className="text-lg font-bold font-serif-accent mb-1.5"
             style={{ color: 'var(--color-forest)' }}
           >
-            Koi Fasal Nahi
+            {t('crops.emptyTitle')}
           </h3>
           <p className="text-sm text-stone-400 font-medium mb-6 max-w-xs mx-auto">
-            Start tracking your farm's journey. Plant a crop and watch it grow stage by stage.
+            {t('crops.emptyText')}
           </p>
 
           <button
@@ -122,7 +124,7 @@ const CropTrackingPage = () => {
             }}
           >
             <Plus size={18} strokeWidth={2.5} />
-            Nayi Fasal Lagao
+            {t('crops.plantNew')}
           </button>
         </div>
       )}
@@ -150,13 +152,13 @@ const CropTrackingPage = () => {
               <button
                 onClick={() => setShowDeleteConfirm(activeCrop.id)}
                 className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                title="Delete Crop"
+                title={t('crops.deleteCrop')}
               >
                 <Trash2 size={18} />
               </button>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="text-xs text-red-500 font-medium">Delete?</span>
+                <span className="text-xs text-red-500 font-medium">{t('crops.deleteConfirm')}</span>
                 <button
                   onClick={() => handleDelete(activeCrop.id)}
                   disabled={deleteMutation.isPending}
@@ -187,14 +189,14 @@ const CropTrackingPage = () => {
                 <Timer size={18} className="text-amber-600" />
               </div>
               <div>
-                <p className="text-xs text-stone-400 font-bold uppercase tracking-wider">Days Since Planting</p>
+                <p className="text-xs text-stone-400 font-bold uppercase tracking-wider">{t('crops.daysSincePlanting')}</p>
                 <p className="text-lg font-extrabold" style={{ color: 'var(--color-forest)' }}>
                   {activeCrop.days_since_planting}
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-[10px] text-stone-400 font-medium">Planted</p>
+              <p className="text-[10px] text-stone-400 font-medium">{t('crops.planted')}</p>
               <p className="text-xs font-bold text-stone-600">
                 {new Date(activeCrop.planting_date + 'T00:00:00').toLocaleDateString('en-IN', {
                   day: 'numeric', month: 'short', year: 'numeric',

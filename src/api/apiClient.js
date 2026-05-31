@@ -27,6 +27,10 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Inject current UI language for backend AI localization
+    config.headers['Accept-Language'] = localStorage.getItem('i18nextLng') || 'en';
+    
     return config;
   },
   (error) => Promise.reject(error)

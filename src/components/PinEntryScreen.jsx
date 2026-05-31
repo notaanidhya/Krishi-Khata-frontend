@@ -6,9 +6,11 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Sprout, Lock, AlertTriangle, Loader2, Eye, EyeOff } from 'lucide-react';
 
 const PinEntryScreen = ({ userName, onLogin, isLoading, error }) => {
+  const { t } = useTranslation();
   const [pin, setPin] = useState('');
   const [showPin, setShowPin] = useState(false);
   const inputRef = useRef(null);
@@ -45,10 +47,10 @@ const PinEntryScreen = ({ userName, onLogin, isLoading, error }) => {
             <Sprout size={36} className="text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">
-            Namaste, {userName || 'Kisan'} 🙏
+            {t('pin.greeting', { name: userName || 'Kisan' })}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Enter your PIN to continue
+            {t('pin.enterPin')}
           </p>
         </div>
 
@@ -57,7 +59,7 @@ const PinEntryScreen = ({ userName, onLogin, isLoading, error }) => {
           <div className="flex items-center gap-2 mb-5">
             <Lock size={18} className="text-emerald-600" />
             <h2 className="text-base font-bold text-gray-800">
-              Your 4-digit PIN
+              {t('pin.yourPin')}
             </h2>
           </div>
 
@@ -101,12 +103,12 @@ const PinEntryScreen = ({ userName, onLogin, isLoading, error }) => {
               {isLoading ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  Verifying...
+                  {t('pin.verifying')}
                 </>
               ) : (
                 <>
                   <Lock size={16} />
-                  Unlock
+                  {t('pin.unlock')}
                 </>
               )}
             </button>
@@ -114,7 +116,7 @@ const PinEntryScreen = ({ userName, onLogin, isLoading, error }) => {
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          Forgot your PIN? Clear app data to start fresh.
+          {t('pin.forgotPin')}
         </p>
       </div>
     </div>

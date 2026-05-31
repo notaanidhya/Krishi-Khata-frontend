@@ -14,6 +14,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, NavLink } from 'react-router-dom';
 import { BookOpen, CloudSun, LayoutDashboard, Sprout, Users, Loader2, TrendingUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import TopBar from './components/layout/TopBar';
 import WelcomeScreen from './components/WelcomeScreen';
 import PinEntryScreen from './components/PinEntryScreen';
@@ -29,15 +30,16 @@ import { useFarms } from './hooks/useFarm';
 import { useGhostAuth } from './hooks/useGhostAuth';
 
 const NAV_ITEMS = [
-  { to: '/',          end: true,  icon: LayoutDashboard, label: 'Home'   },
-  { to: '/khata',     end: false, icon: BookOpen,        label: 'Khata'  },
-  { to: '/crops',     end: false, icon: Sprout,          label: 'Crops'  },
-  { to: '/mandi',     end: false, icon: TrendingUp,      label: 'Mandi'  },
-  { to: '/community', end: false, icon: Users,           label: 'Chaupal'},
-  { to: '/weather',   end: false, icon: CloudSun,        label: 'Mausam' },
+  { to: '/',          end: true,  icon: LayoutDashboard, labelKey: 'nav.home'    },
+  { to: '/khata',     end: false, icon: BookOpen,        labelKey: 'nav.khata'   },
+  { to: '/crops',     end: false, icon: Sprout,          labelKey: 'nav.crops'   },
+  { to: '/mandi',     end: false, icon: TrendingUp,      labelKey: 'nav.mandi'   },
+  { to: '/community', end: false, icon: Users,           labelKey: 'nav.chaupal' },
+  { to: '/weather',   end: false, icon: CloudSun,        labelKey: 'nav.mausam'  },
 ];
 
 function App() {
+  const { t } = useTranslation();
   const { setFarms, setIsLoading, isLoading: farmContextLoading } = useActiveFarm();
   const {
     isNewUser,
@@ -85,7 +87,7 @@ function App() {
         style={{ backgroundColor: 'var(--color-soil)' }}
       >
         <Loader2 size={32} className="text-emerald-700 animate-spin" />
-        <p className="text-sm text-stone-400 font-medium">Loading your farms...</p>
+        <p className="text-sm text-stone-400 font-medium">{t('app.loadingFarms')}</p>
       </div>
     );
   }
@@ -118,7 +120,7 @@ function App() {
             boxShadow: '0 -4px 24px rgba(5,46,22,0.07)',
           }}
         >
-          {NAV_ITEMS.map(({ to, end, icon: Icon, label }) => (
+          {NAV_ITEMS.map(({ to, end, icon: Icon, labelKey }) => (
             <NavLink
               key={to}
               to={to}
@@ -137,7 +139,7 @@ function App() {
                     <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
                   </div>
                   <span className={`text-[10px] font-bold uppercase tracking-wide ${isActive ? 'text-emerald-800' : ''}`}>
-                    {label}
+                    {t(labelKey)}
                   </span>
                 </>
               )}

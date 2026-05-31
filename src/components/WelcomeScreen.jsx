@@ -9,10 +9,12 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Sprout, ArrowRight, Sparkles, Lock, AlertTriangle, Loader2, Eye, EyeOff } from 'lucide-react';
 import { isWeakPin } from '../hooks/useGhostAuth';
 
 const WelcomeScreen = ({ onRegister }) => {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1); // 1=name, 2=set PIN, 3=confirm PIN
   const [name, setName] = useState('');
   const [pin, setPin] = useState('');
@@ -41,11 +43,11 @@ const WelcomeScreen = ({ onRegister }) => {
     setError('');
 
     if (pin.length !== 4) {
-      setError('PIN must be exactly 4 digits');
+      setError(t('welcome.pinExact'));
       return;
     }
     if (isWeakPin(pin)) {
-      setError('This PIN is too easy to guess. Try something harder!');
+      setError(t('welcome.pinWeak'));
       return;
     }
     setStep(3);
@@ -56,7 +58,7 @@ const WelcomeScreen = ({ onRegister }) => {
     setError('');
 
     if (confirmPin !== pin) {
-      setError('PINs don\'t match. Please try again.');
+      setError(t('welcome.pinMismatch'));
       setConfirmPin('');
       return;
     }
@@ -65,7 +67,7 @@ const WelcomeScreen = ({ onRegister }) => {
     try {
       await onRegister(name.trim(), pin);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Setup failed. Please try again.');
+      setError(err.response?.data?.detail || t('welcome.setupFailed'));
       setIsSubmitting(false);
     }
   };
@@ -90,11 +92,11 @@ const WelcomeScreen = ({ onRegister }) => {
             <Sprout size={36} className="text-white" />
           </div>
           <h1 className="text-3xl font-black text-gray-900 tracking-tight">
-            Krishi Khata
+            {t('welcome.appName')}
           </h1>
           <p className="text-sm text-gray-500 mt-1 flex items-center justify-center gap-1">
             <Sparkles size={14} className="text-emerald-500" />
-            Smart Farming, Simple Living
+            {t('welcome.tagline')}
           </p>
         </div>
 
@@ -116,17 +118,17 @@ const WelcomeScreen = ({ onRegister }) => {
           {step === 1 && (
             <>
               <h2 className="text-lg font-bold text-gray-800 mb-1">
-                Welcome, Kisan! 🌾
+                {t('welcome.step1Title')}
               </h2>
               <p className="text-sm text-gray-500 mb-5">
-                What should we call you?
+                {t('welcome.step1Subtitle')}
               </p>
               <form onSubmit={handleNameSubmit}>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your name..."
+                  placeholder={t('welcome.namePlaceholder')}
                   maxLength={50}
                   autoFocus
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400 transition-all text-base"
@@ -140,7 +142,7 @@ const WelcomeScreen = ({ onRegister }) => {
                       : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   }`}
                 >
-                  Next <ArrowRight size={16} />
+                  {t('welcome.next')} <ArrowRight size={16} />
                 </button>
               </form>
             </>
@@ -152,11 +154,11 @@ const WelcomeScreen = ({ onRegister }) => {
               <div className="flex items-center gap-2 mb-1">
                 <Lock size={18} className="text-emerald-600" />
                 <h2 className="text-lg font-bold text-gray-800">
-                  Set a 4-digit PIN
+                  {t('welcome.step2Title')}
                 </h2>
               </div>
               <p className="text-sm text-gray-500 mb-5">
-                This PIN protects your farm data. Remember it!
+                {t('welcome.step2Subtitle')}
               </p>
               <form onSubmit={handlePinSubmit}>
                 <div className="relative">
@@ -195,7 +197,7 @@ const WelcomeScreen = ({ onRegister }) => {
                       : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   }`}
                 >
-                  Next <ArrowRight size={16} />
+                  {t('welcome.next')} <ArrowRight size={16} />
                 </button>
 
                 <button
@@ -203,7 +205,7 @@ const WelcomeScreen = ({ onRegister }) => {
                   onClick={() => { setStep(1); setPin(''); setError(''); }}
                   className="w-full mt-2 py-2 text-sm text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  ← Back
+                  {t('welcome.back')}
                 </button>
               </form>
             </>
@@ -215,11 +217,11 @@ const WelcomeScreen = ({ onRegister }) => {
               <div className="flex items-center gap-2 mb-1">
                 <Lock size={18} className="text-emerald-600" />
                 <h2 className="text-lg font-bold text-gray-800">
-                  Confirm your PIN
+                  {t('welcome.step3Title')}
                 </h2>
               </div>
               <p className="text-sm text-gray-500 mb-5">
-                Enter the same PIN again to confirm.
+                {t('welcome.step3Subtitle')}
               </p>
               <form onSubmit={handleConfirmSubmit}>
                 <input
@@ -252,12 +254,12 @@ const WelcomeScreen = ({ onRegister }) => {
                   {isSubmitting ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
-                      Setting up...
+                      {t('welcome.settingUp')}
                     </>
                   ) : (
                     <>
                       <Sprout size={16} />
-                      Start Farming
+                      {t('welcome.startFarming')}
                     </>
                   )}
                 </button>
@@ -267,7 +269,7 @@ const WelcomeScreen = ({ onRegister }) => {
                   onClick={() => { setStep(2); setConfirmPin(''); setError(''); }}
                   className="w-full mt-2 py-2 text-sm text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  ← Back
+                  {t('welcome.back')}
                 </button>
               </form>
             </>
@@ -275,7 +277,7 @@ const WelcomeScreen = ({ onRegister }) => {
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          {step === 1 ? 'Your data is protected with a PIN' : 'Write down your PIN — there is no recovery yet'}
+          {step === 1 ? t('welcome.step1Footer') : t('welcome.step2Footer')}
         </p>
       </div>
     </div>
