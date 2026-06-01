@@ -175,7 +175,7 @@ const CommunityPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)]">
+    <div className="flex flex-col h-[calc(100vh-8rem)] animate-page-enter">
 
       {/* ── Header ─────────────────────────────────────────── */}
       <div
@@ -312,6 +312,7 @@ const CommunityPage = () => {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
+            aria-label="Attach image"
             className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
             style={{ background: '#f0ebe4', color: '#78716c' }}
           >
@@ -328,7 +329,7 @@ const CommunityPage = () => {
               onKeyDown={handleKeyDown}
               placeholder={t('community.inputPlaceholder')}
               disabled={isUploading}
-              className="w-full px-4 py-2.5 rounded-full text-sm focus:outline-none focus:ring-2 transition-all"
+              className="w-full px-4 py-2.5 rounded-full text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 transition-all"
               style={{
                 background: '#f5f0eb',
                 border: '1.5px solid #d6cfc6',
@@ -341,6 +342,7 @@ const CommunityPage = () => {
           <button
             onClick={sendMessage}
             disabled={(!input.trim() && !selectedImage) || isUploading}
+            aria-label="Send message"
             className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-200"
             style={
               (input.trim() || selectedImage) && !isUploading

@@ -125,6 +125,7 @@ function App() {
               key={to}
               to={to}
               end={end}
+              aria-label={t(labelKey)}
               className={({ isActive }) =>
                 `flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all duration-200 ${
                   isActive
@@ -141,6 +142,7 @@ function App() {
                   <span className={`text-[10px] font-bold uppercase tracking-wide ${isActive ? 'text-emerald-800' : ''}`}>
                     {t(labelKey)}
                   </span>
+                  <div className={`nav-indicator-dot ${isActive ? 'nav-indicator-dot--active' : 'nav-indicator-dot--inactive'}`} />
                 </>
               )}
             </NavLink>

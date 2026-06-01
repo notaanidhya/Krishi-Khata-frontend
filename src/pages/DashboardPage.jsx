@@ -147,7 +147,7 @@ const DashboardPage = () => {
   const { data: khataSummary, isLoading: khataLoading } = useSummary(farmId);
 
   return (
-    <div className="px-4 py-5 max-w-lg mx-auto space-y-5 pb-32">
+    <div className="px-4 py-5 max-w-lg mx-auto space-y-5 pb-32 animate-page-enter">
 
       {/* ── Greeting Section ─────────────────────────────── */}
       <div id="dashboard-greeting">
@@ -180,7 +180,7 @@ const DashboardPage = () => {
       <button
         id="quick-add-fab"
         onClick={() => navigate('/khata')}
-        className="fixed bottom-20 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2.5 text-white font-bold text-base px-7 py-4 rounded-2xl transition-all active:scale-95 animate-fab-pulse"
+        className="fixed bottom-20 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2.5 text-white font-bold text-base px-7 py-4 rounded-2xl transition-all active:scale-95 animate-fab-pulse animate-fab-enter"
         style={{
           background: 'linear-gradient(135deg, #166534, #14532d)',
           boxShadow: '0 8px 32px rgba(22,101,52,0.45)',

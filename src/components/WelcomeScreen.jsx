@@ -80,22 +80,22 @@ const WelcomeScreen = ({ onRegister }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-6">
+    <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'linear-gradient(135deg, #f5f0eb 0%, #ede8e1 50%, #e5e0d8 100%)' }}>
       {/* Decorative background circles */}
-      <div className="absolute top-20 left-10 w-32 h-32 bg-emerald-200/30 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-10 w-48 h-48 bg-teal-200/30 rounded-full blur-3xl" />
+      <div className="absolute top-20 left-10 w-32 h-32 bg-amber-200/20 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 right-10 w-48 h-48 bg-emerald-200/15 rounded-full blur-3xl" />
 
       <div className="w-full max-w-sm relative z-10">
         {/* Logo & Branding */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl shadow-xl shadow-emerald-200/50 mb-5">
-            <Sprout size={36} className="text-white" />
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl shadow-xl mb-5" style={{ background: 'linear-gradient(135deg, #166534, #14532d)', boxShadow: '0 8px 32px rgba(22,101,52,0.3)' }}>
+            <Sprout size={36} className="text-amber-300" />
           </div>
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+          <h1 className="text-3xl font-black tracking-tight font-serif-accent" style={{ color: 'var(--color-forest)' }}>
             {t('welcome.appName')}
           </h1>
-          <p className="text-sm text-gray-500 mt-1 flex items-center justify-center gap-1">
-            <Sparkles size={14} className="text-emerald-500" />
+          <p className="text-sm text-stone-500 mt-1 flex items-center justify-center gap-1">
+            <Sparkles size={14} className="text-amber-500" />
             {t('welcome.tagline')}
           </p>
         </div>
@@ -106,21 +106,21 @@ const WelcomeScreen = ({ onRegister }) => {
             <div
               key={s}
               className={`h-1.5 rounded-full transition-all duration-300 ${
-                s <= step ? 'w-10 bg-emerald-500' : 'w-6 bg-gray-200'
+                s <= step ? 'w-10 bg-emerald-700' : 'w-6 bg-stone-300'
               }`}
             />
           ))}
         </div>
 
         {/* Card */}
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-gray-200/50 p-6 border border-white/50">
+        <div className="rounded-2xl p-6" style={{ background: 'var(--color-cream)', boxShadow: '0 4px 24px rgba(5,46,22,0.1)', border: '1.5px solid #e5e0d8' }}>
           {/* ── Step 1: Name ──────────────────────── */}
           {step === 1 && (
             <>
-              <h2 className="text-lg font-bold text-gray-800 mb-1">
+              <h2 className="text-lg font-bold mb-1" style={{ color: 'var(--color-forest)' }}>
                 {t('welcome.step1Title')}
               </h2>
-              <p className="text-sm text-gray-500 mb-5">
+              <p className="text-sm text-stone-500 mb-5">
                 {t('welcome.step1Subtitle')}
               </p>
               <form onSubmit={handleNameSubmit}>
@@ -131,16 +131,17 @@ const WelcomeScreen = ({ onRegister }) => {
                   placeholder={t('welcome.namePlaceholder')}
                   maxLength={50}
                   autoFocus
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400 transition-all text-base"
+                  className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-600 transition-all text-base"
                 />
                 <button
                   type="submit"
                   disabled={!name.trim()}
                   className={`w-full mt-4 py-3 rounded-xl font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 ${
                     name.trim()
-                      ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-200/50 hover:shadow-xl active:scale-[0.98]'
-                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'text-white active:scale-[0.98]'
+                      : 'bg-stone-100 text-stone-400 cursor-not-allowed'
                   }`}
+                  style={name.trim() ? { background: 'linear-gradient(135deg, #166534, #14532d)', boxShadow: '0 4px 20px rgba(22,101,52,0.35)' } : {}}
                 >
                   {t('welcome.next')} <ArrowRight size={16} />
                 </button>
@@ -153,11 +154,11 @@ const WelcomeScreen = ({ onRegister }) => {
             <>
               <div className="flex items-center gap-2 mb-1">
                 <Lock size={18} className="text-emerald-600" />
-                <h2 className="text-lg font-bold text-gray-800">
+                <h2 className="text-lg font-bold" style={{ color: 'var(--color-forest)' }}>
                   {t('welcome.step2Title')}
                 </h2>
               </div>
-              <p className="text-sm text-gray-500 mb-5">
+              <p className="text-sm text-stone-500 mb-5">
                 {t('welcome.step2Subtitle')}
               </p>
               <form onSubmit={handlePinSubmit}>
@@ -170,12 +171,12 @@ const WelcomeScreen = ({ onRegister }) => {
                     onChange={(e) => handlePinInput(e.target.value, setPin)}
                     placeholder="● ● ● ●"
                     maxLength={4}
-                    className="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-center text-2xl tracking-[0.5em] font-mono placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400 transition-all"
+                    className="w-full px-4 py-4 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 text-center text-2xl tracking-[0.5em] font-mono placeholder-stone-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-600 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPin(!showPin)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 p-1"
                   >
                     {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -193,9 +194,10 @@ const WelcomeScreen = ({ onRegister }) => {
                   disabled={pin.length !== 4}
                   className={`w-full mt-4 py-3 rounded-xl font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 ${
                     pin.length === 4
-                      ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-200/50 active:scale-[0.98]'
-                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'text-white active:scale-[0.98]'
+                      : 'bg-stone-100 text-stone-400 cursor-not-allowed'
                   }`}
+                  style={pin.length === 4 ? { background: 'linear-gradient(135deg, #166534, #14532d)', boxShadow: '0 4px 20px rgba(22,101,52,0.35)' } : {}}
                 >
                   {t('welcome.next')} <ArrowRight size={16} />
                 </button>
@@ -203,7 +205,7 @@ const WelcomeScreen = ({ onRegister }) => {
                 <button
                   type="button"
                   onClick={() => { setStep(1); setPin(''); setError(''); }}
-                  className="w-full mt-2 py-2 text-sm text-gray-400 hover:text-gray-600 transition-colors"
+                  className="w-full mt-2 py-2 text-sm text-stone-400 hover:text-stone-600 transition-colors"
                 >
                   {t('welcome.back')}
                 </button>
@@ -216,11 +218,11 @@ const WelcomeScreen = ({ onRegister }) => {
             <>
               <div className="flex items-center gap-2 mb-1">
                 <Lock size={18} className="text-emerald-600" />
-                <h2 className="text-lg font-bold text-gray-800">
+                <h2 className="text-lg font-bold" style={{ color: 'var(--color-forest)' }}>
                   {t('welcome.step3Title')}
                 </h2>
               </div>
-              <p className="text-sm text-gray-500 mb-5">
+              <p className="text-sm text-stone-500 mb-5">
                 {t('welcome.step3Subtitle')}
               </p>
               <form onSubmit={handleConfirmSubmit}>
@@ -232,7 +234,7 @@ const WelcomeScreen = ({ onRegister }) => {
                   onChange={(e) => handlePinInput(e.target.value, setConfirmPin)}
                   placeholder="● ● ● ●"
                   maxLength={4}
-                  className="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-center text-2xl tracking-[0.5em] font-mono placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400 transition-all"
+                  className="w-full px-4 py-4 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 text-center text-2xl tracking-[0.5em] font-mono placeholder-stone-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-600 transition-all"
                 />
 
                 {error && (
@@ -247,9 +249,10 @@ const WelcomeScreen = ({ onRegister }) => {
                   disabled={confirmPin.length !== 4 || isSubmitting}
                   className={`w-full mt-4 py-3 rounded-xl font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 ${
                     confirmPin.length === 4 && !isSubmitting
-                      ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-200/50 active:scale-[0.98]'
-                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'text-white active:scale-[0.98]'
+                      : 'bg-stone-100 text-stone-400 cursor-not-allowed'
                   }`}
+                  style={confirmPin.length === 4 && !isSubmitting ? { background: 'linear-gradient(135deg, #166534, #14532d)', boxShadow: '0 4px 20px rgba(22,101,52,0.35)' } : {}}
                 >
                   {isSubmitting ? (
                     <>
@@ -267,7 +270,7 @@ const WelcomeScreen = ({ onRegister }) => {
                 <button
                   type="button"
                   onClick={() => { setStep(2); setConfirmPin(''); setError(''); }}
-                  className="w-full mt-2 py-2 text-sm text-gray-400 hover:text-gray-600 transition-colors"
+                  className="w-full mt-2 py-2 text-sm text-stone-400 hover:text-stone-600 transition-colors"
                 >
                   {t('welcome.back')}
                 </button>
@@ -276,7 +279,7 @@ const WelcomeScreen = ({ onRegister }) => {
           )}
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6">
+        <p className="text-center text-xs text-stone-400 mt-6">
           {step === 1 ? t('welcome.step1Footer') : t('welcome.step2Footer')}
         </p>
       </div>

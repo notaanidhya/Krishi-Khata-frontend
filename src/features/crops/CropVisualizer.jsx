@@ -5,7 +5,7 @@
  * - Botanical journal aesthetic
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Sprout, Leaf, Flower2, Wheat } from 'lucide-react';
 
 const STAGES = [
@@ -63,6 +63,13 @@ const CropVisualizer = ({ growth_stage, cropName }) => {
     return idx >= 0 ? idx : 0;
   }, [growth_stage]);
 
+  useEffect(() => {
+    STAGES.forEach(stage => {
+      const img = new Image();
+      img.src = stage.imageSrc;
+    });
+  }, []);
+
   const stage = STAGES[currentIndex];
   const StageIcon = stage.icon;
   const progress = ((currentIndex + 1) / STAGES.length) * 100;
@@ -100,7 +107,7 @@ const CropVisualizer = ({ growth_stage, cropName }) => {
 
         {/* Plant Visualization */}
         <div className="flex justify-center py-4 relative" style={{ background: 'linear-gradient(to bottom, #f0fdf4/50, var(--color-cream))' }}>
-          <div className="relative flex flex-col items-center">
+          <div key={stage.key} className="relative flex flex-col items-center animate-stage-enter">
             <div className="w-44 h-44 flex items-end justify-center">
               <img
                 src={stage.imageSrc}
@@ -147,11 +154,11 @@ const CropVisualizer = ({ growth_stage, cropName }) => {
                         : 'bg-stone-100'
                     }`}
                   >
-                    <SIcon size={14} className={`transition-colors duration-500 ${isActive ? 'text-white' : 'text-stone-300'}`} />
+                    <SIcon size={14} className={`transition-colors duration-500 ${isActive ? 'text-white' : 'text-stone-400'}`} />
                   </div>
                   <span
-                    className={`text-[9px] font-bold transition-colors duration-300 text-center leading-tight max-w-[52px] ${
-                      isCurrent ? 'text-emerald-900' : isActive ? 'text-stone-500' : 'text-stone-300'
+                    className={`text-[10px] font-bold transition-colors duration-300 text-center leading-tight max-w-[52px] ${
+                      isCurrent ? 'text-emerald-900' : isActive ? 'text-stone-500' : 'text-stone-400'
                     }`}
                   >
                     {s.label}

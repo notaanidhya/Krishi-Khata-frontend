@@ -52,15 +52,29 @@ const CropTrackingPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6">
-        <Loader2 size={28} className="text-emerald-700 animate-spin mb-3" />
-        <p className="text-stone-400 text-sm font-medium">{t('crops.loading')}</p>
+      <div className="px-4 pt-4 pb-24 max-w-lg mx-auto space-y-4 animate-page-enter">
+        {/* Header skeleton */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl skeleton-shimmer" />
+          <div className="space-y-2">
+            <div className="h-5 w-28 rounded-lg skeleton-shimmer" />
+            <div className="h-3 w-20 rounded-md skeleton-shimmer" />
+          </div>
+        </div>
+        {/* Crop card skeleton */}
+        <div className="rounded-3xl p-4 space-y-4" style={{ background: 'rgba(255,253,249,0.85)', border: '1.5px solid #e5e0d8' }}>
+          <div className="h-6 w-32 rounded-lg skeleton-shimmer" />
+          <div className="rounded-2xl skeleton-shimmer" style={{ height: '80px' }} />
+          <div className="rounded-2xl skeleton-shimmer" style={{ height: '260px' }} />
+          <div className="rounded-2xl skeleton-shimmer" style={{ height: '120px' }} />
+          <div className="rounded-2xl skeleton-shimmer" style={{ height: '160px' }} />
+        </div>
       </div>
     );
   }
 
   return (
-    <div id="crop-tracking-page" className="px-4 pt-4 pb-24 max-w-lg mx-auto space-y-4">
+    <div id="crop-tracking-page" className="px-4 pt-4 pb-24 max-w-lg mx-auto space-y-4 animate-page-enter">
 
       {/* ── Page Header ──────────────────────────────────── */}
       <div className="flex items-center justify-between">

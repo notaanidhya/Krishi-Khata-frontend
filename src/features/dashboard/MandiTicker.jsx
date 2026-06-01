@@ -39,7 +39,11 @@ const formatINR = (value) =>
 // ── Vertical Bento Price Card (Surgical Flex Layout Fix) ────────────
 const PriceCard = ({ item }) => {
   const { t } = useTranslation();
-  const meta = COMMODITY_META[item.commodity] || DEFAULT_META;
+  const commodity = item.commodity || item.Commodity || '';
+  const market = item.market || item.Market || item.mandi || item.Mandi || '';
+  const modalPrice = item.modal_price || item.Modal_Price || 0;
+  
+  const meta = COMMODITY_META[commodity] || DEFAULT_META;
 
   return (
     <div 
@@ -51,13 +55,13 @@ const PriceCard = ({ item }) => {
           {meta.emoji}
         </div>
         <h3 className="font-serif-accent text-lg sm:text-xl font-bold text-emerald-950 truncate min-w-0 flex-1">
-          {item.commodity}
+          {commodity}
         </h3>
       </div>
 
       {/* Middle: Market Location */}
       <p className="text-xs sm:text-sm text-stone-500 font-medium truncate min-w-0 w-full">
-        {item.market}
+        {market}
       </p>
 
       {/* Bottom: Price pushed to bottom */}
@@ -66,7 +70,7 @@ const PriceCard = ({ item }) => {
           {t('mandi.bhav')}
         </span>
         <span className={`text-xl sm:text-2xl font-bold ${meta.accent} truncate min-w-0`}>
-          {formatINR(item.modal_price)}
+          {formatINR(modalPrice)}
         </span>
       </div>
     </div>
@@ -120,9 +124,13 @@ const MandiTicker = ({ data, isLoading, isError }) => {
 
       {/* Chunky Grid Container */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {prices.map((item, index) => (
-          <PriceCard key={`${item.commodity}-${item.market}-${index}`} item={item} />
-        ))}
+        {prices.map((item, index) => {
+          const commodity = item.commodity || item.Commodity || '';
+          const market = item.market || item.Market || item.mandi || item.Mandi || '';
+          return (
+            <PriceCard key={`${commodity}-${market}-${index}`} item={item} />
+          );
+        })}
       </div>
     </div>
   );

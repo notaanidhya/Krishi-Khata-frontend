@@ -51,37 +51,44 @@ const formatDate = (dateStr, language = 'en') =>
 // ═══════════════════════════════════════════════════════════════
 const TabToggle = ({ activeTab, onTabChange }) => {
   const { t } = useTranslation();
+  const isLabor = activeTab === 'labor';
   return (
   <div
-    className="flex rounded-xl p-1 gap-1"
+    className="flex rounded-xl p-1 gap-1 relative"
     style={{ background: '#e7e2db' }}
   >
+    {/* Sliding pill indicator */}
+    <div
+      className="absolute top-1 bottom-1 rounded-lg transition-all duration-300 ease-out"
+      style={{
+        left: isLabor ? 'calc(50% + 2px)' : '4px',
+        width: 'calc(50% - 6px)',
+        background: isLabor
+          ? 'linear-gradient(135deg, #1e1b4b, #312e81)'
+          : 'linear-gradient(135deg, #166534, #14532d)',
+        boxShadow: isLabor
+          ? '0 2px 12px rgba(30,27,75,0.3)'
+          : '0 2px 12px rgba(22,101,52,0.3)',
+      }}
+    />
     <button
       onClick={() => onTabChange('general')}
-      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-bold text-sm transition-all ${
+      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-bold text-sm transition-colors duration-300 relative z-10 ${
         activeTab === 'general'
-          ? 'text-white shadow-md scale-[1.02]'
+          ? 'text-white'
           : 'text-stone-500 hover:text-stone-700'
       }`}
-      style={activeTab === 'general'
-        ? { background: 'linear-gradient(135deg, #166534, #14532d)', boxShadow: '0 2px 12px rgba(22,101,52,0.3)' }
-        : {}
-      }
     >
       <BookOpen size={16} strokeWidth={activeTab === 'general' ? 2.5 : 2} />
       {t('khata.generalTab')}
     </button>
     <button
       onClick={() => onTabChange('labor')}
-      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-bold text-sm transition-all ${
+      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-bold text-sm transition-colors duration-300 relative z-10 ${
         activeTab === 'labor'
-          ? 'text-white shadow-md scale-[1.02]'
+          ? 'text-white'
           : 'text-stone-500 hover:text-stone-700'
       }`}
-      style={activeTab === 'labor'
-        ? { background: 'linear-gradient(135deg, #1e1b4b, #312e81)', boxShadow: '0 2px 12px rgba(30,27,75,0.3)' }
-        : {}
-      }
     >
       <Users size={16} strokeWidth={activeTab === 'labor' ? 2.5 : 2} />
       {t('khata.laborTab')}
@@ -254,7 +261,7 @@ const KhataPage = () => {
   };
 
   return (
-    <div className="px-4 py-5 max-w-lg mx-auto space-y-5 pb-28">
+    <div className="px-4 py-5 max-w-lg mx-auto space-y-5 pb-28 animate-page-enter">
 
       {/* ── Screen Title (Serif) ──────────────────────────── */}
       <h1
@@ -309,13 +316,18 @@ const KhataPage = () => {
 
             {!txnLoading && !txnError && transactions.length > 0 && (
               <div className="space-y-3">
-                {transactions.map((txn) => (
-                  <TransactionCard
+                {transactions.map((txn, index) => (
+                  <div
                     key={txn.id}
-                    txn={txn}
-                    onDelete={handleDelete}
-                    isDeleting={deletingId === txn.id}
-                  />
+                    className="animate-list-item"
+                    style={{ '--item-index': index }}
+                  >
+                    <TransactionCard
+                      txn={txn}
+                      onDelete={handleDelete}
+                      isDeleting={deletingId === txn.id}
+                    />
+                  </div>
                 ))}
               </div>
             )}

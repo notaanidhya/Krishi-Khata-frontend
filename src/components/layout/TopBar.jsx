@@ -23,7 +23,7 @@ const TopBar = () => {
       id="topbar"
       className="sticky top-0 z-50 shadow-lg"
       style={{
-        background: 'linear-gradient(135deg, #052e16 0%, #14532d 60%, #166534 100%)',
+        background: 'linear-gradient(135deg, var(--color-forest) 0%, var(--color-forest-mid) 60%, var(--color-forest-muted) 100%)',
         boxShadow: '0 4px 20px rgba(5,46,22,0.35)',
       }}
     >
@@ -39,7 +39,7 @@ const TopBar = () => {
           <div>
             <h1
               className="text-lg leading-none tracking-tight font-serif-accent"
-              style={{ color: '#fffdf9', fontWeight: 900 }}
+              style={{ color: 'var(--color-cream)', fontWeight: 900 }}
             >
               {isHindi ? 'कृषि खाता' : 'Krishi Khata'}
             </h1>
@@ -86,9 +86,10 @@ const TopBar = () => {
             <button
               onClick={() => i18n.changeLanguage('en')}
               title="English"
-              className="relative z-10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider transition-colors duration-300 focus:outline-none cursor-pointer"
+              aria-label="Switch language to English"
+              className="relative z-10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 cursor-pointer"
               style={{
-                color: isHindi ? 'rgba(255, 253, 249, 0.7)' : '#052e16',
+                color: isHindi ? 'rgba(255, 253, 249, 0.7)' : 'var(--color-forest)',
               }}
             >
               EN
@@ -98,9 +99,10 @@ const TopBar = () => {
             <button
               onClick={() => i18n.changeLanguage('hi')}
               title="हिंदी"
-              className="relative z-10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider transition-colors duration-300 focus:outline-none cursor-pointer"
+              aria-label="Switch language to Hindi"
+              className="relative z-10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 cursor-pointer"
               style={{
-                color: isHindi ? '#052e16' : 'rgba(255, 253, 249, 0.7)',
+                color: isHindi ? 'var(--color-forest)' : 'rgba(255, 253, 249, 0.7)',
               }}
             >
               हिंदी
