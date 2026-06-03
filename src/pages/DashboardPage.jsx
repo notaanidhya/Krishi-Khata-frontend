@@ -8,7 +8,6 @@
  * - FAB: deep emerald-800 with warm glow
  */
 
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, BookOpen, ArrowRight, CalendarDays } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

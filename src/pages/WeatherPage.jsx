@@ -15,7 +15,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CloudSun, Sparkles, Droplets, Sprout,
-  Wind, Thermometer, Loader2, CloudOff,
+  Wind, Thermometer, CloudOff,
   CalendarDays,
 } from 'lucide-react';
 import { useWeatherDashboard } from '../hooks/useWeather';

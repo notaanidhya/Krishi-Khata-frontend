@@ -7,7 +7,7 @@
  * - Input bar: warm Krishi style
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Send, Paperclip, X, Loader2, Users, Wifi, WifiOff } from 'lucide-react';
@@ -43,6 +43,7 @@ const CommunityPage = () => {
     refetchOnWindowFocus: false,
   });
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { if (history) setMessages(history); }, [history]);
 
   const scrollToBottom = useCallback(() => {

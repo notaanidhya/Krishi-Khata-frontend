@@ -16,6 +16,7 @@ import {
   getCropPresets,
   createCrop,
   deleteCrop,
+  addCropLog,
 } from '../api/crop';
 
 const CROP_KEYS = {
@@ -68,7 +69,7 @@ export const useCreateCrop = () => {
 
   return useMutation({
     mutationFn: ({ farmId, cropData }) => createCrop(farmId, cropData),
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: CROP_KEYS.activeCrop(variables.farmId) });
       queryClient.invalidateQueries({ queryKey: CROP_KEYS.crops(variables.farmId) });
       // Invalidate the generic 'crops' list as well
@@ -91,4 +92,21 @@ export const useDeleteCrop = () => {
     },
   });
 };
+
+/**
+ * Mutation: add crop log
+ */
+export const useAddCropLog = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ cropId, logData }) => addCropLog(cropId, logData),
+    onSuccess: () => {
+      // Invalidate crop cache to refresh logs
+      queryClient.invalidateQueries({ queryKey: ['activeCrop'] });
+      queryClient.invalidateQueries({ queryKey: ['crops'] });
+    },
+  });
+};
+
 

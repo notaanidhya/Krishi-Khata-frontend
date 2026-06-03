@@ -156,6 +156,7 @@ export const useWeather = () => {
         { timeout: 8000 }
       );
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus('error');
     }
   }, []);

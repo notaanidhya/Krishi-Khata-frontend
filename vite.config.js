@@ -41,6 +41,8 @@ export default defineConfig({
         ],
       },
       workbox: {
+        cleanupOutdatedCaches: true,
+        navigateFallback: '/index.html',
         // Pre-cache the app shell
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
 

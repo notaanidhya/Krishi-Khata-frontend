@@ -10,10 +10,10 @@
  * - Add Transaction button: deep emerald-800
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Plus, TrendingUp, TrendingDown, Wallet,
-  Trash2, Loader2, AlertCircle, BookOpen, Users,
+  Trash2, Loader2, AlertCircle, BookOpen, Users, Edit2
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -168,7 +168,7 @@ const SummaryCard = ({ summary, isLoading }) => {
 // ═══════════════════════════════════════════════════════════════
 //  TRANSACTION CARD — Clean, precise red/green indicators
 // ═══════════════════════════════════════════════════════════════
-const TransactionCard = ({ txn, onDelete, isDeleting }) => {
+const TransactionCard = ({ txn, onEdit, onDelete, isDeleting }) => {
   const { t, i18n } = useTranslation();
   const meta = CATEGORY_META[txn.category] || { label: txn.category, icon: '📋' };
   const catLabel = t(`khata.categories.${txn.category}`, { defaultValue: meta.label });
@@ -203,19 +203,29 @@ const TransactionCard = ({ txn, onDelete, isDeleting }) => {
         </p>
       </div>
 
-      {/* Delete Button */}
-      <button
-        onClick={() => onDelete(txn.id)}
-        disabled={isDeleting}
-        className="p-2 rounded-lg hover:bg-red-50 active:bg-red-100 transition-colors shrink-0"
-        aria-label={t('khata.deleteLabel')}
-      >
-        {isDeleting ? (
-          <Loader2 size={16} className="text-red-400 animate-spin" />
-        ) : (
-          <Trash2 size={16} className="text-stone-300 hover:text-red-400 transition-colors" />
-        )}
-      </button>
+      {/* Edit & Delete Buttons */}
+      <div className="flex gap-1 shrink-0">
+        <button
+          onClick={() => onEdit(txn)}
+          disabled={isDeleting}
+          className="p-2 rounded-lg hover:bg-stone-100 active:bg-stone-200 transition-colors"
+          aria-label={t('khata.editLabel', 'Edit')}
+        >
+          <Edit2 size={16} className="text-stone-400 hover:text-emerald-700 transition-colors" />
+        </button>
+        <button
+          onClick={() => onDelete(txn.id)}
+          disabled={isDeleting}
+          className="p-2 rounded-lg hover:bg-red-50 active:bg-red-100 transition-colors"
+          aria-label={t('khata.deleteLabel')}
+        >
+          {isDeleting ? (
+            <Loader2 size={16} className="text-red-400 animate-spin" />
+          ) : (
+            <Trash2 size={16} className="text-stone-300 hover:text-red-400 transition-colors" />
+          )}
+        </button>
+      </div>
     </div>
   );
 };
@@ -249,6 +259,7 @@ const KhataPage = () => {
 
   const [activeTab, setActiveTab] = useState('general');
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
 
   const { data: transactions = [], isLoading: txnLoading, isError: txnError } = useTransactions(farmId);
@@ -282,7 +293,7 @@ const KhataPage = () => {
 
           {/* ── Add Transaction Button ───────────────────────── */}
           <button
-            onClick={() => setIsFormOpen(true)}
+            onClick={() => { setEditingTransaction(null); setIsFormOpen(true); }}
             className="w-full py-4 text-white font-bold text-base rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
             style={{
               background: 'linear-gradient(135deg, #166534, #14532d)',
@@ -324,6 +335,7 @@ const KhataPage = () => {
                   >
                     <TransactionCard
                       txn={txn}
+                      onEdit={(t) => { setEditingTransaction(t); setIsFormOpen(true); }}
                       onDelete={handleDelete}
                       isDeleting={deletingId === txn.id}
                     />
@@ -339,7 +351,11 @@ const KhataPage = () => {
       {activeTab === 'labor' && <LaborDashboard />}
 
       {/* ── Transaction Form Modal ───────────────────────── */}
-      <TransactionForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
+      <TransactionForm 
+        isOpen={isFormOpen} 
+        initialData={editingTransaction}
+        onClose={() => { setIsFormOpen(false); setEditingTransaction(null); }} 
+      />
     </div>
   );
 };

@@ -10,12 +10,13 @@
  * - Inline "+ Add New Majdoor" flow for creating laborers without leaving the form
  */
 
-import React, { useState, useRef } from 'react';
-import { X, IndianRupee, Calendar, Tag, FileText, Users, UserPlus, Loader2, Check } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { X, IndianRupee, Calendar, Tag, FileText, Users, UserPlus, Loader2, Check, Mic, MicOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useActiveFarm } from '../../context/ActiveFarmContext';
-import { useAddTransaction } from '../../hooks/useKhata';
+import { useAddTransaction, useUpdateTransaction } from '../../hooks/useKhata';
 import { useLaborers, useCreateLaborer } from '../../hooks/useFarm';
+import { useVoiceInput } from '../../hooks/useVoiceInput';
 
 const EXPENSE_CATEGORIES = [
   { value: 'seeds',         icon: '🌱' },
@@ -44,11 +45,14 @@ const inputStyle = { background: '#fffdf9', borderColor: '#d6cfc6', color: 'var(
 const ADD_NEW_VALUE = '__add_new__';
 const ADD_CUSTOM_VALUE = '__add_custom__';
 
-const TransactionForm = ({ isOpen, onClose }) => {
+const TransactionForm = ({ isOpen, onClose, initialData = null }) => {
   const { t } = useTranslation();
   const { activeFarm } = useActiveFarm();
   const addMutation = useAddTransaction();
+  const updateMutation = useUpdateTransaction();
   const createLaborerMutation = useCreateLaborer();
+  
+  const { isSupported, isListening, transcript, startListening, stopListening } = useVoiceInput();
 
   const isSubmittingRef = useRef(false);
 
@@ -61,10 +65,66 @@ const TransactionForm = ({ isOpen, onClose }) => {
   const [transactionDate, setTransactionDate] = useState(
     new Date().toISOString().split('T')[0]
   );
+  
+  const [baseDescription, setBaseDescription] = useState('');
 
   // Inline laborer creation state
   const [isAddingLaborer, setIsAddingLaborer] = useState(false);
   const [newLaborerName, setNewLaborerName] = useState('');
+
+  // Populate from initialData for editing
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => {
+    if (isOpen) {
+      if (initialData) {
+        setType(initialData.type === 'labor_wage' ? 'expense' : initialData.type || 'expense');
+        setAmount(initialData.amount ? String(initialData.amount) : '');
+        
+        let initCat = initialData.category === 'labor_wage' ? 'labor' : initialData.category;
+        const allPredefined = [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES].map(c => c.value);
+        if (initCat && !allPredefined.includes(initCat)) {
+          setCategory(ADD_CUSTOM_VALUE);
+          setCustomCategoryName(initCat);
+        } else {
+          setCategory(initCat || '');
+          setCustomCategoryName('');
+        }
+        
+        setLaborerId(initialData.laborer_id ? String(initialData.laborer_id) : '');
+        setDescription(initialData.description || '');
+        setTransactionDate(initialData.transaction_date || new Date().toISOString().split('T')[0]);
+      } else {
+        setType('expense');
+        setAmount('');
+        setCategory('');
+        setCustomCategoryName('');
+        setLaborerId('');
+        setDescription('');
+        setTransactionDate(new Date().toISOString().split('T')[0]);
+      }
+      setIsAddingLaborer(false);
+      setNewLaborerName('');
+      isSubmittingRef.current = false;
+    }
+  }, [isOpen, initialData]);
+  
+  // Voice input handling
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => {
+    if (isListening && transcript) {
+      setDescription(baseDescription ? `${baseDescription} ${transcript}` : transcript);
+    }
+  }, [transcript, isListening, baseDescription]);
+
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      setBaseDescription(description);
+      startListening('hi-IN');
+    }
+  };
+
 
   // Fetch laborers for the active farm (only fires when farmId is truthy)
   const { data: laborers = [], isLoading: laborersLoading } = useLaborers(activeFarm?.id);
@@ -153,22 +213,37 @@ const TransactionForm = ({ isOpen, onClose }) => {
 
     isSubmittingRef.current = true;
 
-    addMutation.mutate(
-      payload,
-      {
-        onSuccess: () => {
-          isSubmittingRef.current = false;
-          setAmount(''); setCategory(''); setCustomCategoryName(''); setDescription(''); setLaborerId('');
-          setTransactionDate(new Date().toISOString().split('T')[0]);
-          setIsAddingLaborer(false);
-          setNewLaborerName('');
-          onClose();
-        },
-        onError: () => {
-          isSubmittingRef.current = false;
-        },
-      }
-    );
+    if (initialData) {
+      updateMutation.mutate(
+        { id: initialData.id, data: payload },
+        {
+          onSuccess: () => {
+            isSubmittingRef.current = false;
+            onClose();
+          },
+          onError: () => {
+            isSubmittingRef.current = false;
+          },
+        }
+      );
+    } else {
+      addMutation.mutate(
+        payload,
+        {
+          onSuccess: () => {
+            isSubmittingRef.current = false;
+            setAmount(''); setCategory(''); setCustomCategoryName(''); setDescription(''); setLaborerId('');
+            setTransactionDate(new Date().toISOString().split('T')[0]);
+            setIsAddingLaborer(false);
+            setNewLaborerName('');
+            onClose();
+          },
+          onError: () => {
+            isSubmittingRef.current = false;
+          },
+        }
+      );
+    }
   };
 
   if (!isOpen) return null;
@@ -194,7 +269,7 @@ const TransactionForm = ({ isOpen, onClose }) => {
             className="text-lg font-bold font-serif-accent"
             style={{ color: 'var(--color-forest)' }}
           >
-            {t('khata.form.title')}
+            {initialData ? t('khata.form.editTitle', 'Edit Transaction') : t('khata.form.title')}
           </h2>
           <button
             onClick={onClose}
@@ -424,22 +499,38 @@ const TransactionForm = ({ isOpen, onClose }) => {
             <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
               <FileText size={14} /> {t('khata.form.noteOptional')}
             </label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder={t('khata.form.notePlaceholder')}
-              maxLength={255}
-              className={inputClass}
-              style={inputStyle}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={t('khata.form.notePlaceholder')}
+                maxLength={255}
+                className={`${inputClass} ${isSupported ? 'pr-12' : ''}`}
+                style={inputStyle}
+              />
+              {isSupported && (
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all ${
+                    isListening 
+                      ? 'bg-red-50 text-red-500 shadow-sm animate-pulse' 
+                      : 'text-emerald-700 hover:bg-stone-100'
+                  }`}
+                  title="Voice input"
+                >
+                  {isListening ? <MicOff size={20} /> : <Mic size={20} />}
+                </button>
+              )}
+            </div>
           </div>
 
           {/* ── Submit Button ─────────────────────────────── */}
           <button
             type="submit"
             disabled={
-              addMutation.isPending ||
+              addMutation.isPending || updateMutation.isPending ||
               !amount ||
               !category ||
               (category === ADD_CUSTOM_VALUE && !customCategoryName.trim())
@@ -454,17 +545,19 @@ const TransactionForm = ({ isOpen, onClose }) => {
                 : '0 4px 20px rgba(22,101,52,0.35)',
             }}
           >
-            {addMutation.isPending ? (
+            {addMutation.isPending || updateMutation.isPending ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                 {t('khata.form.saving')}
               </span>
             ) : (
-              type === 'expense' ? t('khata.form.saveKharcha') : t('khata.form.saveAmdani')
+              initialData 
+                ? t('khata.form.update', 'Update') 
+                : (type === 'expense' ? t('khata.form.saveKharcha') : t('khata.form.saveAmdani'))
             )}
           </button>
 
-          {addMutation.isError && (
+          {(addMutation.isError || updateMutation.isError) && (
             <p className="text-center text-sm text-red-500 bg-red-50 rounded-xl py-2 px-3">
               {t('khata.form.saveFailed')}
             </p>

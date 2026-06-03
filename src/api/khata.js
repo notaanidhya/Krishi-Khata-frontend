@@ -44,3 +44,13 @@ export const addTransaction = async (transaction) => {
 export const deleteTransaction = async (id) => {
   await apiClient.delete(`/api/v1/khata/transactions/${id}`);
 };
+
+/**
+ * Update a Khata transaction by ID.
+ * @param {Object} payload - { id, data }
+ */
+export const updateTransaction = async ({ id, data }) => {
+  const response = await apiClient.patch(`/api/v1/khata/transactions/${id}`, data);
+  return response.data;
+};
+

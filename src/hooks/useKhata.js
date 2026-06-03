@@ -6,7 +6,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTransactions, getSummary, addTransaction, deleteTransaction } from '../api/khata';
+import { getTransactions, getSummary, addTransaction, deleteTransaction, updateTransaction } from '../api/khata';
 
 const KHATA_KEYS = {
   transactions: (farmId) => ['khata', 'transactions', farmId],
@@ -77,6 +77,19 @@ export const useDeleteTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteTransaction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['khata'] });
+    },
+  });
+};
+
+/**
+ * Mutation: update a transaction by ID.
+ */
+export const useUpdateTransaction = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateTransaction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['khata'] });
     },

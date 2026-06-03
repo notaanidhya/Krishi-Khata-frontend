@@ -8,10 +8,10 @@
  * - Warm earthy color palette throughout
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Sprout, Loader2,
-  Plus, CheckCircle2, Timer, Trash2,
+  Plus, CheckCircle2, Timer, Trash2, BookOpen
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useActiveFarm } from '../context/ActiveFarmContext';
@@ -20,17 +20,19 @@ import CropVisualizer from '../features/crops/CropVisualizer';
 import CropDoctor from '../features/crops/CropDoctor';
 import SmartSchedule from '../features/crops/SmartSchedule';
 import AddCropModal from '../features/crops/AddCropModal';
+import AddLogModal from '../features/crops/AddLogModal';
 
 const CropTrackingPage = () => {
   const { t, i18n } = useTranslation();
   const { activeFarm } = useActiveFarm();
   const farmId = activeFarm?.id;
 
-  const { data: allCrops, isLoading, isError } = useCrops(farmId);
+  const { data: allCrops, isLoading } = useCrops(farmId);
   const activeCrops = allCrops?.filter((c) => c.status === 'ACTIVE') || [];
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const [activeLogCropId, setActiveLogCropId] = useState(null);
 
   const deleteMutation = useDeleteCrop();
 
@@ -235,11 +237,63 @@ const CropTrackingPage = () => {
             daysSincePlanting={activeCrop.days_since_planting}
             plantingDate={activeCrop.planting_date}
           />
+
+          {/* Crop Diary Section */}
+          <div className="pt-4 mt-4 border-t border-stone-200">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-bold text-sm text-stone-700 flex items-center gap-1.5">
+                <BookOpen size={16} className="text-emerald-700" />
+                {t('crops.diary', 'Crop Diary')}
+              </h4>
+              <button
+                onClick={() => setActiveLogCropId(activeCrop.id)}
+                className="px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg hover:bg-emerald-100 transition-colors"
+              >
+                + {t('crops.addLogBtn', 'Add Log')}
+              </button>
+            </div>
+            
+            {activeCrop.logs && activeCrop.logs.length > 0 ? (
+              <div className="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+                {activeCrop.logs.map(log => (
+                  <div key={log.id} className="bg-white p-3 rounded-xl border border-stone-100 shadow-sm">
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                        {new Date(log.log_date).toLocaleDateString()}
+                      </span>
+                      {log.ai_extracted_stage && (
+                        <span className="text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">
+                          {log.ai_extracted_stage}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-stone-700 leading-relaxed">{log.raw_content}</p>
+                    {log.ai_health_notes && (
+                      <div className="mt-2 p-2 bg-emerald-50 rounded-lg border border-emerald-100">
+                        <p className="text-xs text-emerald-800 font-medium">🩺 AI Notes: {log.ai_health_notes}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6 bg-stone-50 rounded-xl border border-stone-100">
+                <p className="text-xs text-stone-400">{t('crops.noLogs', 'No diary entries yet. Add one to track progress!')}</p>
+              </div>
+            )}
+          </div>
         </div>
       ))}
 
       {/* ── Add Crop Modal ──────────────────────────────── */}
       <AddCropModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} farmId={farmId} />
+      
+      {/* ── Add Log Modal ──────────────────────────────── */}
+      <AddLogModal 
+        isOpen={!!activeLogCropId} 
+        onClose={() => setActiveLogCropId(null)} 
+        cropId={activeLogCropId} 
+      />
     </div>
   );
 };

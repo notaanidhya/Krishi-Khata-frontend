@@ -128,14 +128,12 @@ const addDaysToDate = (isoDateStr, days) => {
 const SmartSchedule = ({ cropName, daysSincePlanting, plantingDate }) => {
   const milestones = useMemo(() => {
     const schedule = getSchedule(cropName);
-    let foundNext = false;
-    return schedule.map((item) => {
+    const firstIncompleteIndex = schedule.findIndex((item) => item.day > daysSincePlanting);
+    
+    return schedule.map((item, index) => {
       const completed = item.day <= daysSincePlanting;
-      let isCurrent = false;
-      if (!completed && !foundNext) {
-        isCurrent = true;
-        foundNext = true;
-      }
+      const isCurrent = index === firstIncompleteIndex;
+      
       return {
         ...item,
         completed,

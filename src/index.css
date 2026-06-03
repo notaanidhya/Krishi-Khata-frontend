@@ -41,10 +41,33 @@ body {
   min-height: 100vh;
   background-color: var(--color-soil);
   color: var(--color-ink);
+  position: relative;
+}
+
+/* ── Global Organic Topographic Texture ──────────────────────
+   A barely-visible contour-line pattern inspired by land-survey
+   maps. Evokes terrain, soil, and the agricultural landscape.
+   Rendered via inline SVG Data URI — zero network requests.
+   ───────────────────────────────────────────────────────────── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cdefs%3E%3Cstyle%3Epath%7Bfill:none;stroke:%23052e16;stroke-width:0.8;stroke-linecap:round%7D%3C/style%3E%3C/defs%3E%3Cpath d='M10 80c20-15 40-25 70-20s50 20 80 15 30-20 40-25'/%3E%3Cpath d='M0 110c30-10 50-30 80-25s45 25 75 18 35-18 45-22'/%3E%3Cpath d='M5 145c25-12 55-22 85-15s40 20 65 12 30-15 45-18'/%3E%3Cpath d='M0 40c15-8 35-18 60-12s55 15 80 8 40-12 60-15'/%3E%3Cpath d='M15 175c20-8 45-15 70-10s50 12 75 5 25-10 40-12'/%3E%3Cpath d='M0 15c25-5 45-10 75-5s55 10 80 5 30-8 45-10'/%3E%3Cpath d='M10 190c20-5 50-10 80-6s45 8 70 3 25-6 40-8'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  background-repeat: repeat;
+  background-attachment: fixed;
+  background-blend-mode: multiply;
+  mix-blend-mode: multiply;
 }
 
 #root {
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Serif accent font — screen headers only ──────────────── */

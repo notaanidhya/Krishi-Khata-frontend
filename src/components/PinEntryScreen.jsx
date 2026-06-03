@@ -48,7 +48,7 @@ const PinEntryScreen = ({ userName, onLogin, isLoading, error }) => {
             <Sprout size={36} className="text-amber-300" />
           </div>
           <h1 className="text-3xl font-black tracking-tight font-serif" style={{ color: 'var(--color-forest, #064e3b)' }}>
-            {t('pin.welcomeBack')}, {userName?.split(' ')[0]}
+            {t('pin.greeting')}, {userName?.split(' ')[0]}
           </h1>
           <p className="text-sm text-stone-500 mt-2">
             {t('pin.subtitle')}

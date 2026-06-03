@@ -69,3 +69,14 @@ export const askCropAI = async (cropId, query) => {
   const { data } = await apiClient.post(`/api/v1/crops/${cropId}/ask_ai`, { query });
   return data;
 };
+
+/**
+ * Add a new diary log for a crop.
+ * @param {number} cropId
+ * @param {Object} logData - { raw_content, log_date, input_type }
+ */
+export const addCropLog = async (cropId, logData) => {
+  const { data } = await apiClient.post(`/api/v1/crops/${cropId}/logs`, logData);
+  return data;
+};
+

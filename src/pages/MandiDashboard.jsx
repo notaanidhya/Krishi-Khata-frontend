@@ -47,12 +47,14 @@ const MandiDashboard = () => {
 
   // Sync state if farm changes
   useEffect(() => {
-    const rawDistrict = activeFarm?.district;
-    if (rawDistrict && rawDistrict !== 'N/A' && rawDistrict.toLowerCase() !== 'madhya pradesh') {
-      setSelectedDistrict(rawDistrict);
-    } else {
-      setSelectedDistrict('Indore');
+    let rawDistrict = activeFarm?.district;
+    if (!rawDistrict || rawDistrict === 'N/A' || rawDistrict.toLowerCase() === 'madhya pradesh') {
+      rawDistrict = 'Indore';
     }
+    
+    // Only update state if it actually changed
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSelectedDistrict(prev => prev !== rawDistrict ? rawDistrict : prev);
     if (defaultCommodity) setSelectedCommodity(defaultCommodity);
   }, [activeFarm, defaultCommodity]);
 
@@ -98,7 +100,7 @@ const MandiDashboard = () => {
     // TanStack Query will auto-refetch because queryKey includes selectedCommodity
   }, []);
 
-  const { data: historyResponse, isLoading, isFetching, isError } = useQuery({
+  const { data: historyResponse, isLoading, isFetching } = useQuery({
     queryKey: ['mandiHistory', selectedCommodity, selectedDistrict],
     queryFn: () => getMandiHistory({ commodity: selectedCommodity, district: selectedDistrict }),
     enabled: !!selectedCommodity && !!selectedDistrict,
@@ -108,11 +110,11 @@ const MandiDashboard = () => {
 
   // Handle new response shape: { records: [...], backfilled: bool }
   const historyData = historyResponse?.records ?? historyResponse ?? [];
-  const wasBackfilled = historyResponse?.backfilled ?? false;
+  const historyRecords = historyData?.records || historyData || [];
   
   // Calculations for KPI Cards
-  const todayRecord = historyData.length > 0 ? historyData[historyData.length - 1] : null;
-  const yesterdayRecord = historyData.length > 1 ? historyData[historyData.length - 2] : null;
+  const todayRecord = historyRecords.length > 0 ? historyRecords[historyRecords.length - 1] : null;
+  const yesterdayRecord = historyRecords.length > 1 ? historyRecords[historyRecords.length - 2] : null;
   
   const todayPrice = todayRecord ? todayRecord.price : 0;
   const yesterdayPrice = yesterdayRecord ? yesterdayRecord.price : 0;
