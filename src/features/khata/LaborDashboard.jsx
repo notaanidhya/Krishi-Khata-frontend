@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { useActiveFarm } from '../../context/ActiveFarmContext';
 import { useLaborers } from '../../hooks/useFarm';
 import { useTransactionsByLaborer, useSettleLaborer } from '../../hooks/useKhata';
+import useModalAnimation from '../../hooks/useModalAnimation';
 
 // ── Helpers ────────────────────────────────────────────────────
 const formatINR = (value) =>
@@ -31,8 +32,9 @@ const formatDate = (dateStr) =>
 // ═══════════════════════════════════════════════════════════════
 //  SETTLEMENT MODAL — Pay laborer prompt
 // ═══════════════════════════════════════════════════════════════
-const SettlementModal = ({ laborer, farmId, onClose }) => {
+const SettlementModal = ({ laborer, farmId, onClose, isOpen }) => {
   const { t } = useTranslation();
+  const { mounted, animating } = useModalAnimation(isOpen, 340);
   const settleMutation = useSettleLaborer();
   const [payAmount, setPayAmount] = useState(
     laborer.current_balance > 0 ? String(laborer.current_balance) : ''
@@ -59,10 +61,15 @@ const SettlementModal = ({ laborer, farmId, onClose }) => {
     );
   };
 
+  if (!mounted) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm modal-backdrop ${animating ? 'modal-open' : ''}`}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
       <div
-        className="w-full max-w-sm mx-4 rounded-2xl shadow-2xl animate-slide-up overflow-hidden"
+        className={`w-full max-w-sm mx-4 rounded-2xl shadow-2xl overflow-hidden modal-center ${animating ? 'modal-open' : ''}`}
         style={{ background: 'var(--color-soil)' }}
       >
         {/* Header */}
@@ -348,13 +355,12 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
       </div>
 
       {/* Settlement Modal */}
-      {showSettleModal && (
-        <SettlementModal
-          laborer={laborer}
-          farmId={farmId}
-          onClose={() => setShowSettleModal(false)}
-        />
-      )}
+      <SettlementModal
+        laborer={laborer}
+        farmId={farmId}
+        isOpen={showSettleModal}
+        onClose={() => setShowSettleModal(false)}
+      />
     </div>
   );
 };

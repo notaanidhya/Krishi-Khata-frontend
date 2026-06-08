@@ -153,7 +153,7 @@ export const useWeather = () => {
           setStatus('success');
         },
         () => setStatus('error'),
-        { timeout: 8000 }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
       // eslint-disable-next-line react-hooks/set-state-in-effect

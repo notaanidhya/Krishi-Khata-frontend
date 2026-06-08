@@ -17,6 +17,7 @@ import { useActiveFarm } from '../../context/ActiveFarmContext';
 import { useAddTransaction, useUpdateTransaction } from '../../hooks/useKhata';
 import { useLaborers, useCreateLaborer } from '../../hooks/useFarm';
 import { useVoiceInput } from '../../hooks/useVoiceInput';
+import useModalAnimation from '../../hooks/useModalAnimation';
 
 const EXPENSE_CATEGORIES = [
   { value: 'seeds',         icon: '🌱' },
@@ -48,6 +49,7 @@ const ADD_CUSTOM_VALUE = '__add_custom__';
 const TransactionForm = ({ isOpen, onClose, initialData = null }) => {
   const { t } = useTranslation();
   const { activeFarm } = useActiveFarm();
+  const { mounted, animating } = useModalAnimation(isOpen, 380);
   const addMutation = useAddTransaction();
   const updateMutation = useUpdateTransaction();
   const createLaborerMutation = useCreateLaborer();
@@ -246,15 +248,18 @@ const TransactionForm = ({ isOpen, onClose, initialData = null }) => {
     }
   };
 
-  if (!isOpen) return null;
+  if (!mounted) return null;
 
   return (
     /* Backdrop */
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm">
+    <div
+      className={`fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm modal-backdrop ${animating ? 'modal-open' : ''}`}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
 
       {/* Modal Card */}
       <div
-        className="w-full max-w-lg rounded-t-3xl shadow-2xl animate-slide-up max-h-[90vh] overflow-y-auto"
+        className={`w-full max-w-lg rounded-t-3xl shadow-2xl max-h-[90vh] overflow-y-auto modal-sheet ${animating ? 'modal-open' : ''}`}
         style={{ background: 'var(--color-soil)', borderTop: '3px solid #14532d' }}
       >
         {/* Handle bar */}

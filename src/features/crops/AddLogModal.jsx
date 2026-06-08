@@ -3,9 +3,11 @@ import { X, Mic, MicOff, Loader2, BookOpen, Send, AlertCircle } from 'lucide-rea
 import { useTranslation } from 'react-i18next';
 import { useAddCropLog } from '../../hooks/useCrop';
 import { useVoiceInput } from '../../hooks/useVoiceInput';
+import useModalAnimation from '../../hooks/useModalAnimation';
 
 const AddLogModal = ({ isOpen, onClose, cropId }) => {
   const { t } = useTranslation();
+  const { mounted, animating } = useModalAnimation(isOpen, 380);
   const addLogMutation = useAddCropLog();
   const { isSupported, isListening, transcript, startListening, stopListening } = useVoiceInput();
 
@@ -57,12 +59,15 @@ const AddLogModal = ({ isOpen, onClose, cropId }) => {
     );
   };
 
-  if (!isOpen) return null;
+  if (!mounted) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm">
+    <div
+      className={`fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm modal-backdrop ${animating ? 'modal-open' : ''}`}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
       <div
-        className="w-full max-w-lg rounded-t-3xl shadow-2xl animate-slide-up"
+        className={`w-full max-w-lg rounded-t-3xl shadow-2xl modal-sheet ${animating ? 'modal-open' : ''}`}
         style={{ background: 'var(--color-soil)', borderTop: '3px solid #14532d' }}
       >
         <div className="w-10 h-1 bg-stone-300 rounded-full mx-auto mt-4" />

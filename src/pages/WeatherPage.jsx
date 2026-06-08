@@ -11,7 +11,7 @@
  * Warm Krishi design system: forest green, amber accents, clay backgrounds.
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CloudSun, Sparkles, Droplets, Sprout,
@@ -82,9 +82,25 @@ const getRainColor = (pct) => {
 const WeatherPage = () => {
   const { t, i18n } = useTranslation();
   const { activeFarm } = useActiveFarm();
+  const [liveCoords, setLiveCoords] = useState(null);
+
+  // Fetch precise live location on mount
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setLiveCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+        (err) => console.warn('Live location failed, falling back to farm coords', err),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+  }, []);
+
+  const lat = liveCoords?.lat || activeFarm?.latitude;
+  const lon = liveCoords?.lon || activeFarm?.longitude;
+
   const { data, isLoading, isError } = useWeatherDashboard(
-    activeFarm?.latitude,
-    activeFarm?.longitude,
+    lat,
+    lon,
     activeFarm?.district,
     activeFarm?.state
   );

@@ -34,7 +34,7 @@ export const useTransactions = (farmId) => {
   return useQuery({
     queryKey: KHATA_KEYS.transactions(farmId),
     queryFn:  withFallback(() => getTransactions({ farm_id: farmId }), EMPTY_TRANSACTIONS),
-    staleTime: 1000 * 60 * 2,
+    staleTime: 1000 * 30,                 // 30s — feels real-time after mutations
     retry: 2,                            // Retry twice for Render cold-start resilience
     retryDelay: 3000,                     // 3s between retries
     enabled: hasToken,
@@ -50,7 +50,7 @@ export const useSummary = (farmId) => {
   return useQuery({
     queryKey: KHATA_KEYS.summary(farmId),
     queryFn:  withFallback(() => getSummary(farmId), EMPTY_SUMMARY),
-    staleTime: 1000 * 60 * 2,
+    staleTime: 1000 * 30,                 // 30s — feels real-time after mutations
     retry: 2,                            // Retry twice for Render cold-start resilience
     retryDelay: 3000,                     // 3s between retries
     enabled: hasToken,
@@ -65,7 +65,7 @@ export const useAddTransaction = () => {
   return useMutation({
     mutationFn: addTransaction,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['khata'] });
+      queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' });
     },
   });
 };
@@ -78,7 +78,7 @@ export const useDeleteTransaction = () => {
   return useMutation({
     mutationFn: deleteTransaction,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['khata'] });
+      queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' });
     },
   });
 };
@@ -91,7 +91,7 @@ export const useUpdateTransaction = () => {
   return useMutation({
     mutationFn: updateTransaction,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['khata'] });
+      queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' });
     },
   });
 };
@@ -108,7 +108,7 @@ export const useTransactionsByLaborer = (farmId, laborerId) => {
       () => getTransactions({ farm_id: farmId, laborer_id: laborerId }),
       EMPTY_TRANSACTIONS
     ),
-    staleTime: 1000 * 60 * 2,
+    staleTime: 1000 * 30,                 // 30s — feels real-time after mutations
     retry: 2,
     retryDelay: 3000,
     enabled: hasToken && !!farmId && !!laborerId,
@@ -124,8 +124,8 @@ export const useSettleLaborer = () => {
   return useMutation({
     mutationFn: addTransaction,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['khata'] });
-      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'] });
+      queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'], refetchType: 'all' });
     },
   });
 };

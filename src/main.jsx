@@ -10,7 +10,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      staleTime: 1000 * 60 * 5, // 5 minutes
+      staleTime: 0, // Always refetch on invalidation; per-query staleTime handles normal caching
     },
   },
 })

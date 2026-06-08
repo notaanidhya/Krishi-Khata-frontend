@@ -34,7 +34,7 @@ export const useActiveCrop = (farmId) => {
     queryKey: CROP_KEYS.activeCrop(farmId),
     queryFn: () => getActiveCrop(farmId),
     enabled: !!farmId,
-    staleTime: 1000 * 60 * 2,
+    staleTime: 1000 * 30,
   });
 };
 
@@ -46,7 +46,7 @@ export const useCrops = (farmId) => {
     queryKey: CROP_KEYS.crops(farmId),
     queryFn: () => getCrops(farmId),
     enabled: !!farmId,
-    staleTime: 1000 * 60 * 2,
+    staleTime: 1000 * 30,
   });
 };
 
@@ -70,10 +70,10 @@ export const useCreateCrop = () => {
   return useMutation({
     mutationFn: ({ farmId, cropData }) => createCrop(farmId, cropData),
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: CROP_KEYS.activeCrop(variables.farmId) });
-      queryClient.invalidateQueries({ queryKey: CROP_KEYS.crops(variables.farmId) });
+      queryClient.invalidateQueries({ queryKey: CROP_KEYS.activeCrop(variables.farmId), refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: CROP_KEYS.crops(variables.farmId), refetchType: 'all' });
       // Invalidate the generic 'crops' list as well
-      queryClient.invalidateQueries({ queryKey: ['crops'] });
+      queryClient.invalidateQueries({ queryKey: ['crops'], refetchType: 'all' });
     },
   });
 };
@@ -87,8 +87,8 @@ export const useDeleteCrop = () => {
   return useMutation({
     mutationFn: ({ cropId }) => deleteCrop(cropId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeCrop'] });
-      queryClient.invalidateQueries({ queryKey: ['crops'] });
+      queryClient.invalidateQueries({ queryKey: ['activeCrop'], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ['crops'], refetchType: 'all' });
     },
   });
 };
@@ -103,8 +103,8 @@ export const useAddCropLog = () => {
     mutationFn: ({ cropId, logData }) => addCropLog(cropId, logData),
     onSuccess: () => {
       // Invalidate crop cache to refresh logs
-      queryClient.invalidateQueries({ queryKey: ['activeCrop'] });
-      queryClient.invalidateQueries({ queryKey: ['crops'] });
+      queryClient.invalidateQueries({ queryKey: ['activeCrop'], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ['crops'], refetchType: 'all' });
     },
   });
 };

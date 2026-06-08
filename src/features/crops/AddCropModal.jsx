@@ -9,6 +9,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Sprout, Search, Calendar, ChevronDown, Loader2 } from 'lucide-react';
 import { useCropPresets, useCreateCrop } from '../../hooks/useCrop';
+import useModalAnimation from '../../hooks/useModalAnimation';
 
 const inputStyle = {
   background: '#fffdf9',
@@ -18,6 +19,7 @@ const inputStyle = {
 
 const AddCropModal = ({ isOpen, onClose, farmId }) => {
   const { t } = useTranslation();
+  const { mounted, animating } = useModalAnimation(isOpen, 380);
   const [cropName, setCropName] = useState('');
   const [plantingDate, setPlantingDate] = useState(new Date().toISOString().split('T')[0]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -57,16 +59,18 @@ const AddCropModal = ({ isOpen, onClose, farmId }) => {
     );
   };
 
-  if (!isOpen) return null;
+  if (!mounted) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center">
+    <div
+      className={`fixed inset-0 z-50 flex items-end justify-center modal-backdrop ${animating ? 'modal-open' : ''}`}
+    >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
       <div
-        className="relative w-full max-w-lg rounded-t-3xl shadow-2xl animate-slide-up p-6 pb-8"
+        className={`relative w-full max-w-lg rounded-t-3xl shadow-2xl p-6 pb-8 modal-sheet ${animating ? 'modal-open' : ''}`}
         style={{ background: 'var(--color-soil)', borderTop: '3px solid #14532d' }}
       >
         {/* Handle bar */}
