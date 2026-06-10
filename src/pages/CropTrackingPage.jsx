@@ -159,12 +159,20 @@ const CropTrackingPage = () => {
         >
           {/* Crop name — serif font, botanical journal */}
           <div className="flex items-center justify-between mb-2 px-1">
-            <h3
-              className="text-xl font-bold font-serif-accent flex-1"
-              style={{ color: 'var(--color-forest)' }}
-            >
-              {activeCrop.crop_name}
-            </h3>
+            <div className="flex items-center gap-2 flex-1">
+              <h3
+                className="text-xl font-bold font-serif-accent"
+                style={{ color: 'var(--color-forest)' }}
+              >
+                {activeCrop.crop_name}
+              </h3>
+              {activeCrop.is_processing && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 animate-pulse border border-amber-200 shadow-sm">
+                  <Loader2 size={12} className="animate-spin" />
+                  {t('crops.processing', 'Processing...')}
+                </span>
+              )}
+            </div>
             {!showDeleteConfirm || showDeleteConfirm !== activeCrop.id ? (
               <button
                 onClick={() => setShowDeleteConfirm(activeCrop.id)}
