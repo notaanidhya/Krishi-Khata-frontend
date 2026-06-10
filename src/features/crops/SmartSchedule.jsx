@@ -5,143 +5,52 @@
  */
 
 import React, { useMemo } from 'react';
-import { CalendarCheck, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { CalendarCheck, Check, Sparkles } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import apiClient from '../../api/apiClient';
 
-const CROP_SCHEDULES = {
-  Wheat: [
-    { day: 0, task: 'Sowing (बुआई)', icon: '🌱' },
-    { day: 7, task: 'First Irrigation', icon: '💧' },
-    { day: 15, task: 'Weeding (निराई)', icon: '🌿' },
-    { day: 21, task: 'First Fertilizer (DAP/Urea)', icon: '🧪' },
-    { day: 45, task: 'Second Fertilizer', icon: '🧪' },
-    { day: 60, task: 'Pest Inspection', icon: '🐛' },
-    { day: 90, task: 'Flowering Stage Care', icon: '🌸' },
-    { day: 110, task: 'Pre-Harvest Check', icon: '📋' },
-    { day: 120, task: 'Harvest (कटाई)', icon: '🌾' },
-  ],
-  Rice: [
-    { day: 0, task: 'Nursery Sowing (बुआई)', icon: '🌱' },
-    { day: 21, task: 'Transplanting (रोपाई)', icon: '🌾' },
-    { day: 30, task: 'First Weeding', icon: '🌿' },
-    { day: 35, task: 'Fertilizer Application', icon: '🧪' },
-    { day: 55, task: 'Second Weeding', icon: '🌿' },
-    { day: 65, task: 'Pest/Disease Check', icon: '🐛' },
-    { day: 95, task: 'Flowering Care', icon: '🌸' },
-    { day: 120, task: 'Grain Filling Watch', icon: '👀' },
-    { day: 130, task: 'Harvest (कटाई)', icon: '🌾' },
-  ],
-  Maize: [
-    { day: 0, task: 'Sowing (बुआई)', icon: '🌱' },
-    { day: 7, task: 'First Irrigation', icon: '💧' },
-    { day: 14, task: 'Thinning & Gap Filling', icon: '✂️' },
-    { day: 20, task: 'First Fertilizer (Urea)', icon: '🧪' },
-    { day: 30, task: 'Weeding (निराई)', icon: '🌿' },
-    { day: 45, task: 'Second Fertilizer', icon: '🧪' },
-    { day: 55, task: 'Pest Inspection', icon: '🐛' },
-    { day: 65, task: 'Tasseling Care', icon: '🌸' },
-    { day: 85, task: 'Cob Development Watch', icon: '👀' },
-    { day: 100, task: 'Harvest (कटाई)', icon: '🌾' },
-  ],
-  Bajra: [
-    { day: 0, task: 'Sowing (बुआई)', icon: '🌱' },
-    { day: 7, task: 'First Irrigation', icon: '💧' },
-    { day: 15, task: 'Thinning', icon: '✂️' },
-    { day: 20, task: 'Fertilizer Application', icon: '🧪' },
-    { day: 30, task: 'Weeding (निराई)', icon: '🌿' },
-    { day: 45, task: 'Pest/Disease Check', icon: '🐛' },
-    { day: 55, task: 'Ear Head Formation', icon: '🌸' },
-    { day: 70, task: 'Grain Filling Watch', icon: '👀' },
-    { day: 85, task: 'Harvest (कटाई)', icon: '🌾' },
-  ],
-  Tomato: [
-    { day: 0, task: 'Nursery Sowing (बुआई)', icon: '🌱' },
-    { day: 25, task: 'Transplanting (रोपाई)', icon: '🌿' },
-    { day: 35, task: 'Staking & First Fertilizer', icon: '🧪' },
-    { day: 45, task: 'Weeding & Mulching', icon: '🌿' },
-    { day: 55, task: 'Flowering Care', icon: '🌸' },
-    { day: 65, task: 'Pest/Disease Spray', icon: '🐛' },
-    { day: 75, task: 'Fruit Setting Watch', icon: '👀' },
-    { day: 90, task: 'First Harvest Pick', icon: '🍅' },
-    { day: 120, task: 'Final Harvest (कटाई)', icon: '🌾' },
-  ],
-  Cotton: [
-    { day: 0, task: 'Sowing (बुआई)', icon: '🌱' },
-    { day: 10, task: 'First Irrigation', icon: '💧' },
-    { day: 20, task: 'Thinning & Gap Filling', icon: '✂️' },
-    { day: 30, task: 'First Fertilizer (Urea)', icon: '🧪' },
-    { day: 45, task: 'Weeding (निराई)', icon: '🌿' },
-    { day: 60, task: 'Pest Inspection (Bollworm)', icon: '🐛' },
-    { day: 80, task: 'Flowering & Boll Formation', icon: '🌸' },
-    { day: 100, task: 'Boll Opening Watch', icon: '👀' },
-    { day: 130, task: 'First Picking', icon: '🌾' },
-    { day: 150, task: 'Final Picking (कटाई)', icon: '🌾' },
-  ],
-  Soybean: [
-    { day: 0, task: 'Sowing (बुआई)', icon: '🌱' },
-    { day: 10, task: 'First Irrigation', icon: '💧' },
-    { day: 20, task: 'Weeding (निराई)', icon: '🌿' },
-    { day: 25, task: 'Fertilizer Application', icon: '🧪' },
-    { day: 40, task: 'Second Weeding', icon: '🌿' },
-    { day: 50, task: 'Pest/Disease Check', icon: '🐛' },
-    { day: 60, task: 'Flowering Care', icon: '🌸' },
-    { day: 80, task: 'Pod Filling Watch', icon: '👀' },
-    { day: 100, task: 'Harvest (कटाई)', icon: '🌾' },
-  ],
-};
-
-const DEFAULT_SCHEDULE = [
-  { day: 0, task: 'Sowing (बुआई)', icon: '🌱' },
-  { day: 10, task: 'First Irrigation', icon: '💧' },
-  { day: 20, task: 'Weeding (निराई)', icon: '🌿' },
-  { day: 30, task: 'Fertilizer Application', icon: '🧪' },
-  { day: 50, task: 'Pest Inspection', icon: '🐛' },
-  { day: 70, task: 'Flowering Stage Care', icon: '🌸' },
-  { day: 90, task: 'Pre-Harvest Check', icon: '📋' },
-  { day: 110, task: 'Harvest (कटाई)', icon: '🌾' },
-];
-
-/**
- * Returns the schedule for a given crop name.
- * Tries exact match first, then case-insensitive, then falls back to default.
- */
-const getSchedule = (cropName) => {
-  if (!cropName) return DEFAULT_SCHEDULE;
-  if (CROP_SCHEDULES[cropName]) return CROP_SCHEDULES[cropName];
-  const key = Object.keys(CROP_SCHEDULES).find(
-    (k) => k.toLowerCase() === cropName.toLowerCase()
-  );
-  return key ? CROP_SCHEDULES[key] : DEFAULT_SCHEDULE;
+const fetchCropTasks = async (cropId) => {
+  const { data } = await apiClient.get(`/api/v1/crops/${cropId}/tasks`);
+  return data; // { tasks: [{task, icon, day, status}], source, stage }
 };
 
 /**
  * Adds a number of days to a base date string and returns a formatted date.
  */
-const addDaysToDate = (isoDateStr, days) => {
+const addDaysToDate = (isoDateStr, days, language) => {
   const date = new Date(isoDateStr + 'T00:00:00');
   date.setDate(date.getDate() + days);
-  return date.toLocaleDateString('en-IN', {
+  return date.toLocaleDateString(language === 'hi' ? 'hi-IN' : 'en-IN', {
     day: 'numeric',
     month: 'short',
   });
 };
 
-const SmartSchedule = ({ cropName, daysSincePlanting, plantingDate }) => {
+const SmartSchedule = ({ cropId, cropName, daysSincePlanting, plantingDate }) => {
+  const { t, i18n } = useTranslation();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['cropTasks', cropId],
+    queryFn: () => fetchCropTasks(cropId),
+    enabled: !!cropId,
+  });
+
   const milestones = useMemo(() => {
-    const schedule = getSchedule(cropName);
-    const firstIncompleteIndex = schedule.findIndex((item) => item.day > daysSincePlanting);
+    if (!data?.tasks) return [];
     
-    return schedule.map((item, index) => {
-      const completed = item.day <= daysSincePlanting;
-      const isCurrent = index === firstIncompleteIndex;
+    return data.tasks.map((item) => {
+      const completed = item.status === 'completed';
+      const isCurrent = item.status === 'current';
       
       return {
         ...item,
         completed,
         isCurrent,
-        calendarDate: plantingDate ? addDaysToDate(plantingDate, item.day) : null,
+        calendarDate: plantingDate && item.day !== undefined ? addDaysToDate(plantingDate, item.day, i18n.language) : null,
       };
     });
-  }, [cropName, daysSincePlanting, plantingDate]);
+  }, [data, plantingDate, i18n.language]);
 
   return (
     <div
@@ -160,20 +69,35 @@ const SmartSchedule = ({ cropName, daysSincePlanting, plantingDate }) => {
           <CalendarCheck size={18} className="text-white" />
         </div>
         <div className="flex-1">
-          <h4
-            className="text-sm font-bold font-serif-accent"
-            style={{ color: 'var(--color-forest)' }}
-          >
-            Smart Schedule
-          </h4>
-          <p className="text-[10px] text-stone-400 font-medium">
-            {cropName} • {milestones.filter((m) => m.completed).length}/{milestones.length} completed
+          <div className="flex items-center gap-1.5">
+            <h4
+              className="text-sm font-bold font-serif-accent"
+              style={{ color: 'var(--color-forest)' }}
+            >
+              {t('crops.schedule.title')}
+            </h4>
+            {data?.source === 'ai' && (
+              <span className="flex items-center gap-1 bg-indigo-50 text-indigo-600 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                <Sparkles size={10} /> AI Sync
+              </span>
+            )}
+          </div>
+          <p className="text-[10px] text-stone-400 font-medium mt-0.5">
+            {t(`mandi.commodities.${cropName}`, { defaultValue: cropName })} • {milestones.filter((m) => m.completed).length}/{milestones.length} {t('crops.schedule.completed')}
           </p>
         </div>
       </div>
 
       {/* Timeline */}
-      <div className="px-4 pb-5" style={{ background: '#fffdf5' }}>
+      <div className="px-4 pb-5 relative" style={{ background: '#fffdf5' }}>
+        {isLoading && (
+          <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-20 backdrop-blur-[1px]">
+            <div className="flex flex-col items-center gap-2">
+              <Sparkles className="text-indigo-400 animate-pulse" size={24} />
+              <span className="text-xs text-indigo-600 font-medium">Generating Smart Schedule...</span>
+            </div>
+          </div>
+        )}
         {milestones.map((milestone, index) => {
           const isLast = index === milestones.length - 1;
 
@@ -255,7 +179,7 @@ const SmartSchedule = ({ cropName, daysSincePlanting, plantingDate }) => {
                   </span>
                   {milestone.completed && (
                     <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-wider bg-emerald-50 px-1.5 py-0.5 rounded">
-                      Done
+                      {t('crops.schedule.done')}
                     </span>
                   )}
                   {milestone.isCurrent && (
@@ -263,7 +187,7 @@ const SmartSchedule = ({ cropName, daysSincePlanting, plantingDate }) => {
                       className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
                       style={{ color: '#92400e', background: '#fef3c7' }}
                     >
-                      Next
+                      {t('crops.schedule.next')}
                     </span>
                   )}
                 </div>
@@ -277,7 +201,7 @@ const SmartSchedule = ({ cropName, daysSincePlanting, plantingDate }) => {
                         : 'text-stone-300'
                     }`}
                   >
-                    Day {milestone.day}
+                    {t('crops.schedule.day')} {milestone.day}
                   </span>
                   {milestone.calendarDate && (
                     <>
@@ -308,7 +232,8 @@ const SmartSchedule = ({ cropName, daysSincePlanting, plantingDate }) => {
           0%, 100% { box-shadow: 0 0 0 4px rgba(245,158,11,0.18), 0 2px 8px rgba(245,158,11,0.35); }
           50%       { box-shadow: 0 0 0 8px rgba(245,158,11,0.10), 0 2px 12px rgba(245,158,11,0.45); }
         }
-      `}</style>
+      `}
+      </style>
     </div>
   );
 };

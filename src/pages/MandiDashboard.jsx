@@ -227,6 +227,7 @@ const MandiDashboard = () => {
               onChange={setSelectedCommodity}
               className="w-28 sm:w-36"
               placeholder={t('mandi.commodity')}
+              getDisplayValue={(val) => t(`mandi.commodities.${val}`, { defaultValue: val })}
             />
           </div>
           <div className="flex items-center gap-2 bg-stone-50 rounded-xl px-3 py-2 border border-stone-200/50">
@@ -271,7 +272,7 @@ const MandiDashboard = () => {
                   `}
                 >
                   <Sprout size={14} className={isActive ? 'text-emerald-200' : 'text-emerald-500'} />
-                  {name}
+                  {t(`mandi.commodities.${name}`, { defaultValue: name })}
                 </button>
               );
             })}
@@ -300,7 +301,7 @@ const MandiDashboard = () => {
                   `}
                 >
                   <Flame size={14} className={isActive ? 'text-amber-300' : 'text-amber-500/60'} />
-                  {name}
+                  {t(`mandi.commodities.${name}`, { defaultValue: name })}
                 </button>
               );
             })}

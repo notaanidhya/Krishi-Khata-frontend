@@ -175,19 +175,7 @@ const DashboardPage = () => {
         onViewAll={() => navigate('/khata')}
       />
 
-      {/* ── Floating Quick-Add FAB ──────────────────────── */}
-      <button
-        id="quick-add-fab"
-        onClick={() => navigate('/khata')}
-        className="fixed bottom-20 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2.5 text-white font-bold text-base px-7 py-4 rounded-2xl transition-all active:scale-95 animate-fab-pulse animate-fab-enter"
-        style={{
-          background: 'linear-gradient(135deg, #166534, #14532d)',
-          boxShadow: '0 8px 32px rgba(22,101,52,0.45)',
-        }}
-      >
-        <Plus size={22} strokeWidth={3} />
-        {t('dashboard.quickAdd')}
-      </button>
+
     </div>
   );
 };

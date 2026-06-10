@@ -47,3 +47,22 @@ export const getWeatherDashboard = async (lat, lon, city, state) => {
   const { data } = await apiClient.get('/api/v1/weather/dashboard', { params });
   return data;
 };
+
+/**
+ * Fetch the AI-generated agricultural weather advisory.
+ * Separated from the dashboard for faster initial load.
+ * @param {number} [lat] - Latitude
+ * @param {number} [lon] - Longitude
+ * @param {string} [city] - City name
+ * @param {string} [state] - State name
+ * @returns {Object} { ai_summary: string }
+ */
+export const getWeatherAdvisory = async (lat, lon, city, state) => {
+  const params = {};
+  if (lat != null) params.lat = lat;
+  if (lon != null) params.lon = lon;
+  if (city) params.city = city;
+  if (state) params.state = state;
+  const { data } = await apiClient.get('/api/v1/weather/ai-advisory', { params });
+  return data;
+};

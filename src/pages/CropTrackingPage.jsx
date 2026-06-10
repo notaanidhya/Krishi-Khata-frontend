@@ -21,6 +21,7 @@ import CropDoctor from '../features/crops/CropDoctor';
 import SmartSchedule from '../features/crops/SmartSchedule';
 import AddCropModal from '../features/crops/AddCropModal';
 import AddLogModal from '../features/crops/AddLogModal';
+import AboutCrop from '../features/crops/AboutCrop';
 
 const CropTrackingPage = () => {
   const { t, i18n } = useTranslation();
@@ -224,6 +225,9 @@ const CropTrackingPage = () => {
           {/* Crop Visualizer */}
           <CropVisualizer growth_stage={activeCrop.current_stage} cropName={activeCrop.crop_name} />
 
+          {/* About Crop (AI Generated Summary) */}
+          <AboutCrop cropId={activeCrop.id} />
+
           {/* AI Crop Doctor */}
           <CropDoctor
             cropId={activeCrop.id}
@@ -233,6 +237,7 @@ const CropTrackingPage = () => {
 
           {/* Smart Schedule Timeline */}
           <SmartSchedule
+            cropId={activeCrop.id}
             cropName={activeCrop.crop_name}
             daysSincePlanting={activeCrop.days_since_planting}
             plantingDate={activeCrop.planting_date}

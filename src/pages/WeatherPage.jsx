@@ -18,7 +18,7 @@ import {
   Wind, Thermometer, CloudOff,
   CalendarDays,
 } from 'lucide-react';
-import { useWeatherDashboard } from '../hooks/useWeather';
+import { useWeatherDashboard, useWeatherAdvisory } from '../hooks/useWeather';
 import { useActiveFarm } from '../context/ActiveFarmContext';
 
 /* ── Weather condition → emoji helper ──────────────────────── */
@@ -105,6 +105,13 @@ const WeatherPage = () => {
     activeFarm?.state
   );
 
+  const { data: advisoryData, isLoading: advisoryLoading } = useWeatherAdvisory(
+    lat,
+    lon,
+    activeFarm?.district,
+    activeFarm?.state
+  );
+
   /* ── Loading state ───────────────────────────────────────── */
   if (isLoading) {
     return (
@@ -144,7 +151,8 @@ const WeatherPage = () => {
     );
   }
 
-  const { location, current, ai_summary, spraying_windows, soil_insights, forecast_7day } = data;
+  const { location, current, spraying_windows, soil_insights, forecast_7day } = data;
+  const ai_summary = advisoryData?.ai_summary;
 
   return (
     <div id="weather-page" className="px-4 pt-4 pb-24 max-w-lg mx-auto space-y-4 animate-page-enter">
@@ -226,9 +234,21 @@ const WeatherPage = () => {
               <span className="text-[9px] font-bold text-amber-400 uppercase tracking-wider">{t('weather.aiAdvisory')}</span>
             </div>
           </div>
-          <p className="text-sm text-white/90 leading-relaxed font-medium">
-            {ai_summary || t('weather.analysisLoading')}
-          </p>
+          {advisoryLoading ? (
+            <div className="space-y-2.5 animate-pulse">
+              <div className="h-3.5 bg-white/10 rounded-lg w-full" />
+              <div className="h-3.5 bg-white/10 rounded-lg w-5/6" />
+              <div className="h-3.5 bg-white/10 rounded-lg w-4/6" />
+              <p className="text-[10px] text-white/30 font-medium mt-1 flex items-center gap-1.5">
+                <Sparkles size={9} className="text-amber-400/50 animate-spin" style={{ animationDuration: '3s' }} />
+                {t('weather.analysisLoading')}
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm text-white/90 leading-relaxed font-medium">
+              {ai_summary || t('weather.analysisLoading')}
+            </p>
+          )}
         </div>
       </div>
 

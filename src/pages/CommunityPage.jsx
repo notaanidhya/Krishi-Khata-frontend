@@ -149,7 +149,10 @@ const CommunityPage = () => {
   };
 
   const formatTime = (iso) => {
-    try { return new Date(iso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }); }
+    try { 
+      const utcIso = iso.endsWith('Z') ? iso : `${iso}Z`;
+      return new Date(utcIso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }); 
+    }
     catch { return ''; }
   };
 

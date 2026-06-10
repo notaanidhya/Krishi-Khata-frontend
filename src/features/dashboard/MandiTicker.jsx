@@ -55,7 +55,7 @@ const PriceCard = ({ item }) => {
           {meta.emoji}
         </div>
         <h3 className="font-serif-accent text-lg sm:text-xl font-bold text-emerald-950 truncate min-w-0 flex-1">
-          {commodity}
+          {t(`mandi.commodities.${commodity}`, { defaultValue: commodity })}
         </h3>
       </div>
 

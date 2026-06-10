@@ -2,16 +2,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, ChevronDown, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-const Combobox = ({ options, value, onChange, placeholder, icon: Icon, className = '' }) => {
+const Combobox = ({ options, value, onChange, placeholder, icon: Icon, className = '', getDisplayValue }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const { t } = useTranslation();
   const wrapperRef = useRef(null);
 
   // Filter options based on search input
-  const filteredOptions = options.filter((option) =>
-    option.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredOptions = options.filter((option) => {
+    const display = getDisplayValue ? getDisplayValue(option) : option;
+    return display.toLowerCase().includes(search.toLowerCase());
+  });
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -38,7 +39,7 @@ const Combobox = ({ options, value, onChange, placeholder, icon: Icon, className
         className="flex items-center justify-between w-full h-full bg-transparent border-none outline-none text-sm font-medium text-emerald-950 px-1 focus:ring-0"
       >
         <span className="truncate flex-1 text-left">
-          {value || placeholder}
+          {(getDisplayValue && value) ? getDisplayValue(value) : (value || placeholder)}
         </span>
         <ChevronDown size={14} className="text-stone-400 shrink-0 ml-2" />
       </button>
@@ -67,7 +68,7 @@ const Combobox = ({ options, value, onChange, placeholder, icon: Icon, className
                     ${value === option ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-stone-600 hover:bg-stone-50 hover:text-emerald-900'}
                   `}
                 >
-                  <span className="truncate">{option}</span>
+                  <span className="truncate">{getDisplayValue ? getDisplayValue(option) : option}</span>
                   {value === option && <Check size={14} className="text-emerald-600 shrink-0 ml-2" />}
                 </li>
               ))

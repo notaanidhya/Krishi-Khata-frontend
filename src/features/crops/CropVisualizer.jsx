@@ -6,6 +6,7 @@
  */
 
 import React, { useMemo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Sprout, Leaf, Flower2, Wheat } from 'lucide-react';
 
 const STAGES = [
@@ -56,6 +57,7 @@ const STAGES = [
 ];
 
 const CropVisualizer = ({ growth_stage, cropName }) => {
+  const { t } = useTranslation();
   const currentIndex = useMemo(() => {
     const idx = STAGES.findIndex(
       (s) => s.key.toLowerCase() === (growth_stage || '').toLowerCase()
@@ -90,8 +92,8 @@ const CropVisualizer = ({ growth_stage, cropName }) => {
 
           <div className="relative z-10 flex items-center justify-between">
             <div>
-              <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest">Growth Stage</p>
-              <h3 className="text-white text-xl font-extrabold mt-0.5">{stage.label}</h3>
+              <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest">{t('crops.schedule.growthStage')}</p>
+              <h3 className="text-white text-xl font-extrabold mt-0.5">{t(`crops.schedule.stages.${stage.key}`, { defaultValue: stage.label })}</h3>
               {cropName && (
                 <p className="text-white/80 text-xs font-medium mt-0.5 font-serif-accent">{cropName}</p>
               )}
@@ -127,7 +129,7 @@ const CropVisualizer = ({ growth_stage, cropName }) => {
         {/* Progress Bar — chunky h-3 */}
         <div className="px-4 pb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] text-stone-400 font-bold uppercase tracking-wide">Progress</span>
+            <span className="text-[11px] text-stone-400 font-bold uppercase tracking-wide">{t('crops.schedule.progress')}</span>
             <span className="text-xs text-stone-500 font-medium">{currentIndex + 1} / {STAGES.length}</span>
           </div>
           <div className="h-3 bg-stone-100 rounded-full overflow-hidden">
@@ -161,7 +163,7 @@ const CropVisualizer = ({ growth_stage, cropName }) => {
                       isCurrent ? 'text-emerald-900' : isActive ? 'text-stone-500' : 'text-stone-400'
                     }`}
                   >
-                    {s.label}
+                    {t(`crops.schedule.stages.${s.key}`, { defaultValue: s.label })}
                   </span>
                 </div>
               );
@@ -169,7 +171,7 @@ const CropVisualizer = ({ growth_stage, cropName }) => {
           </div>
 
           <p className="text-center text-xs text-stone-400 mt-3 font-medium transition-all duration-500">
-            {stage.description}
+            {t(`crops.schedule.stageDescriptions.${stage.key}`, { defaultValue: stage.description })}
           </p>
         </div>
       </div>
