@@ -47,6 +47,13 @@ export const useCrops = (farmId) => {
     queryFn: () => getCrops(farmId),
     enabled: !!farmId,
     staleTime: 1000 * 30,
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (Array.isArray(data) && data.some((c) => c.is_processing)) {
+        return 3000; // Poll every 3 seconds while crop is processing
+      }
+      return false;
+    },
   });
 };
 
