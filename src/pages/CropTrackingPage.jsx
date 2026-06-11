@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useActiveFarm } from '../context/ActiveFarmContext';
-import { useCrops, useDeleteCrop } from '../hooks/useCrop';
+import { useCrops, useDeleteCrop, useRetryCropValidation } from '../hooks/useCrop';
 import CropVisualizer from '../features/crops/CropVisualizer';
 import CropDoctor from '../features/crops/CropDoctor';
 import SmartSchedule from '../features/crops/SmartSchedule';
@@ -36,6 +36,7 @@ const CropTrackingPage = () => {
   const [activeLogCropId, setActiveLogCropId] = useState(null);
 
   const deleteMutation = useDeleteCrop();
+  const retryMutation = useRetryCropValidation();
 
   const handleDelete = (cropId) => {
     deleteMutation.mutate({ cropId }, { onSuccess: () => setShowDeleteConfirm(null) });
@@ -171,6 +172,23 @@ const CropTrackingPage = () => {
                   <Loader2 size={12} className="animate-spin" />
                   {t('crops.processing', 'Processing...')}
                 </span>
+              )}
+              {activeCrop.validation_failed && (
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 border border-red-200 shadow-sm">
+                    Validation Failed
+                  </span>
+                  <button
+                    onClick={() => retryMutation.mutate({ cropId: activeCrop.id })}
+                    disabled={retryMutation.isPending}
+                    className="px-2 py-0.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-[10px] font-bold rounded flex items-center gap-1 transition-colors"
+                  >
+                    {retryMutation.isPending && activeCrop.id === retryMutation.variables?.cropId ? (
+                      <Loader2 size={10} className="animate-spin" />
+                    ) : null}
+                    Retry
+                  </button>
+                </div>
               )}
             </div>
             {!showDeleteConfirm || showDeleteConfirm !== activeCrop.id ? (

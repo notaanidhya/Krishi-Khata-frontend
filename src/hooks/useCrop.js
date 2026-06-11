@@ -17,6 +17,7 @@ import {
   createCrop,
   deleteCrop,
   addCropLog,
+  retryCropValidation,
 } from '../api/crop';
 
 const CROP_KEYS = {
@@ -110,6 +111,21 @@ export const useAddCropLog = () => {
     mutationFn: ({ cropId, logData }) => addCropLog(cropId, logData),
     onSuccess: () => {
       // Invalidate crop cache to refresh logs
+      queryClient.invalidateQueries({ queryKey: ['activeCrop'], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ['crops'], refetchType: 'all' });
+    },
+  });
+};
+
+/**
+ * Mutation: retry crop validation
+ */
+export const useRetryCropValidation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ cropId }) => retryCropValidation(cropId),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['activeCrop'], refetchType: 'all' });
       queryClient.invalidateQueries({ queryKey: ['crops'], refetchType: 'all' });
     },

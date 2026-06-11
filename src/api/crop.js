@@ -58,6 +58,15 @@ export const getCropPresets = async () => {
   return data;
 };
 
+/**
+ * Retry AI validation for a crop that failed processing.
+ * @param {number} cropId
+ */
+export const retryCropValidation = async (cropId) => {
+  const { data } = await apiClient.post(`/api/v1/crops/${cropId}/retry_validation`);
+  return data;
+};
+
 
 /**
  * Ask the AI Crop Doctor a question about a specific crop.
