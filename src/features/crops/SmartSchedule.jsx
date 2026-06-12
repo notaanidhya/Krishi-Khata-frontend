@@ -31,7 +31,7 @@ const SmartSchedule = ({ cropId, cropName, daysSincePlanting, plantingDate }) =>
   const { t, i18n } = useTranslation();
 
   const { data, isLoading } = useQuery({
-    queryKey: ['cropTasks', cropId],
+    queryKey: ['cropTasks', cropId, i18n.language],
     queryFn: () => fetchCropTasks(cropId),
     enabled: !!cropId,
   });
