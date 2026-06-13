@@ -14,7 +14,7 @@ import React, { useState } from 'react';
 import {
   Users, ChevronLeft, IndianRupee, Loader2, AlertCircle,
   Wallet, ArrowDownRight, ArrowUpRight, Calendar, X, Check,
-  UserCheck, Clock, Banknote,
+  UserCheck, Clock, Banknote, Plus
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useActiveFarm } from '../../context/ActiveFarmContext';
@@ -428,7 +428,7 @@ const LaborerCard = ({ laborer, onClick }) => {
 // ═══════════════════════════════════════════════════════════════
 //  LABOR DASHBOARD — Main exported component
 // ═══════════════════════════════════════════════════════════════
-const LaborDashboard = () => {
+const LaborDashboard = ({ onAddWage }) => {
   const { t } = useTranslation();
   const { activeFarm } = useActiveFarm();
   const farmId = activeFarm?.id || null;
@@ -500,6 +500,19 @@ const LaborDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* ── Add Wage Button ───────────────────────── */}
+      <button
+        onClick={onAddWage}
+        className="w-full py-4 text-white font-bold text-base rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+        style={{
+          background: 'linear-gradient(135deg, #166534, #14532d)',
+          boxShadow: '0 4px 20px rgba(22,101,52,0.35)',
+        }}
+      >
+        <Plus size={20} />
+        {t('labor.addWage', 'Add Labor Wage')}
+      </button>
 
       {/* ── Laborer List ──────────────────────────────── */}
       <div>

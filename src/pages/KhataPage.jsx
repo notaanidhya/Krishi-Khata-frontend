@@ -259,10 +259,12 @@ const KhataPage = () => {
 
   const [activeTab, setActiveTab] = useState('general');
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isLaborFormMode, setIsLaborFormMode] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
 
-  const { data: transactions = [], isLoading: txnLoading, isError: txnError } = useTransactions(farmId);
+  const { data: rawTransactions = [], isLoading: txnLoading, isError: txnError } = useTransactions(farmId);
+  const transactions = rawTransactions.filter(t => !['labor_wage', 'labor_payment'].includes(t.type) && t.category !== 'labor');
   const { data: summary, isLoading: summaryLoading } = useSummary(farmId);
   const deleteMutation = useDeleteTransaction();
 
@@ -348,13 +350,14 @@ const KhataPage = () => {
       )}
 
       {/* ── Labor Hisab Tab ───────────────────────────────── */}
-      {activeTab === 'labor' && <LaborDashboard />}
+      {activeTab === 'labor' && <LaborDashboard onAddWage={() => { setIsLaborFormMode(true); setIsFormOpen(true); }} />}
 
       {/* ── Transaction Form Modal ───────────────────────── */}
       <TransactionForm 
         isOpen={isFormOpen} 
         initialData={editingTransaction}
-        onClose={() => { setIsFormOpen(false); setEditingTransaction(null); }} 
+        isLaborMode={isLaborFormMode}
+        onClose={() => { setIsFormOpen(false); setEditingTransaction(null); setIsLaborFormMode(false); }} 
       />
     </div>
   );

@@ -66,6 +66,7 @@ export const useAddTransaction = () => {
     mutationFn: addTransaction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'], refetchType: 'all' });
     },
   });
 };
@@ -79,6 +80,7 @@ export const useDeleteTransaction = () => {
     mutationFn: deleteTransaction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'], refetchType: 'all' });
     },
   });
 };
@@ -92,6 +94,7 @@ export const useUpdateTransaction = () => {
     mutationFn: updateTransaction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'], refetchType: 'all' });
     },
   });
 };

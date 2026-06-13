@@ -159,7 +159,9 @@
     "transactionHistory": "लेन-देन का इतिहास",
     "noTransactions": "{{name}} का कोई लेन-देन नहीं।",
     "paymentMade": "भुगतान किया",
-    "workDayWage": "काम का दिन / मज़दूरी"
+    "workDayWage": "काम का दिन / मज़दूरी",
+    "addWage": "मज़दूरी जोड़ें",
+    "addWage": "मज़दूरी जोड़ें"
   },
   "crops": {
     "title": "फसल डायरी",
@@ -225,7 +227,7 @@
       },
       "stages": {
         "Seedling": "अंकुर",
-        "Vegetative": "बढ़वार",
+        "Vegetative": "पौधे का विकास",
         "Flowering": "फूल आना",
         "Ready to Harvest": "कटाई के लिए तैयार"
       },
@@ -235,7 +237,7 @@
         "Flowering": "पौधे पर खिलते सुंदर फूल",
         "Ready to Harvest": "पूरी तरह पका फल — कटाई के लिए तैयार! 🎉"
       },
-      "growthStage": "बढ़वार का चरण",
+      "growthStage": "फसल की अवस्था",
       "progress": "प्रगति"
     }
   },

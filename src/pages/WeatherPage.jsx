@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useWeatherDashboard, useWeatherAdvisory } from '../hooks/useWeather';
 import { useActiveFarm } from '../context/ActiveFarmContext';
+import { useLocation } from '../hooks/useLocation';
 
 /* ── Weather condition → emoji helper ──────────────────────── */
 const getWeatherEmoji = (condition) => {
@@ -86,12 +87,44 @@ const WeatherPage = () => {
 
   // Fetch precise live location on mount
   useEffect(() => {
+    const cached = localStorage.getItem('cached_location');
+    if (cached) {
+      try {
+        setLiveCoords(JSON.parse(cached));
+        return;
+      } catch (e) {}
+    }
+
     if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => setLiveCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-        (err) => console.warn('Live location failed, falling back to farm coords', err),
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
+      const askLocation = () => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const newCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+            localStorage.setItem('cached_location', JSON.stringify(newCoords));
+            localStorage.setItem('location_asked', 'true');
+            setLiveCoords(newCoords);
+          },
+          (err) => {
+            localStorage.setItem('location_asked', 'true');
+            console.warn('Live location failed, falling back to farm coords', err);
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      };
+
+      if (navigator.permissions && navigator.permissions.query) {
+        navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+          if (result.state === 'granted') {
+            askLocation();
+          } else if (result.state === 'prompt') {
+            if (!localStorage.getItem('location_asked')) {
+              askLocation();
+            }
+          }
+        });
+      } else if (!localStorage.getItem('location_asked')) {
+        askLocation();
+      }
     }
   }, []);
 

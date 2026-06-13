@@ -23,7 +23,6 @@ const EXPENSE_CATEGORIES = [
   { value: 'seeds',         icon: '🌱' },
   { value: 'fertilizer',    icon: '🧪' },
   { value: 'pesticide',     icon: '🐛' },
-  { value: 'labor',         icon: '👷' },
   { value: 'tractor_rent',  icon: '🚜' },
   { value: 'equipment',     icon: '🔧' },
   { value: 'irrigation',    icon: '💧' },
@@ -46,7 +45,7 @@ const inputStyle = { background: '#fffdf9', borderColor: '#d6cfc6', color: 'var(
 const ADD_NEW_VALUE = '__add_new__';
 const ADD_CUSTOM_VALUE = '__add_custom__';
 
-const TransactionForm = ({ isOpen, onClose, initialData = null }) => {
+const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = false }) => {
   const { t } = useTranslation();
   const { activeFarm } = useActiveFarm();
   const { mounted, animating } = useModalAnimation(isOpen, 380);
@@ -96,9 +95,14 @@ const TransactionForm = ({ isOpen, onClose, initialData = null }) => {
         setDescription(initialData.description || '');
         setTransactionDate(initialData.transaction_date || new Date().toISOString().split('T')[0]);
       } else {
-        setType('expense');
+        if (isLaborMode) {
+          setType('expense');
+          setCategory('labor');
+        } else {
+          setType('expense');
+          setCategory('');
+        }
         setAmount('');
-        setCategory('');
         setCustomCategoryName('');
         setLaborerId('');
         setDescription('');
@@ -288,38 +292,40 @@ const TransactionForm = ({ isOpen, onClose, initialData = null }) => {
         <form onSubmit={handleSubmit} className="p-5 space-y-5">
 
           {/* ── Type Toggle ──────────────────────────────── */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => handleTypeChange('expense')}
-              className={`py-3.5 rounded-xl font-bold text-sm transition-all ${
-                type === 'expense'
-                  ? 'text-white scale-[1.02]'
-                  : 'text-stone-500 hover:bg-stone-200'
-              }`}
-              style={type === 'expense'
-                ? { background: '#ef4444', boxShadow: '0 4px 16px rgba(239,68,68,0.3)' }
-                : { background: '#e7e2db' }
-              }
-            >
-              ↗ {t('khata.form.kharcha')}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleTypeChange('income')}
-              className={`py-3.5 rounded-xl font-bold text-sm transition-all ${
-                type === 'income'
-                  ? 'text-white scale-[1.02]'
-                  : 'text-stone-500 hover:bg-stone-200'
-              }`}
-              style={type === 'income'
-                ? { background: '#166534', boxShadow: '0 4px 16px rgba(22,101,52,0.35)' }
-                : { background: '#e7e2db' }
-              }
-            >
-              ↙ {t('khata.form.amdani')}
-            </button>
-          </div>
+          {!isLaborMode && (
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => handleTypeChange('expense')}
+                className={`py-3.5 rounded-xl font-bold text-sm transition-all ${
+                  type === 'expense'
+                    ? 'text-white scale-[1.02]'
+                    : 'text-stone-500 hover:bg-stone-200'
+                }`}
+                style={type === 'expense'
+                  ? { background: '#ef4444', boxShadow: '0 4px 16px rgba(239,68,68,0.3)' }
+                  : { background: '#e7e2db' }
+                }
+              >
+                ↗ {t('khata.form.kharcha')}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleTypeChange('income')}
+                className={`py-3.5 rounded-xl font-bold text-sm transition-all ${
+                  type === 'income'
+                    ? 'text-white scale-[1.02]'
+                    : 'text-stone-500 hover:bg-stone-200'
+                }`}
+                style={type === 'income'
+                  ? { background: '#166534', boxShadow: '0 4px 16px rgba(22,101,52,0.35)' }
+                  : { background: '#e7e2db' }
+                }
+              >
+                ↙ {t('khata.form.amdani')}
+              </button>
+            </div>
+          )}
 
           {/* ── Amount ───────────────────────────────────── */}
           <div>
@@ -344,6 +350,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null }) => {
           </div>
 
           {/* ── Category ─────────────────────────────────── */}
+          {!isLaborMode && (
           <div>
             <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
               <Tag size={14} /> {t('khata.form.category')}
@@ -386,6 +393,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null }) => {
               </div>
             )}
           </div>
+          )}
 
           {/* ── Laborer Dropdown (conditional) ────────────── */}
           {isLaborCategory && (
@@ -538,7 +546,9 @@ const TransactionForm = ({ isOpen, onClose, initialData = null }) => {
               addMutation.isPending || updateMutation.isPending ||
               !amount ||
               !category ||
-              (category === ADD_CUSTOM_VALUE && !customCategoryName.trim())
+              (category === ADD_CUSTOM_VALUE && !customCategoryName.trim()) ||
+              isAddingLaborer ||
+              (isLaborMode && (!laborerId || laborerId === 'general' || laborerId === ADD_NEW_VALUE))
             }
             className="w-full py-4 rounded-xl font-bold text-base text-white transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
@@ -556,6 +566,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null }) => {
                 {t('khata.form.saving')}
               </span>
             ) : (
+              isLaborMode ? t('labor.addWage', 'Save Labor Wage') :
               initialData 
                 ? t('khata.form.update', 'Update') 
                 : (type === 'expense' ? t('khata.form.saveKharcha') : t('khata.form.saveAmdani'))

@@ -159,7 +159,8 @@
     "transactionHistory": "Transaction History",
     "noTransactions": "No transactions yet for {{name}}.",
     "paymentMade": "Payment Made",
-    "workDayWage": "Work Day / Wage"
+    "workDayWage": "Work Day / Wage",
+    "addWage": "Add Labor Wage"
   },
   "crops": {
     "title": "Fasal Diary",

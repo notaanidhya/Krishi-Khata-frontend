@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentWeather } from '../api/weather';
 import { getMandiPrices } from '../api/mandi';
+import { useLocation } from './useLocation';
 
 // ── localStorage cache key for persisting weather across refreshes ──
 const WEATHER_CACHE_KEY = 'agroo_weather_cache';
@@ -146,17 +147,54 @@ export const useWeather = () => {
   const [locationStatus, setStatus]   = useState('pending');
 
   useEffect(() => {
+    const cached = localStorage.getItem('cached_location');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        setCoords({ lat: parsed.lat, lon: parsed.lon });
+        setStatus('success');
+        return;
+      } catch (e) {}
+    }
+
     if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
-          setStatus('success');
-        },
-        () => setStatus('error'),
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
+      const askLocation = () => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const newCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+            localStorage.setItem('cached_location', JSON.stringify(newCoords));
+            localStorage.setItem('location_asked', 'true');
+            setCoords(newCoords);
+            setStatus('success');
+          },
+          () => {
+            localStorage.setItem('location_asked', 'true');
+            setStatus('error');
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      };
+
+      if (navigator.permissions && navigator.permissions.query) {
+        navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+          if (result.state === 'granted') {
+            askLocation();
+          } else if (result.state === 'prompt') {
+            if (!localStorage.getItem('location_asked')) {
+              askLocation();
+            } else {
+              setStatus('error');
+            }
+          } else {
+            setStatus('error');
+          }
+        });
+      } else if (!localStorage.getItem('location_asked')) {
+        askLocation();
+      } else {
+        setStatus('error');
+      }
     } else {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus('error');
     }
   }, []);
