@@ -64,9 +64,11 @@ export const useAddTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: addTransaction,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' });
-      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'], refetchType: 'all' });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' }),
+        queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'], refetchType: 'all' })
+      ]);
     },
   });
 };
@@ -78,9 +80,11 @@ export const useDeleteTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteTransaction,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' });
-      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'], refetchType: 'all' });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' }),
+        queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'], refetchType: 'all' })
+      ]);
     },
   });
 };
@@ -92,9 +96,11 @@ export const useUpdateTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateTransaction,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' });
-      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'], refetchType: 'all' });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' }),
+        queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'], refetchType: 'all' })
+      ]);
     },
   });
 };

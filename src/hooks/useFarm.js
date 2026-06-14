@@ -13,7 +13,7 @@ import { getFarms, getLaborers, createLaborer } from '../api/farm';
 
 const FARM_KEYS = {
   all: () => ['farms'],
-  laborers: (farmId) => ['farms', 'laborers', farmId],
+  laborers: (farmId) => ['farms', 'laborers', String(farmId)],
 };
 
 /**
@@ -69,8 +69,17 @@ export const useCreateLaborer = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ farmId, name }) => createLaborer(farmId, { name }),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: FARM_KEYS.laborers(variables.farmId) });
+    onSuccess: async (newLaborer, variables) => {
+      // Optimistically inject the new laborer into the dropdown list instantly
+      queryClient.setQueryData(FARM_KEYS.laborers(variables.farmId), (oldData) => {
+        if (!oldData) return [newLaborer];
+        // Prevent duplicates
+        if (oldData.some(l => l.id === newLaborer.id)) return oldData;
+        return [...oldData, newLaborer];
+      });
+
+      // Trigger a background refetch to ensure perfect sync
+      await queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'] });
     },
   });
 };

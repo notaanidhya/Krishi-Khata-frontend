@@ -436,9 +436,14 @@ const LaborDashboard = ({ onAddWage }) => {
   const [selectedLaborer, setSelectedLaborer] = useState(null);
 
   // Calculate summary stats
-  const totalOwed = laborers.reduce((sum, l) => sum + Math.max(l.current_balance, 0), 0);
-  const settledCount = laborers.filter((l) => l.current_balance <= 0).length;
-  const pendingCount = laborers.length - settledCount;
+  const activeLaborers = laborers.filter((l) => l.transaction_count > 0 || l.current_balance > 0);
+
+  const totalOwed = activeLaborers.reduce((sum, l) => sum + Math.max(l.current_balance, 0), 0);
+  const pendingLaborers = activeLaborers.filter((l) => l.current_balance > 0);
+  const settledLaborers = activeLaborers.filter((l) => l.current_balance <= 0);
+
+  const settledCount = settledLaborers.length;
+  const pendingCount = pendingLaborers.length;
 
   // If a laborer is selected, show the detail view
   if (selectedLaborer) {

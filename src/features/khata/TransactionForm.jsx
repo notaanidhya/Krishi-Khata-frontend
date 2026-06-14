@@ -72,6 +72,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
   // Inline laborer creation state
   const [isAddingLaborer, setIsAddingLaborer] = useState(false);
   const [newLaborerName, setNewLaborerName] = useState('');
+  const [localNewLaborer, setLocalNewLaborer] = useState(null);
 
   // Populate from initialData for editing
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -174,24 +175,23 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
     }
   };
 
-  const handleSaveNewLaborer = () => {
+  const handleSaveNewLaborer = async () => {
     const trimmed = newLaborerName.trim();
     if (!trimmed || !activeFarm?.id) return;
 
-    createLaborerMutation.mutate(
-      { farmId: activeFarm.id, name: trimmed },
-      {
-        onSuccess: (newLaborer) => {
-          // Auto-select the newly created laborer and hide the input
-          setLaborerId(String(newLaborer.id));
-          setIsAddingLaborer(false);
-          setNewLaborerName('');
-        },
-      }
-    );
+    try {
+      const newLaborer = await createLaborerMutation.mutateAsync({ farmId: activeFarm.id, name: trimmed });
+      // Store locally to ensure perfect UI transition even if cache is delayed
+      setLocalNewLaborer(newLaborer);
+      setLaborerId(String(newLaborer.id));
+      setIsAddingLaborer(false);
+      setNewLaborerName('');
+    } catch (error) {
+      console.error('Failed to create laborer', error);
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmittingRef.current) return;
     if (!amount || !category) return;
@@ -219,36 +219,22 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
 
     isSubmittingRef.current = true;
 
-    if (initialData) {
-      updateMutation.mutate(
-        { id: initialData.id, data: payload },
-        {
-          onSuccess: () => {
-            isSubmittingRef.current = false;
-            onClose();
-          },
-          onError: () => {
-            isSubmittingRef.current = false;
-          },
-        }
-      );
-    } else {
-      addMutation.mutate(
-        payload,
-        {
-          onSuccess: () => {
-            isSubmittingRef.current = false;
-            setAmount(''); setCategory(''); setCustomCategoryName(''); setDescription(''); setLaborerId('');
-            setTransactionDate(new Date().toISOString().split('T')[0]);
-            setIsAddingLaborer(false);
-            setNewLaborerName('');
-            onClose();
-          },
-          onError: () => {
-            isSubmittingRef.current = false;
-          },
-        }
-      );
+    try {
+      if (initialData) {
+        await updateMutation.mutateAsync({ id: initialData.id, data: payload });
+        isSubmittingRef.current = false;
+        onClose();
+      } else {
+        await addMutation.mutateAsync(payload);
+        isSubmittingRef.current = false;
+        setAmount(''); setCategory(''); setCustomCategoryName(''); setDescription(''); setLaborerId('');
+        setTransactionDate(new Date().toISOString().split('T')[0]);
+        setIsAddingLaborer(false);
+        setNewLaborerName('');
+        onClose();
+      }
+    } catch (error) {
+      isSubmittingRef.current = false;
     }
   };
 
@@ -415,8 +401,14 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
                   {laborersLoading ? t('khata.form.loadingLaborers') : t('khata.form.chooseLaborer')}
                 </option>
                 <option value="general">🏗️ {t('khata.form.otherGeneral')}</option>
+                {/* Dynamically inject the newly selected laborer if it hasn't propagated from cache yet */}
+                {localNewLaborer && !laborers.some(l => String(l.id) === String(localNewLaborer.id)) && (
+                  <option value={String(localNewLaborer.id)}>
+                    👷 {localNewLaborer.name}
+                  </option>
+                )}
                 {laborers.map((lab) => (
-                  <option key={lab.id} value={lab.id}>
+                  <option key={lab.id} value={String(lab.id)}>
                     👷 {lab.name}{lab.phone_number ? ` (${lab.phone_number})` : ''}
                   </option>
                 ))}
