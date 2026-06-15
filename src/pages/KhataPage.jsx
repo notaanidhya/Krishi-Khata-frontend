@@ -205,26 +205,34 @@ const TransactionCard = ({ txn, onEdit, onDelete, isDeleting }) => {
 
       {/* Edit & Delete Buttons */}
       <div className="flex gap-1 shrink-0">
-        <button
-          onClick={() => onEdit(txn)}
-          disabled={isDeleting}
-          className="p-2 rounded-lg hover:bg-stone-100 active:bg-stone-200 transition-colors"
-          aria-label={t('khata.editLabel', 'Edit')}
-        >
-          <Edit2 size={16} className="text-stone-400 hover:text-emerald-700 transition-colors" />
-        </button>
-        <button
-          onClick={() => onDelete(txn.id)}
-          disabled={isDeleting}
-          className="p-2 rounded-lg hover:bg-red-50 active:bg-red-100 transition-colors"
-          aria-label={t('khata.deleteLabel')}
-        >
-          {isDeleting ? (
-            <Loader2 size={16} className="text-red-400 animate-spin" />
-          ) : (
-            <Trash2 size={16} className="text-stone-300 hover:text-red-400 transition-colors" />
-          )}
-        </button>
+        {txn.is_syncing ? (
+          <div className="flex items-center justify-center p-2 px-4">
+            <Loader2 size={16} className="text-stone-300 animate-spin" />
+          </div>
+        ) : (
+          <>
+            <button
+              onClick={() => onEdit(txn)}
+              disabled={isDeleting}
+              className="p-2 rounded-lg hover:bg-stone-100 active:bg-stone-200 transition-colors"
+              aria-label={t('khata.editLabel', 'Edit')}
+            >
+              <Edit2 size={16} className="text-stone-400 hover:text-emerald-700 transition-colors" />
+            </button>
+            <button
+              onClick={() => onDelete(txn.id)}
+              disabled={isDeleting}
+              className="p-2 rounded-lg hover:bg-red-50 active:bg-red-100 transition-colors"
+              aria-label={t('khata.deleteLabel')}
+            >
+              {isDeleting ? (
+                <Loader2 size={16} className="text-red-400 animate-spin" />
+              ) : (
+                <Trash2 size={16} className="text-stone-300 hover:text-red-400 transition-colors" />
+              )}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

@@ -53,10 +53,8 @@ const AddCropModal = ({ isOpen, onClose, farmId }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!cropName.trim()) return;
-    createCropMutation.mutate(
-      { farmId, cropData: { crop_name: cropName.trim(), planting_date: plantingDate } },
-      { onSuccess: () => onClose() }
-    );
+    createCropMutation.mutate({ farmId, cropData: { crop_name: cropName.trim(), planting_date: plantingDate } });
+    onClose();
   };
 
   if (!mounted) return null;

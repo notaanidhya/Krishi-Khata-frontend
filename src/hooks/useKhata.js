@@ -6,6 +6,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { getTransactions, getSummary, addTransaction, deleteTransaction, updateTransaction } from '../api/khata';
 
 const KHATA_KEYS = {
@@ -64,11 +65,35 @@ export const useAddTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: addTransaction,
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' }),
-        queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'], refetchType: 'all' })
-      ]);
+    onMutate: async (newTxn) => {
+      await queryClient.cancelQueries({ queryKey: ['khata', 'transactions'] });
+      const previousTxns = queryClient.getQueriesData({ queryKey: ['khata', 'transactions'] });
+
+      queryClient.setQueriesData({ queryKey: ['khata', 'transactions'] }, (old) => {
+        if (!Array.isArray(old)) return old;
+        const optimisticTxn = {
+          ...newTxn,
+          id: `temp-${Date.now()}`,
+          transaction_date: newTxn.transaction_date || new Date().toISOString().split('T')[0],
+          created_at: new Date().toISOString(),
+          is_syncing: true
+        };
+        return [optimisticTxn, ...old];
+      });
+
+      return { previousTxns };
+    },
+    onError: (err, newTxn, context) => {
+      toast.error('Failed to save transaction. Changes reverted.');
+      if (context?.previousTxns) {
+        context.previousTxns.forEach(([queryKey, oldData]) => {
+          queryClient.setQueryData(queryKey, oldData);
+        });
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['khata'] });
+      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'] });
     },
   });
 };
@@ -80,11 +105,30 @@ export const useDeleteTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteTransaction,
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' }),
-        queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'], refetchType: 'all' })
-      ]);
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['khata', 'transactions'] });
+      const previousTxns = queryClient.getQueriesData({ queryKey: ['khata', 'transactions'] });
+
+      queryClient.setQueriesData({ queryKey: ['khata', 'transactions'] }, (old) => {
+        if (!Array.isArray(old)) return old;
+        // Mark as syncing instead of deleting immediately to prevent jumps,
+        // or just delete it optimistically (we'll delete optimistically).
+        return old.filter(txn => txn.id !== id);
+      });
+
+      return { previousTxns };
+    },
+    onError: (err, id, context) => {
+      toast.error('Failed to delete transaction. Changes reverted.');
+      if (context?.previousTxns) {
+        context.previousTxns.forEach(([queryKey, oldData]) => {
+          queryClient.setQueryData(queryKey, oldData);
+        });
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['khata'] });
+      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'] });
     },
   });
 };
@@ -96,11 +140,28 @@ export const useUpdateTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateTransaction,
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' }),
-        queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'], refetchType: 'all' })
-      ]);
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ['khata', 'transactions'] });
+      const previousTxns = queryClient.getQueriesData({ queryKey: ['khata', 'transactions'] });
+
+      queryClient.setQueriesData({ queryKey: ['khata', 'transactions'] }, (old) => {
+        if (!Array.isArray(old)) return old;
+        return old.map(txn => txn.id === id ? { ...txn, ...data, is_syncing: true } : txn);
+      });
+
+      return { previousTxns };
+    },
+    onError: (err, variables, context) => {
+      toast.error('Failed to update transaction. Changes reverted.');
+      if (context?.previousTxns) {
+        context.previousTxns.forEach(([queryKey, oldData]) => {
+          queryClient.setQueryData(queryKey, oldData);
+        });
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['khata'] });
+      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'] });
     },
   });
 };
@@ -132,9 +193,35 @@ export const useSettleLaborer = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: addTransaction,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['khata'], refetchType: 'all' });
-      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'], refetchType: 'all' });
+    onMutate: async (newTxn) => {
+      await queryClient.cancelQueries({ queryKey: ['khata', 'transactions'] });
+      const previousTxns = queryClient.getQueriesData({ queryKey: ['khata', 'transactions'] });
+
+      queryClient.setQueriesData({ queryKey: ['khata', 'transactions'] }, (old) => {
+        if (!Array.isArray(old)) return old;
+        const optimisticTxn = {
+          ...newTxn,
+          id: `temp-${Date.now()}`,
+          transaction_date: newTxn.transaction_date || new Date().toISOString().split('T')[0],
+          created_at: new Date().toISOString(),
+          is_syncing: true
+        };
+        return [optimisticTxn, ...old];
+      });
+
+      return { previousTxns };
+    },
+    onError: (err, newTxn, context) => {
+      toast.error('Failed to settle laborer account. Changes reverted.');
+      if (context?.previousTxns) {
+        context.previousTxns.forEach(([queryKey, oldData]) => {
+          queryClient.setQueryData(queryKey, oldData);
+        });
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['khata'] });
+      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'] });
     },
   });
 };

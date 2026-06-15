@@ -194,7 +194,10 @@ const CropTrackingPage = () => {
             {!showDeleteConfirm || showDeleteConfirm !== activeCrop.id ? (
               <button
                 onClick={() => setShowDeleteConfirm(activeCrop.id)}
-                className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                disabled={activeCrop.is_syncing}
+                className={`p-2 rounded-xl transition-all ${
+                  activeCrop.is_syncing ? 'text-stone-300 cursor-not-allowed' : 'text-stone-400 hover:text-red-500 hover:bg-red-50'
+                }`}
                 title={t('crops.deleteCrop')}
               >
                 <Trash2 size={18} />
@@ -278,7 +281,10 @@ const CropTrackingPage = () => {
               </h4>
               <button
                 onClick={() => setActiveLogCropId(activeCrop.id)}
-                className="px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg hover:bg-emerald-100 transition-colors"
+                disabled={activeCrop.is_syncing}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
+                  activeCrop.is_syncing ? 'bg-stone-100 text-stone-400 cursor-not-allowed' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                }`}
               >
                 + {t('crops.addLogBtn', 'Add Log')}
               </button>

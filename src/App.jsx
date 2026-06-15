@@ -15,6 +15,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, NavLink } from 'react-router-dom';
 import { BookOpen, CloudSun, LayoutDashboard, Sprout, Users, Loader2, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Toaster } from 'react-hot-toast';
 import TopBar from './components/layout/TopBar';
 import WelcomeScreen from './components/WelcomeScreen';
 import PinEntryScreen from './components/PinEntryScreen';
@@ -98,6 +99,29 @@ function App() {
       {/* Warm clay background fills the entire screen */}
       <div className="min-h-screen pb-20" style={{ backgroundColor: 'var(--color-soil)' }}>
         <TopBar />
+        <Toaster 
+          position="bottom-center" 
+          toastOptions={{
+            style: {
+              background: '#333',
+              color: '#fff',
+              borderRadius: '12px',
+              padding: '12px 16px',
+            },
+            success: {
+              style: {
+                background: '#166534',
+                color: '#fff',
+              },
+            },
+            error: {
+              style: {
+                background: '#dc2626',
+                color: '#fff',
+              },
+            },
+          }} 
+        />
 
         <main>
           {/* ── Normal Routes ─────────────────────────────── */}

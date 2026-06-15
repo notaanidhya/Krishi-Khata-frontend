@@ -9,6 +9,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { getFarms, getLaborers, createLaborer } from '../api/farm';
 
 const FARM_KEYS = {
@@ -69,17 +70,32 @@ export const useCreateLaborer = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ farmId, name }) => createLaborer(farmId, { name }),
-    onSuccess: async (newLaborer, variables) => {
-      // Optimistically inject the new laborer into the dropdown list instantly
-      queryClient.setQueryData(FARM_KEYS.laborers(variables.farmId), (oldData) => {
-        if (!oldData) return [newLaborer];
-        // Prevent duplicates
-        if (oldData.some(l => l.id === newLaborer.id)) return oldData;
-        return [...oldData, newLaborer];
+    onMutate: async ({ farmId, name }) => {
+      await queryClient.cancelQueries({ queryKey: FARM_KEYS.laborers(farmId) });
+      const previousLaborers = queryClient.getQueryData(FARM_KEYS.laborers(farmId));
+
+      const optimisticLaborer = {
+        id: `temp-${Date.now()}`,
+        name,
+        farm_id: farmId,
+        is_syncing: true,
+      };
+
+      queryClient.setQueryData(FARM_KEYS.laborers(farmId), (old) => {
+        if (!Array.isArray(old)) return [optimisticLaborer];
+        return [...old, optimisticLaborer];
       });
 
-      // Trigger a background refetch to ensure perfect sync
-      await queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'] });
+      return { previousLaborers, farmId };
+    },
+    onError: (err, variables, context) => {
+      toast.error('Failed to create laborer. Changes reverted.');
+      if (context?.previousLaborers) {
+        queryClient.setQueryData(FARM_KEYS.laborers(context.farmId), context.previousLaborers);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'] });
     },
   });
 };

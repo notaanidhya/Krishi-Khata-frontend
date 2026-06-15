@@ -221,11 +221,11 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
 
     try {
       if (initialData) {
-        await updateMutation.mutateAsync({ id: initialData.id, data: payload });
+        updateMutation.mutate({ id: initialData.id, data: payload });
         isSubmittingRef.current = false;
         onClose();
       } else {
-        await addMutation.mutateAsync(payload);
+        addMutation.mutate(payload);
         isSubmittingRef.current = false;
         setAmount(''); setCategory(''); setCustomCategoryName(''); setDescription(''); setLaborerId('');
         setTransactionDate(new Date().toISOString().split('T')[0]);
