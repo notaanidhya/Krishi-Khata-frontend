@@ -48,6 +48,7 @@ function App() {
     userName,
     register,
     login,
+    checkUsername,
     isLoading: authLoading,
     error: authError,
   } = useGhostAuth();
@@ -64,7 +65,7 @@ function App() {
 
   // ── Auth Gate: New User → WelcomeScreen ─────────────────────
   if (isNewUser) {
-    return <WelcomeScreen onRegister={register} />;
+    return <WelcomeScreen onRegister={register} onLogin={login} />;
   }
 
   // ── Auth Gate: Returning User → PIN Entry ────────────────────

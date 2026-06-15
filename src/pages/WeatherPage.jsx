@@ -145,34 +145,8 @@ const WeatherPage = () => {
     activeFarm?.state
   );
 
-  /* ── Loading state ───────────────────────────────────────── */
-  if (isLoading) {
-    return (
-      <div className="px-4 pt-4 pb-24 max-w-lg mx-auto space-y-4 animate-page-enter">
-        {/* Header skeleton */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl skeleton-shimmer" />
-          <div className="space-y-2">
-            <div className="h-5 w-32 rounded-lg skeleton-shimmer" />
-            <div className="h-3 w-20 rounded-md skeleton-shimmer" />
-          </div>
-        </div>
-        {/* Current conditions skeleton */}
-        <div className="rounded-2xl p-4 skeleton-shimmer" style={{ height: '88px' }} />
-        {/* AI summary skeleton */}
-        <div className="rounded-2xl skeleton-shimmer" style={{ height: '120px' }} />
-        {/* Spraying windows skeleton */}
-        <div className="rounded-2xl skeleton-shimmer" style={{ height: '180px' }} />
-        {/* Soil metrics skeleton */}
-        <div className="rounded-2xl skeleton-shimmer" style={{ height: '140px' }} />
-        {/* Forecast skeleton */}
-        <div className="rounded-2xl skeleton-shimmer" style={{ height: '300px' }} />
-      </div>
-    );
-  }
-
   /* ── Error state ─────────────────────────────────────────── */
-  if (isError || !data) {
+  if (isError || (!data && !isLoading)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
         <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mb-4">
@@ -184,7 +158,7 @@ const WeatherPage = () => {
     );
   }
 
-  const { location, current, spraying_windows, soil_insights, forecast_7day } = data;
+  const { location, current, spraying_windows, soil_insights, forecast_7day } = data || {};
   const ai_summary = advisoryData?.ai_summary;
 
   return (

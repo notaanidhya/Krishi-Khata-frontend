@@ -11,7 +11,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { registerDevice, loginDevice } from '../api/auth';
+import { registerDevice, loginDevice, checkUsername } from '../api/auth';
 
 const DEVICE_ID_KEY = 'agroo_device_id';
 const USER_NAME_KEY = 'agroo_user_name';
@@ -77,20 +77,27 @@ export const useGhostAuth = () => {
   }, []);
 
   /**
-   * Login with existing device ID and PIN.
+   * Login with username and PIN.
    */
-  const login = useCallback(async (pin) => {
-    if (!deviceId) return;
+  const login = useCallback(async (name, pin) => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await loginDevice(deviceId, pin);
+      const result = await loginDevice(name, pin);
+
+      const serverDeviceId = result.device_id || result.user?.id;
 
       localStorage.setItem(JWT_KEY, result.token);
-      localStorage.setItem(USER_NAME_KEY, result.user?.display_name || userName);
+      localStorage.setItem(USER_NAME_KEY, result.user?.display_name || name);
+      if (serverDeviceId) {
+        localStorage.setItem(DEVICE_ID_KEY, serverDeviceId); // Sync their existing device ID down
+      }
 
       setJwt(result.token);
-      setUserName(result.user?.display_name || userName);
+      setUserName(result.user?.display_name || name);
+      if (serverDeviceId) {
+        setDeviceId(serverDeviceId);
+      }
     } catch (err) {
       const detail = err.response?.data?.detail;
       setError(typeof detail === 'string' ? detail : 'Wrong PIN. Please try again.');
@@ -98,17 +105,13 @@ export const useGhostAuth = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [deviceId, userName]);
+  }, []);
 
   /**
-   * Full logout — clears everything.
+   * Logout — clears session, keeps device identity.
    */
   const logout = useCallback(() => {
-    localStorage.removeItem(DEVICE_ID_KEY);
-    localStorage.removeItem(USER_NAME_KEY);
     localStorage.removeItem(JWT_KEY);
-    setDeviceId(null);
-    setUserName(null);
     setJwt(null);
     setError(null);
   }, []);
@@ -124,5 +127,6 @@ export const useGhostAuth = () => {
     register,
     login,
     logout,
+    checkUsername,
   };
 };
