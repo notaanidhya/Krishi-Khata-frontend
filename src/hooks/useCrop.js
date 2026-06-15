@@ -85,13 +85,15 @@ export const useCreateCrop = () => {
       const previousActiveCrop = queryClient.getQueriesData({ queryKey: ['activeCrop'] });
       const previousCrops = queryClient.getQueriesData({ queryKey: ['crops'] });
 
+      const tempId = `temp-${Date.now()}`;
       const optimisticCrop = {
-        id: `temp-${Date.now()}`,
+        id: tempId,
         farm_id: farmId,
         name: cropData.name,
         variety: cropData.variety || null,
         planted_date: cropData.planted_date,
         expected_harvest_date: cropData.expected_harvest_date || null,
+        status: 'ACTIVE',
         is_active: true,
         is_processing: true, // Backend AI validation processing
         is_syncing: true,
@@ -105,7 +107,7 @@ export const useCreateCrop = () => {
         return [optimisticCrop, ...old.map(c => ({ ...c, is_active: false }))];
       });
 
-      return { previousActiveCrop, previousCrops };
+      return { previousActiveCrop, previousCrops, tempId };
     },
     onError: (err, variables, context) => {
       toast.error('Failed to plant crop. Changes reverted.');
@@ -120,9 +122,16 @@ export const useCreateCrop = () => {
         });
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeCrop'] });
-      queryClient.invalidateQueries({ queryKey: ['crops'] });
+    onSuccess: (savedCrop, variables, context) => {
+      queryClient.setQueriesData({ queryKey: CROP_KEYS.activeCrop(variables.farmId) }, (old) => {
+        if (old?.id === context.tempId) return savedCrop;
+        return old;
+      });
+
+      queryClient.setQueriesData({ queryKey: CROP_KEYS.crops(variables.farmId) }, (old) => {
+        if (!Array.isArray(old)) return old;
+        return old.map(c => c.id === context.tempId ? savedCrop : c);
+      });
     },
   });
 };
@@ -168,10 +177,6 @@ export const useDeleteCrop = () => {
         });
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeCrop'] });
-      queryClient.invalidateQueries({ queryKey: ['crops'] });
-    },
   });
 };
 
@@ -190,8 +195,9 @@ export const useAddCropLog = () => {
       const previousActiveCrop = queryClient.getQueriesData({ queryKey: ['activeCrop'] });
       const previousCrops = queryClient.getQueriesData({ queryKey: ['crops'] });
 
+      const tempId = `temp-${Date.now()}`;
       const optimisticLog = {
-        id: `temp-${Date.now()}`,
+        id: tempId,
         crop_id: cropId,
         log_date: logData.log_date || new Date().toISOString().split('T')[0],
         activity: logData.activity,
@@ -214,7 +220,7 @@ export const useAddCropLog = () => {
         return old.map(c => c.id === cropId ? { ...c, logs: [optimisticLog, ...(c.logs || [])] } : c);
       });
 
-      return { previousActiveCrop, previousCrops };
+      return { previousActiveCrop, previousCrops, tempId };
     },
     onError: (err, variables, context) => {
       toast.error('Failed to add crop log. Changes reverted.');
@@ -229,9 +235,21 @@ export const useAddCropLog = () => {
         });
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeCrop'] });
-      queryClient.invalidateQueries({ queryKey: ['crops'] });
+    onSuccess: (savedLog, variables, context) => {
+      queryClient.setQueriesData({ queryKey: ['activeCrop'] }, (old) => {
+        if (old?.id === variables.cropId) {
+          return { ...old, logs: (old.logs || []).map(l => l.id === context.tempId ? savedLog : l) };
+        }
+        return old;
+      });
+
+      queryClient.setQueriesData({ queryKey: ['crops'] }, (old) => {
+        if (!Array.isArray(old)) return old;
+        return old.map(c => c.id === variables.cropId 
+          ? { ...c, logs: (c.logs || []).map(l => l.id === context.tempId ? savedLog : l) }
+          : c
+        );
+      });
     },
   });
 };

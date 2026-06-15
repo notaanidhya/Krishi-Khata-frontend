@@ -74,8 +74,9 @@ export const useCreateLaborer = () => {
       await queryClient.cancelQueries({ queryKey: FARM_KEYS.laborers(farmId) });
       const previousLaborers = queryClient.getQueryData(FARM_KEYS.laborers(farmId));
 
+      const tempId = `temp-${Date.now()}`;
       const optimisticLaborer = {
-        id: `temp-${Date.now()}`,
+        id: tempId,
         name,
         farm_id: farmId,
         is_syncing: true,
@@ -86,7 +87,7 @@ export const useCreateLaborer = () => {
         return [...old, optimisticLaborer];
       });
 
-      return { previousLaborers, farmId };
+      return { previousLaborers, farmId, tempId };
     },
     onError: (err, variables, context) => {
       toast.error('Failed to create laborer. Changes reverted.');
@@ -94,8 +95,11 @@ export const useCreateLaborer = () => {
         queryClient.setQueryData(FARM_KEYS.laborers(context.farmId), context.previousLaborers);
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['farms', 'laborers'] });
+    onSuccess: (savedLaborer, variables, context) => {
+      queryClient.setQueryData(FARM_KEYS.laborers(variables.farmId), (old) => {
+        if (!Array.isArray(old)) return old;
+        return old.map(l => l.id === context.tempId ? savedLaborer : l);
+      });
     },
   });
 };
