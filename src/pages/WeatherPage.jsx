@@ -19,8 +19,27 @@ import {
   CalendarDays,
 } from 'lucide-react';
 import { useWeatherDashboard, useWeatherAdvisory } from '../hooks/useWeather';
+import { getExactLocationName } from '../api/weather';
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useLocation } from '../hooks/useLocation';
+
+const conditionTranslations = {
+  "Clear Sky": "साफ मौसम",
+  "Partly Cloudy": "आंशिक बादल",
+  "Fog": "कोहरा",
+  "Light Drizzle": "हल्की बूंदाबांदी",
+  "Drizzle": "बूंदाबांदी",
+  "Rain": "बारिश",
+  "Snow": "बर्फबारी",
+  "Rain Showers": "बारिश की बौछारें",
+  "Thunderstorm": "गरज के साथ बारिश",
+  "Clear": "साफ"
+};
+
+const translateCondition = (text, lang) => {
+  if (lang !== 'hi') return text;
+  return conditionTranslations[text] || text;
+};
 
 /* ── Weather condition → emoji helper ──────────────────────── */
 const getWeatherEmoji = (condition) => {
@@ -67,8 +86,8 @@ const getSprayStyle = (status) => {
 
 /* ── Moisture status → color helper ────────────────────────── */
 const getMoistureColor = (status) => {
-  if (status?.includes('Dry')) return { bg: '#fef2f2', text: '#dc2626', border: '#fca5a5' };
-  if (status === 'Moderate') return { bg: '#fffbeb', text: '#d97706', border: '#fcd34d' };
+  if (status?.includes('Dry') || status?.includes('सूखा')) return { bg: '#fef2f2', text: '#dc2626', border: '#fca5a5' };
+  if (status === 'Moderate' || status === 'सामान्य') return { bg: '#fffbeb', text: '#d97706', border: '#fcd34d' };
   return { bg: '#ecfdf5', text: '#059669', border: '#6ee7b7' };
 };
 
@@ -84,6 +103,21 @@ const WeatherPage = () => {
   const { t, i18n } = useTranslation();
   const { activeFarm } = useActiveFarm();
   const [liveCoords, setLiveCoords] = useState(null);
+  const [exactVillage, setExactVillage] = useState(null);
+
+  // Fetch village name if we have coords
+  useEffect(() => {
+    const fetchVillage = async (lat, lon) => {
+      const name = await getExactLocationName(lat, lon);
+      if (name) setExactVillage(name);
+    };
+    
+    if (liveCoords) {
+      fetchVillage(liveCoords.lat, liveCoords.lon);
+    } else if (activeFarm?.latitude && activeFarm?.longitude) {
+      fetchVillage(activeFarm.latitude, activeFarm.longitude);
+    }
+  }, [liveCoords, activeFarm]);
 
   // Fetch precise live location on mount
   useEffect(() => {
@@ -158,8 +192,9 @@ const WeatherPage = () => {
     );
   }
 
-  const { location, current, spraying_windows, soil_insights, forecast_7day } = data || {};
+  const { location, current, soil_insights, forecast_7day } = data || {};
   const ai_summary = advisoryData?.ai_summary;
+  const daily_tip = advisoryData?.daily_tip;
 
   return (
     <div id="weather-page" className="px-4 pt-4 pb-24 max-w-lg mx-auto space-y-4 animate-page-enter">
@@ -182,7 +217,7 @@ const WeatherPage = () => {
             {t('weather.title')}
           </h2>
           <p className="text-xs text-stone-400 font-medium">
-            {location?.city || 'Local'}, {location?.state || ''}
+            {exactVillage ? `${exactVillage}, ` : ''}{location?.city || 'Local'}, {location?.state || ''}
           </p>
         </div>
       </div>
@@ -205,7 +240,7 @@ const WeatherPage = () => {
             <p className="text-2xl font-black" style={{ color: 'var(--color-forest)' }}>
               {current?.temperature_c ?? '--'}°
             </p>
-            <p className="text-xs text-stone-500 font-semibold">{current?.condition_text || 'Loading...'}</p>
+            <p className="text-xs text-stone-500 font-semibold">{translateCondition(current?.condition_text, i18n.language) || 'Loading...'}</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -261,54 +296,34 @@ const WeatherPage = () => {
 
 
       {/* ═══════════════════════════════════════════════════════
-          4. SAFE SPRAYING WINDOW TIMELINE
+          4. DAILY FARMING TIP
       ═══════════════════════════════════════════════════════ */}
       <div
-        className="rounded-2xl overflow-hidden"
-        style={{ border: '1.5px solid #e5e0d8', boxShadow: '0 2px 12px rgba(5,46,22,0.06)' }}
+        className="rounded-2xl overflow-hidden relative"
+        style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)', border: '1.5px solid #d1fae5', boxShadow: '0 2px 12px rgba(5,46,22,0.04)' }}
       >
-        <div className="px-4 pt-4 pb-2 flex items-center gap-2" style={{ background: '#fffdf5' }}>
-          <div className="w-8 h-8 bg-emerald-50 rounded-xl flex items-center justify-center">
-            <Droplets size={16} className="text-emerald-600" />
+        <div className="px-4 py-4 flex items-start gap-3">
+          <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+            <Sprout size={20} className="text-emerald-600" />
           </div>
           <div>
-            <h4 className="text-sm font-bold font-serif-accent" style={{ color: 'var(--color-forest)' }}>
-              {t('weather.sprayingTitle')}
-            </h4>
-            <p className="text-[10px] text-stone-400 font-medium">{t('weather.sprayingSubtitle')}</p>
-          </div>
-        </div>
-
-        <div className="px-4 pb-4 pt-2 flex gap-2" style={{ background: '#fffdf5' }}>
-          {(spraying_windows || []).map((win) => {
-            const s = getSprayStyle(win.status);
-            return (
-              <div
-                key={win.block}
-                className="flex-1 rounded-xl p-3 transition-all"
-                style={{ background: s.bg, border: s.border }}
-              >
-                <p className="text-xs font-bold mb-0.5" style={{ color: s.textColor }}>{win.block}</p>
-                <p className="text-[9px] text-stone-400 font-medium mb-2">{win.time_range}</p>
-                <div
-                  className="inline-block px-2 py-0.5 rounded-md text-[9px] font-bold mb-2"
-                  style={{ background: s.badgeBg, color: s.badgeText }}
-                >
-                  {t(s.label)}
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1">
-                    <Wind size={9} className="text-stone-400" />
-                    <span className="text-[9px] font-semibold" style={{ color: s.textColor }}>{win.max_wind_kmh} km/h</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Droplets size={9} className="text-stone-400" />
-                    <span className="text-[9px] font-semibold" style={{ color: s.textColor }}>{win.max_precip_pct}% rain</span>
-                  </div>
-                </div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <Sparkles size={12} className="text-emerald-500" />
+              <h4 className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
+                आज का कृषि सुझाव
+              </h4>
+            </div>
+            {advisoryLoading ? (
+              <div className="space-y-1.5 animate-pulse mt-2">
+                 <div className="h-3 bg-emerald-200/50 rounded w-full" />
+                 <div className="h-3 bg-emerald-200/50 rounded w-4/5" />
               </div>
-            );
-          })}
+            ) : (
+              <p className="text-sm font-medium text-emerald-900 leading-snug">
+                {daily_tip || "स्वस्थ फसल के लिए अच्छे बीजों का चयन करें और समय पर सिंचाई करें।"}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -326,53 +341,33 @@ const WeatherPage = () => {
           </div>
           <div>
             <h4 className="text-sm font-bold font-serif-accent" style={{ color: 'var(--color-forest)' }}>
-              {t('weather.soilTitle')}
+              नमी
             </h4>
-            <p className="text-[10px] text-stone-400 font-medium">{t('weather.soilSubtitle')}</p>
           </div>
         </div>
 
-        <div className="px-4 pb-4 pt-2 grid grid-cols-2 gap-3" style={{ background: '#fffdf5' }}>
-          {/* Evapotranspiration */}
-          <div
-            className="rounded-xl p-3"
-            style={{ background: 'linear-gradient(135deg, #fdf4ff, #fae8ff)', border: '1.5px solid #e9d5ff' }}
-          >
-            <p className="text-[9px] text-purple-400 font-bold uppercase tracking-wider mb-1">{t('weather.et0Today')}</p>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-purple-700">
-                {soil_insights?.et0_today_mm ?? '--'}
-              </span>
-              <span className="text-[10px] font-bold text-purple-400">{t('weather.mmPerDay')}</span>
-            </div>
-            <div className="mt-2 flex items-center gap-1">
-              <Thermometer size={10} className="text-purple-300" />
-              <span className="text-[9px] text-purple-400 font-semibold">
-                {t('weather.et07dayAvg', { value: soil_insights?.et0_7day_avg_mm ?? '--' })}
-              </span>
-            </div>
-          </div>
-
+        <div className="px-4 pb-4 pt-2" style={{ background: '#fffdf5' }}>
           {/* Moisture Status */}
           {(() => {
-            const mc = getMoistureColor(soil_insights?.moisture_status);
+            const status = advisoryData?.moisture_status || soil_insights?.moisture_status;
+            const desc = advisoryData?.moisture_description || soil_insights?.moisture_description;
+            const mc = getMoistureColor(status);
             return (
               <div
-                className="rounded-xl p-3"
+                className="rounded-xl p-4 flex items-center justify-between gap-4"
                 style={{ background: mc.bg, border: `1.5px solid ${mc.border}` }}
               >
-                <p className="text-[9px] font-bold uppercase tracking-wider mb-1" style={{ color: mc.text, opacity: 0.7 }}>
-                  {t('weather.moisture')}
-                </p>
+                <div>
+                  <p className="text-xs font-medium leading-relaxed" style={{ color: mc.text }}>
+                    {desc || ''}
+                  </p>
+                </div>
                 <div
-                  className="inline-block px-2 py-0.5 rounded-md text-xs font-bold mb-2"
+                  className="shrink-0 px-3 py-1.5 rounded-lg text-sm font-black shadow-sm"
                   style={{ background: mc.text, color: '#fff' }}
                 >
-                  {soil_insights?.moisture_status || '--'}
+                  {status || '--'}
                 </div>
-                <p className="text-[10px] font-medium leading-snug" style={{ color: mc.text }}>
-                  {soil_insights?.moisture_description || ''}
-                </p>
               </div>
             );
           })()}
@@ -399,59 +394,78 @@ const WeatherPage = () => {
         </div>
 
         <div className="px-4 pb-4 pt-1 space-y-2" style={{ background: '#fffdf5' }}>
-          {(forecast_7day || []).map((day, idx) => {
-            const rain = getRainColor(day.precip_probability_pct);
-            const isToday = idx === 0;
-            return (
-              <div
-                key={day.date}
-                className="rounded-xl px-3 py-2.5 flex items-center gap-3 transition-all"
-                style={{
-                  background: isToday
-                    ? 'linear-gradient(135deg, rgba(22,101,52,0.06), rgba(20,83,45,0.03))'
-                    : 'rgba(255,253,249,0.6)',
-                  border: isToday ? '1.5px solid #bbf7d0' : '1px solid #f0ebe4',
-                }}
-              >
-                {/* Day + emoji */}
-                <div className="w-12 text-center shrink-0">
-                  <span className="text-lg leading-none">{getWeatherEmoji(day.condition)}</span>
-                  <p className="text-[9px] font-bold text-stone-500 mt-0.5 uppercase tracking-wider">
-                    {isToday ? t('weather.today') : day.day_name?.slice(0, 3)}
-                  </p>
-                </div>
+          {(() => {
+            const weekMin = Math.min(...(forecast_7day || []).map(d => d.temp_min));
+            const weekMax = Math.max(...(forecast_7day || []).map(d => d.temp_max));
+            const range = weekMax - weekMin || 1;
 
-                {/* Condition + date */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold truncate" style={{ color: 'var(--color-forest)' }}>
-                    {day.condition_text}
-                  </p>
-                  <p className="text-[10px] text-stone-400 font-medium">
-                    {new Date(day.date + 'T00:00:00').toLocaleDateString(i18n.language === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'short' })}
-                  </p>
-                </div>
+            return (forecast_7day || []).map((day, idx) => {
+              const rain = getRainColor(day.precip_probability_pct);
+              const isToday = idx === 0;
+              
+              const leftPercent = ((day.temp_min - weekMin) / range) * 100;
+              const widthPercent = ((day.temp_max - day.temp_min) / range) * 100;
 
-                {/* Temp */}
-                <div className="text-right shrink-0 mr-1">
-                  <p className="text-xs font-extrabold" style={{ color: 'var(--color-forest)' }}>
-                    {day.temp_max}°
-                  </p>
-                  <p className="text-[10px] text-stone-400 font-bold">{day.temp_min}°</p>
-                </div>
-
-                {/* Rain badge */}
+              return (
                 <div
-                  className="shrink-0 px-2 py-1 rounded-lg text-center min-w-[44px]"
-                  style={{ background: rain.bg }}
+                  key={day.date}
+                  className="rounded-xl px-3 py-2 flex items-center gap-2 transition-all"
+                  style={{
+                    background: isToday
+                      ? 'linear-gradient(135deg, rgba(22,101,52,0.06), rgba(20,83,45,0.03))'
+                      : 'rgba(255,253,249,0.6)',
+                    border: isToday ? '1.5px solid #bbf7d0' : '1px solid #f0ebe4',
+                  }}
                 >
-                  <p className="text-[9px] font-bold" style={{ color: rain.text }}>
-                    {day.precip_probability_pct}%
-                  </p>
-                  <p className="text-[7px] font-semibold text-stone-400">{t('weather.rain')}</p>
+                  {/* Day + emoji */}
+                  <div className="w-10 text-center shrink-0">
+                    <span className="text-[16px] leading-none">{getWeatherEmoji(day.condition)}</span>
+                    <p className="text-[9px] font-bold text-stone-500 mt-0.5 uppercase tracking-wider">
+                      {isToday ? t('weather.today') : day.day_name?.slice(0, 3)}
+                    </p>
+                  </div>
+  
+                  {/* Condition + date */}
+                  <div className="w-24 min-w-[6rem] shrink-0">
+                    <p className="text-[11px] font-bold truncate" style={{ color: 'var(--color-forest)' }}>
+                      {translateCondition(day.condition_text, i18n.language)}
+                    </p>
+                    <p className="text-[9px] text-stone-400 font-medium">
+                      {new Date(day.date + 'T00:00:00').toLocaleDateString(i18n.language === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'short' })}
+                    </p>
+                  </div>
+  
+                  {/* Temp Bar */}
+                  <div className="flex-1 flex items-center gap-1.5 px-1 min-w-[70px]">
+                    <span className="text-[9px] font-bold text-stone-400 shrink-0 w-4 text-right">{day.temp_min}°</span>
+                    <div className="flex-1 h-1.5 bg-stone-200 rounded-full relative overflow-hidden">
+                      <div 
+                        className="absolute h-full rounded-full"
+                        style={{
+                          left: `${leftPercent}%`,
+                          width: `${widthPercent}%`,
+                          background: 'linear-gradient(90deg, #60a5fa, #f87171)'
+                        }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-extrabold shrink-0 w-5" style={{ color: 'var(--color-forest)' }}>{day.temp_max}°</span>
+                  </div>
+  
+                  {/* Rain badge */}
+                  <div
+                    className="shrink-0 px-2 py-1 rounded-lg text-center min-w-[40px]"
+                    style={{ background: rain.bg }}
+                  >
+                    <p className="text-[9px] font-bold" style={{ color: rain.text }}>
+                      {day.precip_probability_pct}%
+                    </p>
+                    <p className="text-[7px] font-semibold text-stone-400">{t('weather.rain')}</p>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            });
+          })()}
+
         </div>
       </div>
 

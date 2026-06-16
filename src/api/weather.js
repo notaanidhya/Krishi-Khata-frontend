@@ -66,3 +66,22 @@ export const getWeatherAdvisory = async (lat, lon, city, state) => {
   const { data } = await apiClient.get('/api/v1/weather/ai-advisory', { params });
   return data;
 };
+
+/**
+ * Perform reverse geocoding to get the exact village/locality name.
+ */
+export const getExactLocationName = async (lat, lon) => {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`
+    );
+    const data = await res.json();
+    if (data && data.address) {
+      const addr = data.address;
+      return addr.village || addr.town || addr.suburb || addr.city || addr.county || null;
+    }
+  } catch (err) {
+    console.error("Reverse geocoding failed", err);
+  }
+  return null;
+};

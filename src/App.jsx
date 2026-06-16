@@ -13,7 +13,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, NavLink } from 'react-router-dom';
-import { BookOpen, CloudSun, LayoutDashboard, Sprout, Users, Loader2, TrendingUp } from 'lucide-react';
+import { BookOpen, CloudSun, Sprout, Users, Loader2, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
 import TopBar from './components/layout/TopBar';
@@ -21,7 +21,6 @@ import WelcomeScreen from './components/WelcomeScreen';
 import PinEntryScreen from './components/PinEntryScreen';
 
 import KhataPage from './pages/KhataPage';
-import DashboardPage from './pages/DashboardPage';
 import CropTrackingPage from './pages/CropTrackingPage';
 import WeatherPage from './pages/WeatherPage';
 import CommunityPage from './pages/CommunityPage';
@@ -31,8 +30,7 @@ import { useFarms } from './hooks/useFarm';
 import { useGhostAuth } from './hooks/useGhostAuth';
 
 const NAV_ITEMS = [
-  { to: '/',          end: true,  icon: LayoutDashboard, labelKey: 'nav.home'    },
-  { to: '/khata',     end: false, icon: BookOpen,        labelKey: 'nav.khata'   },
+  { to: '/',          end: true,  icon: BookOpen,        labelKey: 'nav.khata'   },
   { to: '/crops',     end: false, icon: Sprout,          labelKey: 'nav.crops'   },
   { to: '/mandi',     end: false, icon: TrendingUp,      labelKey: 'nav.mandi'   },
   { to: '/community', end: false, icon: Users,           labelKey: 'nav.chaupal' },
@@ -126,8 +124,7 @@ function App() {
         <main>
           {/* ── Normal Routes ─────────────────────────────── */}
           <Routes>
-            <Route path="/"          element={<DashboardPage />} />
-            <Route path="/khata"     element={<KhataPage />} />
+            <Route path="/"          element={<KhataPage />} />
             <Route path="/crops"     element={<CropTrackingPage />} />
             <Route path="/mandi"     element={<MandiDashboard />} />
             <Route path="/weather"   element={<WeatherPage />} />
