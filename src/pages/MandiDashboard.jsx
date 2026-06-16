@@ -21,7 +21,7 @@ const formatINR = (value) =>
   }).format(value);
 
 const MandiDashboard = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { activeFarm } = useActiveFarm();
   const farmId = activeFarm?.id;
   
@@ -238,6 +238,7 @@ const MandiDashboard = () => {
               onChange={setSelectedDistrict}
               className="w-28 sm:w-36"
               placeholder={t('mandi.district')}
+              getDisplayValue={(val) => i18n.language === 'hi' ? (metadata?.districts_hi?.[val] || val) : val}
             />
           </div>
         </div>
@@ -349,7 +350,7 @@ const MandiDashboard = () => {
               <ArrowLeft size={20} />
             </button>
             <h2 className="text-xl font-bold text-emerald-950 font-serif-accent">
-              {selectedDistrict} Market Details
+              {i18n.language === 'hi' ? (metadata?.districts_hi?.[selectedDistrict] || selectedDistrict) : selectedDistrict} Market Details
             </h2>
           </div>
 
