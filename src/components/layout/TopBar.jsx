@@ -7,12 +7,10 @@
  */
 
 import React from 'react';
-import { Sprout, MapPin, Languages } from 'lucide-react';
-import { useActiveFarm } from '../../context/ActiveFarmContext';
+import { Sprout, Languages } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const TopBar = () => {
-  const { activeFarm } = useActiveFarm();
   const { t, i18n } = useTranslation();
 
   const currentLanguage = i18n.language || 'en';
@@ -38,24 +36,11 @@ const TopBar = () => {
           </div>
           <div>
             <h1
-              className="text-lg leading-none tracking-tight font-serif-accent"
+              className="text-2xl leading-none tracking-tight font-serif-accent"
               style={{ color: 'var(--color-cream)', fontWeight: 900 }}
             >
               {isHindi ? 'कृषि खाता' : 'Krishi Khata'}
             </h1>
-            {activeFarm && (
-              <div className="flex items-center gap-1 mt-0.5" style={{ color: 'rgba(253,230,138,0.75)' }}>
-                <MapPin size={10} />
-                <span className="text-[10px] font-medium">
-                  {activeFarm?.district === "N/A"
-                    ? (isHindi ? "मेरा खेत" : "My Farm")
-                    : (activeFarm?.district?.toLowerCase() === activeFarm?.state?.toLowerCase()
-                      ? activeFarm?.district
-                      : `${activeFarm?.district || ""}, ${activeFarm?.state || ""}`)
-                  }
-                </span>
-              </div>
-            )}
           </div>
         </div>
 
