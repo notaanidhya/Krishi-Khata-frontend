@@ -4,9 +4,11 @@ import { TrendingUp, MapPin, Search, LineChart as LineChartIcon, Sprout, Flame, 
 import { useTranslation } from 'react-i18next';
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useCrops } from '../hooks/useCrop';
-import { getMandiHistory, getMandiMetadata } from '../api/mandi';
+import { getMandiHistory, getMandiMetadata, getMandiPrices } from '../api/mandi';
 import Combobox from '../components/ui/Combobox';
+import { PriceCard } from '../features/dashboard/MandiTicker';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { ArrowLeft } from 'lucide-react';
 
 // ── Static regional fallback commodities ────────────────────────────
 const MARKET_FAVORITES = ['Wheat', 'Soybean', 'Mustard', 'Chana'];
@@ -26,13 +28,6 @@ const MandiDashboard = () => {
   const { data: crops } = useCrops(farmId);
   
   // Default values based on active farm
-  const defaultDistrict = useMemo(() => {
-    const rawDistrict = activeFarm?.district;
-    if (!rawDistrict || rawDistrict === 'N/A' || rawDistrict.toLowerCase() === 'madhya pradesh') {
-      return 'Indore';
-    }
-    return rawDistrict;
-  }, [activeFarm]);
   const defaultCommodity = useMemo(() => {
     if (crops && crops.length > 0) {
       const active = crops.find(c => c.status === 'ACTIVE');
@@ -42,19 +37,13 @@ const MandiDashboard = () => {
     return 'Wheat';
   }, [crops]);
 
-  const [selectedDistrict, setSelectedDistrict] = useState(defaultDistrict);
+  const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedCommodity, setSelectedCommodity] = useState(defaultCommodity);
 
   // Sync state if farm changes
   useEffect(() => {
-    let rawDistrict = activeFarm?.district;
-    if (!rawDistrict || rawDistrict === 'N/A' || rawDistrict.toLowerCase() === 'madhya pradesh') {
-      rawDistrict = 'Indore';
-    }
-    
-    // Only update state if it actually changed
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSelectedDistrict(prev => prev !== rawDistrict ? rawDistrict : prev);
+    // Start in overview mode by default
+    setSelectedDistrict("");
     if (defaultCommodity) setSelectedCommodity(defaultCommodity);
   }, [activeFarm, defaultCommodity]);
 
@@ -97,8 +86,16 @@ const MandiDashboard = () => {
   // ── Chip click handler ────────────────────────────────────────────
   const handleChipClick = useCallback((commodity) => {
     setSelectedCommodity(commodity);
-    // TanStack Query will auto-refetch because queryKey includes selectedCommodity
+    setSelectedDistrict(""); // Return to Overview
   }, []);
+
+  const { data: overviewResponse, isLoading: overviewLoading } = useQuery({
+    queryKey: ['mandiOverview', selectedCommodity],
+    queryFn: () => getMandiPrices({ commodity: selectedCommodity, overview: true }),
+    enabled: !!selectedCommodity && !selectedDistrict,
+    staleTime: 1000 * 60 * 5,
+  });
+  const overviewData = overviewResponse?.prices || [];
 
   const { data: historyResponse, isLoading, isFetching } = useQuery({
     queryKey: ['mandiHistory', selectedCommodity, selectedDistrict],
@@ -224,7 +221,10 @@ const MandiDashboard = () => {
             <Combobox 
               options={commodityOptions}
               value={selectedCommodity}
-              onChange={setSelectedCommodity}
+              onChange={(val) => {
+                setSelectedCommodity(val);
+                setSelectedDistrict("");
+              }}
               className="w-28 sm:w-36"
               placeholder={t('mandi.commodity')}
               getDisplayValue={(val) => t(`mandi.commodities.${val}`, { defaultValue: val })}
@@ -309,44 +309,90 @@ const MandiDashboard = () => {
         </div>
       )}
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-3xl p-5 shadow-sm border border-stone-100/50 flex flex-col justify-center transition-transform hover:scale-[1.02]">
-          <span className="text-stone-400 text-xs font-bold uppercase tracking-wider mb-1">{t('mandi.todayPrice')}</span>
-          <span className="text-3xl font-bold text-emerald-950">
-            {todayPrice > 0 ? formatINR(todayPrice) : '---'}
-          </span>
+      {/* Overview or Graph View */}
+      {!selectedDistrict ? (
+        <div className="space-y-4 animate-fade-in">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-6 bg-amber-500 rounded-full"></div>
+            <h2 className="text-lg font-bold text-emerald-950 font-serif-accent">
+              {t('mandi.marketOverview', 'Market Overview')}
+            </h2>
+          </div>
+          {overviewLoading ? (
+            <div className="h-48 flex items-center justify-center bg-white rounded-3xl shadow-sm border border-stone-100/50">
+              <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : overviewData.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {overviewData.map((item, i) => (
+                <PriceCard 
+                  key={`${item.district}-${item.market}-${i}`} 
+                  item={item} 
+                  onClick={() => setSelectedDistrict(item.district || item.District)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="h-48 flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm border border-stone-100/50 text-stone-500">
+              <Database size={32} className="mb-2 opacity-50" />
+              <p>{t('mandi.noOverviewData', 'No recent markets found for this crop.')}</p>
+            </div>
+          )}
         </div>
-        
-        <div className="bg-white rounded-3xl p-5 shadow-sm border border-stone-100/50 flex flex-col justify-center transition-transform hover:scale-[1.02]">
-          <span className="text-stone-400 text-xs font-bold uppercase tracking-wider mb-1">{t('mandi.yesterdayPrice')}</span>
-          <span className="text-2xl font-bold text-stone-600">
-            {yesterdayPrice > 0 ? formatINR(yesterdayPrice) : '---'}
-          </span>
-        </div>
+      ) : (
+        <div className="space-y-6 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setSelectedDistrict("")}
+              className="p-2 hover:bg-stone-100 rounded-full transition-colors text-stone-500 hover:text-emerald-900"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <h2 className="text-xl font-bold text-emerald-950 font-serif-accent">
+              {selectedDistrict} Market Details
+            </h2>
+          </div>
 
-        <div className={`rounded-3xl p-5 shadow-sm border flex flex-col justify-center transition-transform hover:scale-[1.02] ${
-          isPositiveTrend ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100'
-        }`}>
-          <span className={`text-xs font-bold uppercase tracking-wider mb-1 ${
-            isPositiveTrend ? 'text-emerald-600/80' : 'text-red-600/80'
-          }`}>{t('mandi.trend24h')}</span>
-          <span className={`text-2xl font-bold ${
-            isPositiveTrend ? 'text-emerald-700' : 'text-red-700'
-          }`}>
-            {isPositiveTrend ? '+' : ''}{trendPct.toFixed(1)}%
-          </span>
-        </div>
-      </div>
+          {/* KPI Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-white rounded-3xl p-5 shadow-sm border border-stone-100/50 flex flex-col justify-center transition-transform hover:scale-[1.02]">
+              <span className="text-stone-400 text-xs font-bold uppercase tracking-wider mb-1">{t('mandi.todayPrice')}</span>
+              <span className="text-3xl font-bold text-emerald-950">
+                {todayPrice > 0 ? formatINR(todayPrice) : '---'}
+              </span>
+            </div>
+            
+            <div className="bg-white rounded-3xl p-5 shadow-sm border border-stone-100/50 flex flex-col justify-center transition-transform hover:scale-[1.02]">
+              <span className="text-stone-400 text-xs font-bold uppercase tracking-wider mb-1">{t('mandi.yesterdayPrice')}</span>
+              <span className="text-2xl font-bold text-stone-600">
+                {yesterdayPrice > 0 ? formatINR(yesterdayPrice) : '---'}
+              </span>
+            </div>
 
-      {/* Main Chart Section */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
-          <h2 className="text-lg font-bold text-emerald-950 font-serif-accent">{t('mandi.chartTitle')}</h2>
+            <div className={`rounded-3xl p-5 shadow-sm border flex flex-col justify-center transition-transform hover:scale-[1.02] ${
+              isPositiveTrend ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100'
+            }`}>
+              <span className={`text-xs font-bold uppercase tracking-wider mb-1 ${
+                isPositiveTrend ? 'text-emerald-600/80' : 'text-red-600/80'
+              }`}>{t('mandi.trend24h')}</span>
+              <span className={`text-2xl font-bold ${
+                isPositiveTrend ? 'text-emerald-700' : 'text-red-700'
+              }`}>
+                {isPositiveTrend ? '+' : ''}{trendPct.toFixed(1)}%
+              </span>
+            </div>
+          </div>
+
+          {/* Main Chart Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
+              <h2 className="text-lg font-bold text-emerald-950 font-serif-accent">{t('mandi.chartTitle')}</h2>
+            </div>
+            {renderChartOrEmptyState()}
+          </div>
         </div>
-        {renderChartOrEmptyState()}
-      </div>
+      )}
 
     </div>
   );

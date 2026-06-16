@@ -37,7 +37,7 @@ const formatINR = (value) =>
   }).format(value);
 
 // ── Vertical Bento Price Card (Surgical Flex Layout Fix) ────────────
-const PriceCard = ({ item }) => {
+export const PriceCard = ({ item, onClick }) => {
   const { t } = useTranslation();
   const commodity = item.commodity || item.Commodity || '';
   const market = item.market || item.Market || item.mandi || item.Mandi || '';
@@ -47,6 +47,7 @@ const PriceCard = ({ item }) => {
 
   return (
     <div 
+      onClick={onClick}
       className={`h-full bg-gradient-to-br ${meta.gradient} shadow-sm rounded-2xl border ${meta.border} p-3 sm:p-4 lg:p-5 flex flex-col gap-2 min-w-0 w-full active:scale-[0.98] hover:shadow-md transition-all duration-150 cursor-pointer`}
     >
       {/* Top: Icon + Name horizontally */}
@@ -70,7 +71,7 @@ const PriceCard = ({ item }) => {
           {t('mandi.bhav')}
         </span>
         <span className={`text-xl sm:text-2xl font-bold ${meta.accent} truncate min-w-0`}>
-          {formatINR(modalPrice)}
+          {formatINR(modalPrice)} <span className="text-sm font-medium text-stone-500">/ {t('mandi.quintal', 'Quintal')}</span>
         </span>
       </div>
     </div>

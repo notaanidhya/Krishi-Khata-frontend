@@ -73,9 +73,18 @@ const Combobox = ({ options, value, onChange, placeholder, icon: Icon, className
                 </li>
               ))
             ) : (
-              <li className="px-4 py-6 text-sm text-center text-stone-400">
-                {t('common.noResults')}
-              </li>
+              search.trim().length > 0 ? (
+                <li
+                  onClick={() => handleSelect(search.trim())}
+                  className="px-4 py-3 text-sm cursor-pointer text-emerald-600 hover:bg-emerald-50 text-center font-medium transition-colors"
+                >
+                  Search for "{search.trim()}"
+                </li>
+              ) : (
+                <li className="px-4 py-6 text-sm text-center text-stone-400">
+                  {t('common.noResults', 'No options found')}
+                </li>
+              )
             )}
           </ul>
         </div>

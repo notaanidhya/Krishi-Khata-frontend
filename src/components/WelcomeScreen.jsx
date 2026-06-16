@@ -10,12 +10,17 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Sprout, ArrowRight, Sparkles, Lock, AlertTriangle, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Sprout, ArrowRight, Sparkles, Lock, AlertTriangle, Loader2, Eye, EyeOff, Globe } from 'lucide-react';
 import { isWeakPin } from '../hooks/useGhostAuth';
 import { checkUsername } from '../api/auth';
 
 const WelcomeScreen = ({ onRegister, onLogin }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const nextLang = i18n.language?.startsWith('en') ? 'hi' : 'en';
+    i18n.changeLanguage(nextLang);
+  };
   const [step, setStep] = useState(1); // 1=name, 2=set PIN, 3=confirm PIN
   const [name, setName] = useState('');
   const [pin, setPin] = useState('');
@@ -120,6 +125,17 @@ const WelcomeScreen = ({ onRegister, onLogin }) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'linear-gradient(135deg, #f5f0eb 0%, #ede8e1 50%, #e5e0d8 100%)' }}>
+      {/* Language Swap Button */}
+      <div className="absolute top-4 right-4 z-20">
+        <button
+          onClick={toggleLanguage}
+          className="flex items-center gap-2 px-4 py-2 bg-white/40 hover:bg-white/80 backdrop-blur-md border border-white/50 rounded-full text-stone-700 hover:text-stone-900 transition-all shadow-sm"
+        >
+          <Globe size={18} />
+          <span className="text-sm font-bold">{i18n.language?.startsWith('en') ? 'हिंदी' : 'English'}</span>
+        </button>
+      </div>
+
       {/* Decorative background circles */}
       <div className="absolute top-20 left-10 w-32 h-32 bg-amber-200/20 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-10 w-48 h-48 bg-emerald-200/15 rounded-full blur-3xl" />
