@@ -105,7 +105,13 @@ const getRainColor = (pct) => {
 const WeatherPage = () => {
   const { t, i18n } = useTranslation();
   const { activeFarm } = useActiveFarm();
-  const [liveCoords, setLiveCoords] = useState(null);
+  const [liveCoords, setLiveCoords] = useState(() => {
+    const cached = localStorage.getItem('cached_location');
+    if (cached) {
+      try { return JSON.parse(cached); } catch (e) { /* ignore */ }
+    }
+    return null;
+  });
   const [exactVillage, setExactVillage] = useState(null);
 
   // Fetch village name if we have coords
@@ -122,15 +128,9 @@ const WeatherPage = () => {
     }
   }, [liveCoords, activeFarm]);
 
-  // Fetch precise live location on mount
+  // Fetch precise live location on mount if not cached
   useEffect(() => {
-    const cached = localStorage.getItem('cached_location');
-    if (cached) {
-      try {
-        setLiveCoords(JSON.parse(cached));
-        return;
-      } catch (e) {}
-    }
+    if (liveCoords) return;
 
     if ('geolocation' in navigator) {
       const askLocation = () => {
@@ -163,7 +163,7 @@ const WeatherPage = () => {
         askLocation();
       }
     }
-  }, []);
+  }, [liveCoords]);
 
   const lat = liveCoords?.lat || activeFarm?.latitude;
   const lon = liveCoords?.lon || activeFarm?.longitude;

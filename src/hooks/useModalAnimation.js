@@ -22,10 +22,12 @@ const useModalAnimation = (isOpen, durationMs = 340) => {
   useEffect(() => {
     if (isOpen) {
       // Mount immediately, then trigger enter animation on next frame
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMounted(true);
       // Use rAF to ensure the DOM has painted the "closed" state first
       const raf = requestAnimationFrame(() => {
         requestAnimationFrame(() => {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setAnimating(true);
         });
       });

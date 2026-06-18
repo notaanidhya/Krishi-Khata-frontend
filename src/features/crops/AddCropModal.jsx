@@ -38,9 +38,11 @@ const AddCropModal = ({ isOpen, onClose, farmId }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  useEffect(() => {
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) { setCropName(''); setPlantingDate(new Date().toISOString().split('T')[0]); setSearchFilter(''); setShowDropdown(false); }
-  }, [isOpen]);
+  }
 
   const filteredPresets = presets.filter((p) =>
     p.toLowerCase().includes((searchFilter || cropName).toLowerCase())

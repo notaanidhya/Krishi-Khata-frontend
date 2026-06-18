@@ -7,7 +7,7 @@ import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useCrops } from '../hooks/useCrop';
 import { getMandiHistory, getMandiMetadata, getMandiPrices } from '../api/mandi';
 import Combobox from '../components/ui/Combobox';
-import { PriceCard } from '../features/dashboard/MandiTicker';
+import PriceCard from '../components/ui/PriceCard';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ArrowLeft } from 'lucide-react';
 import PageShell from '../components/layout/PageShell';
@@ -43,13 +43,15 @@ const MandiDashboard = () => {
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedCommodity, setSelectedCommodity] = useState(defaultCommodity);
 
-  // Sync state if farm changes
-  useEffect(() => {
-    // Start in overview mode by default
+  const [prevActiveFarm, setPrevActiveFarm] = useState(activeFarm);
+  const [prevDefaultCommodity, setPrevDefaultCommodity] = useState(defaultCommodity);
+
+  if (activeFarm !== prevActiveFarm || defaultCommodity !== prevDefaultCommodity) {
+    setPrevActiveFarm(activeFarm);
+    setPrevDefaultCommodity(defaultCommodity);
     setSelectedDistrict("");
     if (defaultCommodity) setSelectedCommodity(defaultCommodity);
-  }, [activeFarm, defaultCommodity]);
-
+  }
   // Fetch metadata for dropdowns
   const { data: metadata } = useQuery({
     queryKey: ['mandiMetadata'],

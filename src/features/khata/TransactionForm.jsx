@@ -79,9 +79,13 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
   const [newLaborerName, setNewLaborerName] = useState('');
   const [localNewLaborer, setLocalNewLaborer] = useState(null);
 
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  const [prevInitialData, setPrevInitialData] = useState(initialData);
+
   // Populate from initialData for editing
-   
-  useEffect(() => {
+  if (isOpen !== prevIsOpen || initialData !== prevInitialData) {
+    setPrevIsOpen(isOpen);
+    setPrevInitialData(initialData);
     if (isOpen) {
       if (initialData) {
         setType(initialData.type === 'labor_wage' ? 'expense' : initialData.type || 'expense');
@@ -116,14 +120,14 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
       }
       setIsAddingLaborer(false);
       setNewLaborerName('');
-      isSubmittingRef.current = false;
     }
-  }, [isOpen, initialData]);
+  }
   
   // Voice input handling
    
   useEffect(() => {
     if (isListening && transcript) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDescription(baseDescription ? `${baseDescription} ${transcript}` : transcript);
     }
   }, [transcript, isListening, baseDescription]);

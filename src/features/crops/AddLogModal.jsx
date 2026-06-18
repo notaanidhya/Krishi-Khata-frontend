@@ -14,17 +14,19 @@ const AddLogModal = ({ isOpen, onClose, cropId }) => {
   const [note, setNote] = useState('');
   const [baseNote, setBaseNote] = useState('');
 
-  // Clear note on open/close
-  useEffect(() => {
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) {
       setNote('');
       setBaseNote('');
     }
-  }, [isOpen]);
+  }
 
   // Voice dictation logic
   useEffect(() => {
     if (isListening && transcript) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNote(baseNote ? `${baseNote} ${transcript}` : transcript);
     }
   }, [transcript, isListening, baseNote]);

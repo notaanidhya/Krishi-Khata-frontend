@@ -10,8 +10,10 @@ export const ActiveFarmProvider = ({ children }) => {
   useEffect(() => {
     if (farms.length > 0) {
       // Always select the first farm (Hidden Farm architecture)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveFarm(farms[0]);
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveFarm(null);
     }
     setIsLoading(false);
@@ -30,6 +32,7 @@ export const ActiveFarmProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useActiveFarm = () => {
   const context = useContext(ActiveFarmContext);
   if (!context) {

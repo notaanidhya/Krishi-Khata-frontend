@@ -143,19 +143,20 @@ const withFallback = (fn, fallback) => async (...args) => {
  * On error  → placeholder stays visible — user never sees "unavailable"
  */
 export const useWeather = () => {
-  const [coords, setCoords]           = useState(null);
-  const [locationStatus, setStatus]   = useState('pending');
-
-  useEffect(() => {
+  const [coords, setCoords] = useState(() => {
     const cached = localStorage.getItem('cached_location');
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
-        setCoords({ lat: parsed.lat, lon: parsed.lon });
-        setStatus('success');
-        return;
-      } catch (e) {}
+        return { lat: parsed.lat, lon: parsed.lon };
+      } catch (e) { /* ignore */ }
     }
+    return null;
+  });
+  const [locationStatus, setStatus] = useState(coords ? 'success' : 'pending');
+
+  useEffect(() => {
+    if (coords) return;
 
     if ('geolocation' in navigator) {
       const askLocation = () => {
@@ -183,18 +184,22 @@ export const useWeather = () => {
             if (!localStorage.getItem('location_asked')) {
               askLocation();
             } else {
+              // eslint-disable-next-line react-hooks/set-state-in-effect
               setStatus('error');
             }
           } else {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setStatus('error');
           }
         });
       } else if (!localStorage.getItem('location_asked')) {
         askLocation();
       } else {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setStatus('error');
       }
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus('error');
     }
   }, []);

@@ -12,7 +12,7 @@ const requestLocation = () => {
       const parsed = JSON.parse(cached);
       locationPromise = Promise.resolve(parsed);
       return locationPromise;
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
   }
 
   if (!('geolocation' in navigator)) {
