@@ -2,32 +2,76 @@
 
 /* ════════════════════════════════════════════════════════════
    KRISHI KHATA — GLOBAL DESIGN SYSTEM
-   Warm, earthy, organic "bahi-khata" aesthetic
+   "Refined Earth" — warm, minimal, organic, modern.
+   A lighter evolution of the bahi-khata aesthetic:
+   warm paper white, muted olive + dusty gold accents,
+   soft botanical greens, generous whitespace.
    ════════════════════════════════════════════════════════════ */
+
+/* ── Tailwind v4 theme bridge ───────────────────────────────
+   Exposes the Refined Earth palette as Tailwind utility
+   classes (e.g. bg-soil, text-ink, text-forest-muted).
+   ─────────────────────────────────────────────────────────── */
+@theme {
+  --color-soil: #faf7f2;
+  --color-soil-dark: #f1ece3;
+  --color-ink: #2d2a24;
+  --color-forest: #3d5a3a;
+  --color-forest-mid: #5c7a55;
+  --color-forest-muted: #6b7b4f;
+  --color-harvest: #c9a24b;
+  --color-rust: #c97b4a;
+  --color-cream: #ffffff;
+}
 
 :root {
   /* ── Typography ───────────────────────────────────────── */
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  line-height: 1.5;
+  line-height: 1.55;
   font-weight: 400;
 
   color-scheme: light;
 
-  /* ── Krishi Color Tokens ──────────────────────────────── */
-  --color-soil:          #f5f0eb;   /* warm off-white / clay bg */
-  --color-soil-dark:     #ede8e1;   /* slightly darker clay */
-  --color-forest:        #052e16;   /* emerald-950 — deep forest */
-  --color-forest-mid:    #14532d;   /* emerald-900 */
-  --color-forest-muted:  #166534;   /* emerald-800 — primary buttons */
-  --color-harvest:       #f59e0b;   /* amber-500 — warm accent */
-  --color-rust:          #b45309;   /* amber-700 — deep accent */
-  --color-cream:         #fffdf9;   /* card surface */
-  --color-ink:           #052e16;   /* deep forest text */
+  /* ── Refined Earth Color Tokens ───────────────────────── */
+  --color-soil: #faf7f2;          /* warm paper white — page bg */
+  --color-soil-dark: #f1ece3;     /* subtle clay surface */
+  --color-paper: #ffffff;         /* card-on-card */
+  --color-ink: #2d2a24;           /* warm charcoal text */
+  --color-muted: #7a7367;         /* muted secondary text */
 
-  /* ── Shadow Tokens ────────────────────────────────────── */
-  --shadow-card:         0 2px 12px 0 rgba(5, 46, 22, 0.07), 0 1px 3px 0 rgba(5, 46, 22, 0.04);
-  --shadow-elevated:     0 8px 32px 0 rgba(0, 0, 0, 0.18);
-  --shadow-hero:         0 8px 40px rgba(5, 46, 22, 0.4);
+  --color-forest: #3d5a3a;        /* deep botanical green */
+  --color-forest-mid: #5c7a55;    /* mid green */
+  --color-forest-muted: #6b7b4f;  /* muted olive — primary */
+  --color-forest-light: #eef1e8;  /* olive-tinted surface */
+
+  --color-harvest: #c9a24b;       /* dusty gold accent */
+  --color-rust: #c97b4a;          /* terracotta accent */
+  --color-cream: #ffffff;         /* card surface */
+
+  /* semantic */
+  --color-success: #5c7a55;
+  --color-success-soft: #eef1e8;
+  --color-warning: #c9a24b;
+  --color-warning-soft: #f7f0df;
+  --color-danger: #b85c4a;
+  --color-danger-soft: #f6e7e1;
+  --color-info: #6b8a9e;
+  --color-info-soft: #e9eef2;
+
+  --border-subtle: #e8e2d6;
+  --border-strong: #d8d0bf;
+
+  /* ── Shadow Tokens (lighter, warmer) ──────────────────── */
+  --shadow-card: 0 1px 2px 0 rgba(61, 58, 36, 0.04), 0 2px 10px -2px rgba(61, 58, 36, 0.06);
+  --shadow-elevated: 0 6px 24px -6px rgba(61, 58, 36, 0.16);
+  --shadow-hero: 0 10px 40px -8px rgba(61, 90, 58, 0.28);
+
+  /* ── Radius Scale ─────────────────────────────────────── */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -47,6 +91,7 @@ body {
 /* ── Global Organic Topographic Texture ──────────────────────
    A barely-visible contour-line pattern inspired by land-survey
    maps. Evokes terrain, soil, and the agricultural landscape.
+   Refined Earth: lighter (~2% opacity), warm charcoal strokes.
    Rendered via inline SVG Data URI — zero network requests.
    ───────────────────────────────────────────────────────────── */
 body::after {
@@ -55,8 +100,8 @@ body::after {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cdefs%3E%3Cstyle%3Epath%7Bfill:none;stroke:%23052e16;stroke-width:0.8;stroke-linecap:round%7D%3C/style%3E%3C/defs%3E%3Cpath d='M10 80c20-15 40-25 70-20s50 20 80 15 30-20 40-25'/%3E%3Cpath d='M0 110c30-10 50-30 80-25s45 25 75 18 35-18 45-22'/%3E%3Cpath d='M5 145c25-12 55-22 85-15s40 20 65 12 30-15 45-18'/%3E%3Cpath d='M0 40c15-8 35-18 60-12s55 15 80 8 40-12 60-15'/%3E%3Cpath d='M15 175c20-8 45-15 70-10s50 12 75 5 25-10 40-12'/%3E%3Cpath d='M0 15c25-5 45-10 75-5s55 10 80 5 30-8 45-10'/%3E%3Cpath d='M10 190c20-5 50-10 80-6s45 8 70 3 25-6 40-8'/%3E%3C/svg%3E");
+  opacity: 0.022;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cdefs%3E%3Cstyle%3Epath%7Bfill:none;stroke:%232d2a24;stroke-width:0.8;stroke-linecap:round%7D%3C/style%3E%3C/defs%3E%3Cpath d='M10 80c20-15 40-25 70-20s50 20 80 15 30-20 40-25'/%3E%3Cpath d='M0 110c30-10 50-30 80-25s45 25 75 18 35-18 45-22'/%3E%3Cpath d='M5 145c25-12 55-22 85-15s40 20 65 12 30-15 45-18'/%3E%3Cpath d='M0 40c15-8 35-18 60-12s55 15 80 8 40-12 60-15'/%3E%3Cpath d='M15 175c20-8 45-15 70-10s50 12 75 5 25-10 40-12'/%3E%3Cpath d='M0 15c25-5 45-10 75-5s55 10 80 5 30-8 45-10'/%3E%3Cpath d='M10 190c20-5 50-10 80-6s45 8 70 3 25-6 40-8'/%3E%3C/svg%3E");
   background-size: 200px 200px;
   background-repeat: repeat;
   background-attachment: fixed;
@@ -75,6 +120,55 @@ body::after {
   font-family: 'Merriweather', Georgia, serif;
 }
 
+/* ════════════════════════════════════════════════════════════
+   PER-PAGE AMBIENT BACKGROUNDS
+   Subtle (~2–5% opacity) CSS-only treatments that give each
+   page a distinct character without dominating the content.
+   ════════════════════════════════════════════════════════════ */
+
+/* Khata — faint ruled-paper lines (ledger identity) */
+.page-ambient-khata {
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 31px,
+    rgba(107, 123, 79, 0.045) 31px,
+    rgba(107, 123, 79, 0.045) 32px
+  );
+}
+
+/* Crops — soft botanical leaf silhouettes */
+.page-ambient-crops {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%236b7b4f' stroke-width='1' stroke-linecap='round' stroke-opacity='0.06'%3E%3Cpath d='M30 120 C30 90 50 70 80 70 C80 100 60 120 30 120Z'/%3E%3Cpath d='M80 70 L60 100'/%3E%3Cpath d='M130 40 C130 20 110 10 90 10 C90 30 110 40 130 40Z'/%3E%3Cpath d='M90 10 L110 30'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  background-repeat: repeat;
+}
+
+/* Weather — gentle sky-to-paper vertical tint */
+.page-ambient-weather {
+  background-image: linear-gradient(
+    180deg,
+    rgba(107, 138, 158, 0.05) 0%,
+    rgba(107, 138, 158, 0.02) 30%,
+    transparent 60%
+  );
+}
+
+/* Mandi — subtle dotted grid */
+.page-ambient-mandi {
+  background-image: radial-gradient(rgba(201, 162, 75, 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Chaupal — refined sprout/leaf scatter */
+.page-ambient-chaupal {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill='%236b7b4f' fill-opacity='0.05'%3E%3Cpath d='M50 20 C42 20 36 26 36 34 C36 42 42 48 50 48 C58 48 64 42 64 34 C64 26 58 20 50 20Z M50 24 C56 24 60 28 60 34 C60 40 56 44 50 44 C44 44 40 40 40 34 C40 28 44 24 50 24Z'/%3E%3Cpath d='M50 26 L50 46 M42 32 L50 38 L58 32' stroke='%236b7b4f' stroke-width='0.8' fill='none' stroke-opacity='0.4'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   MODAL & SHEET ANIMATION SYSTEM
+   ════════════════════════════════════════════════════════════ */
+
 /* ── Modal slide-up animation (legacy — inline content) ───────── */
 @keyframes slide-up {
   from { transform: translate3d(0, 100%, 0); opacity: 0; }
@@ -88,17 +182,13 @@ body::after {
   transform: translate3d(0, 0, 0);
 }
 
-/* ── Modal transition system (enter + exit) ──────────────────── */
-
 /* Backdrop overlay */
 .modal-backdrop {
   opacity: 0;
   transition: opacity 0.34s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: opacity;
 }
-.modal-backdrop.modal-open {
-  opacity: 1;
-}
+.modal-backdrop.modal-open { opacity: 1; }
 
 /* Bottom sheet panel */
 .modal-sheet {
@@ -135,10 +225,10 @@ body::after {
   opacity: 1;
 }
 
-/* ── FAB pulse glow animation (deeper emerald) ────────────── */
+/* ── FAB pulse glow animation (muted olive) ────────────── */
 @keyframes fab-pulse {
-  0%, 100% { box-shadow: 0 10px 40px rgba(22, 101, 52, 0.45); }
-  50%       { box-shadow: 0 10px 55px rgba(22, 101, 52, 0.65); }
+  0%, 100% { box-shadow: 0 10px 40px rgba(107, 123, 79, 0.35); }
+  50%       { box-shadow: 0 10px 55px rgba(107, 123, 79, 0.5); }
 }
 .animate-fab-pulse {
   animation: fab-pulse 2.2s ease-in-out infinite;
@@ -149,10 +239,7 @@ body::after {
 }
 
 /* ── Hide scrollbar ──────────────────────────────────────── */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 
 /* ── Smooth scroll ───────────────────────────────────────── */
@@ -171,36 +258,16 @@ html { scroll-behavior: smooth; }
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.25; }
   50%       { transform: translate3d(0, -6px, 0) scale(1.5); opacity: 0.5; }
 }
-.animate-float-slow   { 
-  animation: float-slow 4s ease-in-out infinite; 
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-.animate-float-medium { 
-  animation: float-medium 3s ease-in-out infinite 0.5s; 
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-.animate-float-fast   { 
-  animation: float-fast 2.5s ease-in-out infinite 1s; 
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
+.animate-float-slow   { animation: float-slow 4s ease-in-out infinite; will-change: transform, opacity; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.animate-float-medium { animation: float-medium 3s ease-in-out infinite 0.5s; will-change: transform, opacity; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.animate-float-fast   { animation: float-fast 2.5s ease-in-out infinite 1s; will-change: transform, opacity; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 
 /* ── Fade-in animation ───────────────────────────────────── */
 @keyframes fade-in {
   from { opacity: 0; transform: translate3d(-50%, 4px, 0); }
   to   { opacity: 1; transform: translate3d(-50%, 0, 0); }
 }
-.animate-fade-in { 
-  animation: fade-in 0.2s ease-out; 
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
+.animate-fade-in { animation: fade-in 0.2s ease-out; will-change: transform, opacity; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 
 /* ── Line clamp utility ──────────────────────────────────── */
 .line-clamp-3 {
@@ -213,25 +280,26 @@ html { scroll-behavior: smooth; }
 /* ── Chaupal background pattern (Community page) ─────────── */
 .chaupal-bg {
   background-color: var(--color-soil);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%23166534' fill-opacity='0.04'%3E%3Cpath d='M40 10 C30 10 22 18 22 28 C22 38 30 46 40 46 C50 46 58 38 58 28 C58 18 50 10 40 10Z M40 14 C48 14 54 20 54 28 C54 36 48 42 40 42 C32 42 26 36 26 28 C26 20 32 14 40 14Z'/%3E%3Cpath d='M40 16 L40 40 M32 22 L40 28 L48 22'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill='%236b7b4f' fill-opacity='0.05'%3E%3Cpath d='M50 20 C42 20 36 26 36 34 C36 42 42 48 50 48 C58 48 64 42 64 34 C64 26 58 20 50 20Z M50 24 C56 24 60 28 60 34 C60 40 56 44 50 44 C44 44 40 40 40 34 C40 28 44 24 50 24Z'/%3E%3Cpath d='M50 26 L50 46 M42 32 L50 38 L58 32'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* ── Diary paper texture ─────────────────────────────────── */
 .diary-paper {
-  background-color: #fffdf5;
+  background-color: var(--color-cream);
   background-image: repeating-linear-gradient(
     transparent,
     transparent 27px,
-    #e5e7eb55 27px,
-    #e5e7eb55 28px
+    rgba(232, 226, 214, 0.5) 27px,
+    rgba(232, 226, 214, 0.5) 28px
   );
 }
 
 /* ── Krishi card base ────────────────────────────────────── */
 .krishi-card {
   background-color: var(--color-cream);
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-subtle);
 }
 
 /* ── Tactile press effect ────────────────────────────────────── */
@@ -242,19 +310,14 @@ html { scroll-behavior: smooth; }
   transform: translate3d(0, 0, 0);
 }
 .tactile:hover,
-.tactile:active {
-  will-change: transform, box-shadow;
-}
+.tactile:active { will-change: transform, box-shadow; }
 .tactile:active {
   transform: scale(0.97);
-  box-shadow: 0 1px 4px 0 rgba(5, 46, 22, 0.08);
+  box-shadow: 0 1px 4px 0 rgba(61, 58, 36, 0.08);
 }
 
 /* ── Labor paid-off row indicator ───────────────────────────── */
-.labor-paid-off {
-  opacity: 0.5;
-  position: relative;
-}
+.labor-paid-off { opacity: 0.55; position: relative; }
 .labor-paid-off::after {
   content: '✓ Paid';
   position: absolute;
@@ -264,27 +327,21 @@ html { scroll-behavior: smooth; }
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #16a34a;
-  background: #f0fdf4;
+  color: var(--color-forest-muted);
+  background: var(--color-forest-light);
   padding: 1px 6px;
   border-radius: 6px;
-  border: 1px solid #bbf7d0;
+  border: 1px solid rgba(107, 123, 79, 0.25);
 }
 
 /* ════════════════════════════════════════════════════════════
-   PHASE 1 — PAGE TRANSITIONS, MICRO-INTERACTIONS, SKELETONS
+   PAGE TRANSITIONS, MICRO-INTERACTIONS, SKELETONS
    ════════════════════════════════════════════════════════════ */
 
 /* ── Page enter animation (fade + subtle slide up) ───────────── */
 @keyframes page-enter {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 12px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 .animate-page-enter {
   animation: page-enter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
@@ -295,14 +352,8 @@ html { scroll-behavior: smooth; }
 
 /* ── List item staggered entry ───────────────────────────────── */
 @keyframes list-item-enter {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 16px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
+  from { opacity: 0; transform: translate3d(0, 16px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 .animate-list-item {
   animation: list-item-enter 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
@@ -314,14 +365,8 @@ html { scroll-behavior: smooth; }
 
 /* ── FAB delayed entrance ────────────────────────────────────── */
 @keyframes fab-enter {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 20px, 0) scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
+  from { opacity: 0; transform: translate3d(0, 20px, 0) scale(0.8); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 .animate-fab-enter {
   animation: fab-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
@@ -332,35 +377,25 @@ html { scroll-behavior: smooth; }
 
 /* ── Skeleton shimmer effect ─────────────────────────────────── */
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 .skeleton-shimmer {
   background: linear-gradient(
     90deg,
-    rgba(5, 46, 22, 0.04) 25%,
-    rgba(5, 46, 22, 0.08) 50%,
-    rgba(5, 46, 22, 0.04) 75%
+    rgba(61, 58, 36, 0.04) 25%,
+    rgba(61, 58, 36, 0.08) 50%,
+    rgba(61, 58, 36, 0.04) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.8s ease-in-out infinite;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
 }
 
 /* ── Stage crossfade (crop visualizer) ───────────────────────── */
 @keyframes stage-enter {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 0, 0) scale(0.92);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
+  from { opacity: 0; transform: translate3d(0, 0, 0) scale(0.92); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 .animate-stage-enter {
   animation: stage-enter 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
@@ -378,11 +413,19 @@ html { scroll-behavior: smooth; }
   transition: opacity 0.25s ease, transform 0.25s ease;
   transform: translate3d(0, 0, 0);
 }
-.nav-indicator-dot--active {
-  opacity: 1;
-  transform: translate3d(0, 0, 0) scale(1);
-}
-.nav-indicator-dot--inactive {
-  opacity: 0;
-  transform: translate3d(0, 4px, 0) scale(0);
+.nav-indicator-dot--active { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+.nav-indicator-dot--inactive { opacity: 0; transform: translate3d(0, 4px, 0) scale(0); }
+
+/* ════════════════════════════════════════════════════════════
+   ACCESSIBILITY — Reduced motion
+   Respect users who prefer minimal motion: disable all
+   decorative animations & transitions.
+   ════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

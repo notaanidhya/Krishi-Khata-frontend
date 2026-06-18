@@ -1,6 +1,6 @@
 /**
  * SmartSchedule — Premium vertical timeline for crop milestones.
- * Botanical journal aesthetic with completed / current / upcoming states.
+ * Refined Earth botanical journal aesthetic with completed / current / upcoming states.
  * Uses hardcoded crop schedules matching backend crop_stages.py.
  */
 
@@ -38,11 +38,11 @@ const SmartSchedule = ({ cropId, cropName, daysSincePlanting, plantingDate }) =>
 
   const milestones = useMemo(() => {
     if (!data?.tasks) return [];
-    
+
     return data.tasks.map((item) => {
       const completed = item.status === 'completed';
       const isCurrent = item.status === 'current';
-      
+
       return {
         ...item,
         completed,
@@ -55,15 +55,15 @@ const SmartSchedule = ({ cropId, cropName, daysSincePlanting, plantingDate }) =>
   return (
     <div
       className="overflow-hidden rounded-2xl"
-      style={{ border: '1.5px solid #d6cfc6', boxShadow: '0 2px 12px rgba(5,46,22,0.07)' }}
+      style={{ border: '1.5px solid var(--border-subtle)', boxShadow: '0 2px 12px rgba(45,42,36,0.06)' }}
     >
       {/* Header */}
-      <div className="px-4 pt-4 pb-3 flex items-center gap-3" style={{ background: '#fffdf5' }}>
+      <div className="px-4 pt-4 pb-3 flex items-center gap-3" style={{ background: 'var(--color-cream)' }}>
         <div
           className="w-9 h-9 rounded-xl flex items-center justify-center"
           style={{
-            background: 'linear-gradient(135deg, #166534, #14532d)',
-            boxShadow: '0 4px 16px rgba(22,101,52,0.3)',
+            background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
+            boxShadow: '0 4px 16px rgba(61,90,58,0.3)',
           }}
         >
           <CalendarCheck size={18} className="text-white" />
@@ -72,29 +72,29 @@ const SmartSchedule = ({ cropId, cropName, daysSincePlanting, plantingDate }) =>
           <div className="flex items-center gap-1.5">
             <h4
               className="text-sm font-bold font-serif-accent"
-              style={{ color: 'var(--color-forest)' }}
+              style={{ color: 'var(--color-ink)' }}
             >
               {t('crops.schedule.title')}
             </h4>
             {data?.source === 'ai' && (
-              <span className="flex items-center gap-1 bg-indigo-50 text-indigo-600 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+              <span className="flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider" style={{ background: 'var(--color-warning-soft)', color: 'var(--color-warning)' }}>
                 <Sparkles size={10} /> AI Sync
               </span>
             )}
           </div>
-          <p className="text-[10px] text-stone-400 font-medium mt-0.5">
+          <p className="text-[10px] font-medium mt-0.5" style={{ color: 'var(--color-muted)' }}>
             {t(`mandi.commodities.${cropName}`, { defaultValue: cropName })} • {milestones.filter((m) => m.completed).length}/{milestones.length} {t('crops.schedule.completed')}
           </p>
         </div>
       </div>
 
       {/* Timeline */}
-      <div className="px-4 pb-5 relative" style={{ background: '#fffdf5' }}>
+      <div className="px-4 pb-5 relative" style={{ background: 'var(--color-cream)' }}>
         {isLoading && (
-          <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-20 backdrop-blur-[1px]">
+          <div className="absolute inset-0 flex items-center justify-center z-20 backdrop-blur-[1px]" style={{ background: 'rgba(255,253,249,0.6)' }}>
             <div className="flex flex-col items-center gap-2">
-              <Sparkles className="text-indigo-400 animate-pulse" size={24} />
-              <span className="text-xs text-indigo-600 font-medium">Generating Smart Schedule...</span>
+              <Sparkles className="animate-pulse" size={24} style={{ color: 'var(--color-harvest)' }} />
+              <span className="text-xs font-medium" style={{ color: 'var(--color-warning)' }}>Generating Smart Schedule...</span>
             </div>
           </div>
         )}
@@ -113,8 +113,8 @@ const SmartSchedule = ({ cropId, cropName, daysSincePlanting, plantingDate }) =>
                   className="absolute left-[17px] top-[36px] bottom-0 w-px"
                   style={{
                     background: milestone.completed
-                      ? 'linear-gradient(to bottom, #86efac, #d1d5db)'
-                      : '#e7e5e4',
+                      ? 'linear-gradient(to bottom, var(--color-forest-muted), var(--border-subtle))'
+                      : 'var(--border-subtle)',
                   }}
                 />
               )}
@@ -122,35 +122,35 @@ const SmartSchedule = ({ cropId, cropName, daysSincePlanting, plantingDate }) =>
               {/* Circle node */}
               <div className="shrink-0 mt-1 relative z-10">
                 {milestone.completed ? (
-                  /* Completed — green with checkmark */
+                  /* Completed — forest with checkmark */
                   <div
                     className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-500"
                     style={{
-                      background: 'linear-gradient(135deg, #16a34a, #15803d)',
-                      boxShadow: '0 2px 8px rgba(22,163,74,0.25)',
+                      background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
+                      boxShadow: '0 2px 8px rgba(61,90,58,0.25)',
                     }}
                   >
                     <Check size={16} className="text-white" strokeWidth={3} />
                   </div>
                 ) : milestone.isCurrent ? (
-                  /* Current — pulsing amber/gold */
+                  /* Current — pulsing harvest gold */
                   <div
                     className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-500"
                     style={{
-                      background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                      boxShadow: '0 0 0 4px rgba(245,158,11,0.18), 0 2px 8px rgba(245,158,11,0.35)',
+                      background: 'linear-gradient(135deg, var(--color-harvest), var(--color-rust))',
+                      boxShadow: '0 0 0 4px rgba(201,162,75,0.18), 0 2px 8px rgba(201,162,75,0.35)',
                       animation: 'smartSchedulePulse 2.2s ease-in-out infinite',
                     }}
                   >
                     <span className="text-base leading-none">{milestone.icon}</span>
                   </div>
                 ) : (
-                  /* Upcoming — stone/gray */
+                  /* Upcoming — soil/gray */
                   <div
                     className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-500"
                     style={{
-                      background: '#f5f5f4',
-                      border: '2px solid #e7e5e4',
+                      background: 'var(--color-soil-dark)',
+                      border: '2px solid var(--border-subtle)',
                     }}
                   >
                     <span className="text-base leading-none opacity-50">{milestone.icon}</span>
@@ -162,30 +162,27 @@ const SmartSchedule = ({ cropId, cropName, daysSincePlanting, plantingDate }) =>
               <div className="flex-1 min-w-0 pt-1 pb-3">
                 <div className="flex items-center gap-2">
                   <span
-                    className={`text-xs font-bold transition-colors duration-300 ${
-                      milestone.completed
-                        ? 'text-stone-400'
+                    className="text-xs font-bold transition-colors duration-300"
+                    style={{
+                      color: milestone.completed
+                        ? 'var(--color-muted)'
                         : milestone.isCurrent
-                        ? 'text-amber-800'
-                        : 'text-stone-300'
-                    }`}
-                    style={
-                      milestone.isCurrent
-                        ? { color: 'var(--color-forest)' }
-                        : undefined
-                    }
+                          ? 'var(--color-ink)'
+                          : 'var(--color-muted)',
+                      opacity: milestone.completed ? 0.7 : 1,
+                    }}
                   >
                     {milestone.task}
                   </span>
                   {milestone.completed && (
-                    <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-wider bg-emerald-50 px-1.5 py-0.5 rounded">
+                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded" style={{ color: 'var(--color-success)', background: 'var(--color-forest-light)' }}>
                       {t('crops.schedule.done')}
                     </span>
                   )}
                   {milestone.isCurrent && (
                     <span
                       className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
-                      style={{ color: '#92400e', background: '#fef3c7' }}
+                      style={{ color: 'var(--color-rust)', background: 'var(--color-warning-soft)' }}
                     >
                       {t('crops.schedule.next')}
                     </span>
@@ -193,27 +190,17 @@ const SmartSchedule = ({ cropId, cropName, daysSincePlanting, plantingDate }) =>
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span
-                    className={`text-[10px] font-semibold tabular-nums ${
-                      milestone.completed
-                        ? 'text-stone-300'
-                        : milestone.isCurrent
-                        ? 'text-amber-600'
-                        : 'text-stone-300'
-                    }`}
+                    className="text-[10px] font-semibold tabular-nums"
+                    style={{ color: 'var(--color-muted)' }}
                   >
                     {t('crops.schedule.day')} {milestone.day}
                   </span>
                   {milestone.calendarDate && (
                     <>
-                      <span className="text-[9px] text-stone-200">•</span>
+                      <span className="text-[9px]" style={{ color: 'var(--border-strong)' }}>•</span>
                       <span
-                        className={`text-[10px] font-medium ${
-                          milestone.completed
-                            ? 'text-stone-300'
-                            : milestone.isCurrent
-                            ? 'text-amber-500'
-                            : 'text-stone-300'
-                        }`}
+                        className="text-[10px] font-medium"
+                        style={{ color: 'var(--color-muted)' }}
                       >
                         {milestone.calendarDate}
                       </span>
@@ -229,8 +216,8 @@ const SmartSchedule = ({ cropId, cropName, daysSincePlanting, plantingDate }) =>
       {/* Inline keyframes for the pulse animation */}
       <style>{`
         @keyframes smartSchedulePulse {
-          0%, 100% { box-shadow: 0 0 0 4px rgba(245,158,11,0.18), 0 2px 8px rgba(245,158,11,0.35); }
-          50%       { box-shadow: 0 0 0 8px rgba(245,158,11,0.10), 0 2px 12px rgba(245,158,11,0.45); }
+          0%, 100% { box-shadow: 0 0 0 4px rgba(201,162,75,0.18), 0 2px 8px rgba(201,162,75,0.35); }
+          50%       { box-shadow: 0 0 0 8px rgba(201,162,75,0.10), 0 2px 12px rgba(201,162,75,0.45); }
         }
       `}
       </style>

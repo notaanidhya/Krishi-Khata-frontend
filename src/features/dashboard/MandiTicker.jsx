@@ -4,6 +4,8 @@
  * Uses spacious horizontal row-based price tiles with dedicated 
  * emoji containers, Merriweather serif accents, and smart spacing 
  * to completely eliminate visual clutter and truncation.
+ * 
+ * Refined Earth theme — warm ivory cards, olive accents, harvest gold.
  */
 
 import React from 'react';
@@ -12,21 +14,21 @@ import { Store } from 'lucide-react';
 
 // ── Curated Commodity Profiles (Warm, Organic Aesthetics) ──────
 const COMMODITY_META = {
-  Wheat:     { emoji: '🌾', gradient: 'from-[#fffdf9] to-[#fffbeb]', border: 'border-amber-200/50', accent: 'text-amber-600' },
-  Soybean:   { emoji: '🫘', gradient: 'from-[#fffdf9] to-[#faf5ff]', border: 'border-purple-200/40', accent: 'text-purple-600' },
-  Chana:     { emoji: '🫘', gradient: 'from-[#fffdf9] to-[#fefce8]', border: 'border-yellow-200/50', accent: 'text-yellow-600' },
-  Cotton:    { emoji: '🏵️', gradient: 'from-[#fffdf9] to-[#f0fdf4]', border: 'border-emerald-200/40', accent: 'text-emerald-600' },
-  Rice:      { emoji: '🍚', gradient: 'from-[#fffdf9] to-[#fff7ed]', border: 'border-orange-200/40', accent: 'text-orange-600' },
-  Onion:     { emoji: '🧅', gradient: 'from-[#fffdf9] to-[#fdf2f8]', border: 'border-pink-200/40', accent: 'text-pink-600' },
-  Maize:     { emoji: '🌽', gradient: 'from-[#fffdf9] to-[#fffbeb]', border: 'border-amber-200/50', accent: 'text-amber-600' },
-  Tomato:    { emoji: '🍅', gradient: 'from-[#fffdf9] to-[#fff1f2]', border: 'border-red-200/40', accent: 'text-red-600' },
+  Wheat:     { emoji: '🌾', gradient: 'from-[#fffdf9] to-[#fef8ed]', border: 'border-[#e8dcc0]/50', accent: 'text-[#c9a24b]' },
+  Soybean:   { emoji: '🫘', gradient: 'from-[#fffdf9] to-[#f3eef8]', border: 'border-[#d8d0bf]/40', accent: 'text-[#7a7367]' },
+  Chana:     { emoji: '🫘', gradient: 'from-[#fffdf9] to-[#fef8ed]', border: 'border-[#e8dcc0]/50', accent: 'text-[#c9a24b]' },
+  Cotton:    { emoji: '🏵️', gradient: 'from-[#fffdf9] to-[#eef1e8]', border: 'border-[#c5d6b8]/40', accent: 'text-[#6b7b4f]' },
+  Rice:      { emoji: '🍚', gradient: 'from-[#fffdf9] to-[#fdf2ed]', border: 'border-[#e0c8b0]/40', accent: 'text-[#c97b4a]' },
+  Onion:     { emoji: '🧅', gradient: 'from-[#fffdf9] to-[#fdf2f0]', border: 'border-[#e0c0b8]/40', accent: 'text-[#c94a4a]' },
+  Maize:     { emoji: '🌽', gradient: 'from-[#fffdf9] to-[#fef8ed]', border: 'border-[#e8dcc0]/50', accent: 'text-[#c9a24b]' },
+  Tomato:    { emoji: '🍅', gradient: 'from-[#fffdf9] to-[#fdf2f0]', border: 'border-[#e0c0b8]/40', accent: 'text-[#c94a4a]' },
 };
 
 const DEFAULT_META = { 
   emoji: '📦', 
-  gradient: 'from-[#fffdf9] to-[#fafaf9]', 
-  border: 'border-stone-200/50', 
-  accent: 'text-amber-600' 
+  gradient: 'from-[#fffdf9] to-[#faf7f2]', 
+  border: 'border-[#e8e2d6]/50', 
+  accent: 'text-[#c9a24b]' 
 };
 
 const formatINR = (value) =>
@@ -54,26 +56,26 @@ export const PriceCard = ({ item, onClick }) => {
     >
       {/* Top: Icon + Name horizontally */}
       <div className="flex items-center gap-2 min-w-0 w-full">
-        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/95 border border-stone-100/80 flex items-center justify-center text-base sm:text-xl shrink-0 shadow-sm">
-          {meta.emoji}
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/95 border shrink-0 shadow-sm" style={{ borderColor: 'var(--border-subtle)' }}>
+          <span className="flex items-center justify-center text-base sm:text-xl">{meta.emoji}</span>
         </div>
-        <h3 className="font-serif-accent text-lg sm:text-xl font-bold text-emerald-950 truncate min-w-0 flex-1">
+        <h3 className="font-serif-accent text-lg sm:text-xl font-bold truncate min-w-0 flex-1" style={{ color: 'var(--color-ink)' }}>
           {t(`mandi.commodities.${commodity}`, { defaultValue: commodity })}
         </h3>
       </div>
 
       {/* Middle: Market Location */}
-      <p className="text-xs sm:text-sm text-stone-500 font-medium truncate min-w-0 w-full">
+      <p className="text-xs sm:text-sm font-medium truncate min-w-0 w-full" style={{ color: 'var(--color-muted)' }}>
         {market}
       </p>
 
       {/* Bottom: Price pushed to bottom */}
       <div className="mt-auto pt-2 sm:pt-3 flex flex-col min-w-0">
-        <span className="text-[9px] sm:text-[10px] tracking-widest text-stone-400 uppercase">
+        <span className="text-[9px] sm:text-[10px] tracking-widest uppercase" style={{ color: 'var(--color-muted)' }}>
           {t('mandi.bhav')}
         </span>
         <span className={`text-xl sm:text-2xl font-bold ${meta.accent} truncate min-w-0`}>
-          {formatINR(modalPrice)} <span className="text-sm font-medium text-stone-500">/ {i18n.language === 'hi' ? 'क्विंटल' : t('mandi.quintal', 'Quintal')}</span>
+          {formatINR(modalPrice)} <span className="text-sm font-medium" style={{ color: 'var(--color-muted)' }}>/ {i18n.language === 'hi' ? 'क्विंटल' : t('mandi.quintal', 'Quintal')}</span>
         </span>
       </div>
     </div>
@@ -84,9 +86,9 @@ export const PriceCard = ({ item, onClick }) => {
 const MandiSkeleton = () => {
   const { t } = useTranslation();
   return (
-  <div className="bg-white rounded-3xl shadow-md p-6 flex flex-col items-center justify-center min-h-[220px]">
-    <div className="w-10 h-10 rounded-full bg-amber-400 animate-pulse mb-3" />
-    <p className="text-stone-500 text-sm">{t('mandi.loadingPrices')}</p>
+  <div className="krishi-card rounded-3xl shadow-md p-6 flex flex-col items-center justify-center min-h-[220px]">
+    <div className="w-10 h-10 rounded-full animate-pulse mb-3" style={{ background: 'var(--color-harvest)' }} />
+    <p className="text-sm" style={{ color: 'var(--color-muted)' }}>{t('mandi.loadingPrices')}</p>
   </div>
   );
 };
@@ -95,9 +97,9 @@ const MandiSkeleton = () => {
 const MandiEmpty = () => {
   const { t } = useTranslation();
   return (
-  <div className="bg-white rounded-3xl shadow-md p-6 flex flex-col items-center justify-center min-h-[220px]">
-    <Store size={36} className="text-emerald-950 mb-3 opacity-40" />
-    <p className="font-serif text-emerald-950 text-center text-lg max-w-sm">
+  <div className="krishi-card rounded-3xl shadow-md p-6 flex flex-col items-center justify-center min-h-[220px]">
+    <Store size={36} className="mb-3 opacity-40" style={{ color: 'var(--color-ink)' }} />
+    <p className="font-serif text-center text-lg max-w-sm" style={{ color: 'var(--color-ink)' }}>
       {t('mandi.emptyState')}
     </p>
   </div>
@@ -116,11 +118,11 @@ const MandiTicker = ({ data, isLoading, isError }) => {
   if (isError || !data || prices.length === 0) return <MandiEmpty />;
 
   return (
-    <div className="bg-white rounded-3xl shadow-md p-5 sm:p-6 border border-stone-100/30">
+    <div className="krishi-card rounded-3xl shadow-md p-5 sm:p-6">
       {/* Modern Premium Header */}
       <div className="flex items-center gap-2.5 mb-5">
-        <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50" />
-        <h2 className="text-emerald-950 font-serif-accent text-xl sm:text-2xl font-bold">
+        <span className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ background: 'var(--color-harvest)', boxShadow: '0 0 8px rgba(201,162,75,0.4)' }} />
+        <h2 className="font-serif-accent text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-ink)' }}>
           {t('mandi.tickerTitle')}
         </h2>
       </div>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="200" viewBox="0 0 320 200" fill="none">
+  <!-- Welcome hero — a calm field landscape with sun and rolling hills. -->
+  <!-- Sun -->
+  <circle cx="248" cy="56" r="22" fill="#c9a24b" fill-opacity="0.28"/>
+  <circle cx="248" cy="56" r="14" fill="#c9a24b" fill-opacity="0.5"/>
+  <g stroke="#c9a24b" stroke-width="2" stroke-linecap="round" stroke-opacity="0.5">
+    <path d="M248 22 L248 30"/><path d="M214 56 L222 56"/><path d="M274 56 L282 56"/>
+    <path d="M224 32 L229 37"/><path d="M272 32 L267 37"/>
+  </g>
+  <!-- Distant hills -->
+  <path d="M0 132 C50 110 110 110 160 128 C210 146 260 116 320 134 L320 200 L0 200 Z" fill="#eef1e8"/>
+  <!-- Mid hills -->
+  <path d="M0 150 C60 134 120 138 170 152 C220 166 260 144 320 156 L320 200 L0 200 Z" fill="#cfd9bc" fill-opacity="0.7"/>
+  <!-- Foreground field -->
+  <path d="M0 172 C60 162 120 166 180 176 C240 186 270 174 320 180 L320 200 L0 200 Z" fill="#9aae74"/>
+  <!-- Crop rows -->
+  <g stroke="#3d5a3a" stroke-width="1.8" stroke-linecap="round" stroke-opacity="0.4">
+    <path d="M40 184 L48 174"/>
+    <path d="M70 186 L78 176"/>
+    <path d="M110 184 L118 174"/>
+    <path d="M150 188 L158 178"/>
+    <path d="M200 190 L208 180"/>
+    <path d="M250 188 L258 178"/>
+    <path d="M290 190 L298 180"/>
+  </g>
+  <!-- Foreground sprout -->
+  <path d="M80 180 L80 162" stroke="#3d5a3a" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M80 170 C74 170 70 166 70 161 C75 159 79 163 80 170 Z" fill="#6b7b4f"/>
+  <path d="M80 166 C85 166 88 162 88 158 C83 157 81 161 80 166 Z" fill="#5c7a55"/>
+  <!-- Bird -->
+  <path d="M120 50 C124 46 128 46 132 50 M132 50 C136 46 140 46 144 50" stroke="#6b8a9e" stroke-width="1.6" stroke-linecap="round" fill="none" stroke-opacity="0.6"/>
+</svg>

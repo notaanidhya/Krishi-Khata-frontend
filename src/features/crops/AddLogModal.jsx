@@ -68,20 +68,21 @@ const AddLogModal = ({ isOpen, onClose, cropId }) => {
     >
       <div
         className={`w-full max-w-lg rounded-t-3xl shadow-2xl modal-sheet ${animating ? 'modal-open' : ''}`}
-        style={{ background: 'var(--color-soil)', borderTop: '3px solid #14532d' }}
+        style={{ background: 'var(--color-soil)', borderTop: '3px solid var(--color-forest)' }}
       >
-        <div className="w-10 h-1 bg-stone-300 rounded-full mx-auto mt-4" />
+        <div className="w-10 h-1 rounded-full mx-auto mt-4" style={{ background: 'var(--border-subtle)' }} />
 
-        <div className="flex items-center justify-between px-5 pt-4 pb-4 border-b border-stone-200/60">
-          <h2 className="text-lg font-bold font-serif-accent text-emerald-900 flex items-center gap-2">
-            <BookOpen size={18} className="text-emerald-700" />
+        <div className="flex items-center justify-between px-5 pt-4 pb-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <h2 className="text-lg font-bold font-serif-accent flex items-center gap-2" style={{ color: 'var(--color-ink)' }}>
+            <BookOpen size={18} style={{ color: 'var(--color-forest)' }} />
             {t('crops.addLogTitle', 'Add Diary Entry')}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-stone-200 active:bg-stone-300 transition-colors"
+            className="p-2 rounded-full transition-colors"
+            style={{ color: 'var(--color-muted)' }}
           >
-            <X size={20} className="text-stone-500" />
+            <X size={20} />
           </button>
         </div>
 
@@ -92,26 +93,29 @@ const AddLogModal = ({ isOpen, onClose, cropId }) => {
               onChange={(e) => setNote(e.target.value)}
               placeholder={t('crops.addLogPlaceholder', 'E.g., Sprayed neem oil today because I saw whiteflies...')}
               rows={4}
-              className={`w-full p-4 rounded-2xl border-2 transition-all outline-none text-base resize-none ${
-                isListening ? 'border-red-300 focus:border-red-400 bg-red-50/30' : 'border-[#d6cfc6] focus:border-emerald-600 bg-[#fffdf9]'
-              }`}
-              style={{ color: 'var(--color-forest)' }}
+              className="w-full p-4 rounded-2xl border-2 transition-all outline-none text-base resize-none"
+              style={{
+                background: 'var(--color-cream)',
+                borderColor: isListening ? 'var(--color-danger)' : 'var(--border-subtle)',
+                color: 'var(--color-ink)',
+              }}
               disabled={addLogMutation.isPending}
             />
-            
+
             {isSupported && (
               <button
                 type="button"
                 onClick={toggleListening}
                 disabled={addLogMutation.isPending}
-                className={`absolute right-3 bottom-3 p-3 rounded-full shadow-sm transition-all ${
-                  isListening 
-                    ? 'bg-red-500 text-white animate-pulse shadow-md hover:bg-red-600' 
-                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                }`}
+                className="absolute right-3 bottom-3 p-3 rounded-full shadow-sm transition-all"
+                style={
+                  isListening
+                    ? { background: 'var(--color-danger)', color: '#fff', boxShadow: '0 4px 12px rgba(201,74,74,0.3)' }
+                    : { background: 'var(--color-forest-light)', color: 'var(--color-forest)' }
+                }
                 title="Voice Dictation"
               >
-                {isListening ? <MicOff size={22} /> : <Mic size={22} />}
+                {isListening ? <MicOff size={22} className="animate-pulse" /> : <Mic size={22} />}
               </button>
             )}
           </div>
@@ -122,8 +126,8 @@ const AddLogModal = ({ isOpen, onClose, cropId }) => {
               disabled={!note.trim() || addLogMutation.isPending}
               className="flex-1 py-4 rounded-xl font-bold text-white transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               style={{
-                background: 'linear-gradient(135deg, #166534, #14532d)',
-                boxShadow: '0 4px 20px rgba(22,101,52,0.35)',
+                background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
+                boxShadow: '0 4px 20px rgba(61,90,58,0.3)',
               }}
             >
               {addLogMutation.isPending ? (
@@ -136,7 +140,7 @@ const AddLogModal = ({ isOpen, onClose, cropId }) => {
           </div>
 
           {addLogMutation.isError && (
-            <div className="flex items-center gap-2 bg-red-50 text-red-600 p-3 rounded-xl border border-red-100 text-sm">
+            <div className="flex items-center gap-2 p-3 rounded-xl text-sm" style={{ background: 'var(--color-danger-soft)', color: 'var(--color-danger)', border: '1px solid var(--color-danger)' }}>
               <AlertCircle size={16} />
               <p>{t('crops.saveFailed', 'Failed to save log.')}</p>
             </div>

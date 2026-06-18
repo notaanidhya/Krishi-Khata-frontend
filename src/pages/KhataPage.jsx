@@ -16,11 +16,15 @@ import {
   Trash2, Loader2, AlertCircle, BookOpen, Users, Edit2
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useTransactions, useSummary, useDeleteTransaction } from '../hooks/useKhata';
 import TransactionForm from '../features/khata/TransactionForm';
 import LaborDashboard from '../features/khata/LaborDashboard';
+import PageShell from '../components/layout/PageShell';
+import EmptyStateUI from '../components/ui/EmptyState';
+import { staggerContainer, fadeUp } from '../components/motion/motionPresets';
 
 // ── Category label + emoji map ─────────────────────────────────
 const CATEGORY_META = {
@@ -55,7 +59,7 @@ const TabToggle = ({ activeTab, onTabChange }) => {
   return (
   <div
     className="flex rounded-xl p-1 gap-1 relative"
-    style={{ background: '#e7e2db' }}
+    style={{ background: 'var(--color-soil-dark)' }}
   >
     {/* Sliding pill indicator */}
     <div
@@ -64,11 +68,11 @@ const TabToggle = ({ activeTab, onTabChange }) => {
         left: isLabor ? 'calc(50% + 2px)' : '4px',
         width: 'calc(50% - 6px)',
         background: isLabor
-          ? 'linear-gradient(135deg, #1e1b4b, #312e81)'
-          : 'linear-gradient(135deg, #166534, #14532d)',
+          ? 'linear-gradient(135deg, #c97b4a, #b85c4a)'
+          : 'linear-gradient(135deg, var(--color-forest-muted), var(--color-forest))',
         boxShadow: isLabor
-          ? '0 2px 12px rgba(30,27,75,0.3)'
-          : '0 2px 12px rgba(22,101,52,0.3)',
+          ? '0 2px 12px rgba(201,123,74,0.28)'
+          : '0 2px 12px rgba(107,123,79,0.28)',
       }}
     />
     <button
@@ -106,7 +110,7 @@ const SummaryCard = ({ summary, isLoading }) => {
     return (
       <div
         className="rounded-2xl p-5 text-white animate-pulse"
-        style={{ background: 'linear-gradient(135deg, #052e16, #14532d)', boxShadow: '0 8px 40px rgba(5,46,22,0.4)' }}
+        style={{ background: 'linear-gradient(135deg, var(--color-forest), var(--color-forest-mid))', boxShadow: 'var(--shadow-hero)' }}
       >
         <div className="h-6 bg-white/20 rounded w-1/2 mb-4" />
         <div className="grid grid-cols-2 gap-3">
@@ -123,18 +127,18 @@ const SummaryCard = ({ summary, isLoading }) => {
     <div
       className="rounded-2xl p-5 text-white"
       style={{
-        background: 'linear-gradient(135deg, #052e16 0%, #14532d 50%, #166534 100%)',
-        boxShadow: '0 8px 40px rgba(5,46,22,0.4)',
+        background: 'linear-gradient(135deg, var(--color-forest) 0%, var(--color-forest-mid) 55%, var(--color-forest-muted) 100%)',
+        boxShadow: 'var(--shadow-hero)',
       }}
     >
       {/* Net Profit */}
       <div className="flex items-center gap-2 mb-1">
-        <Wallet size={18} className="text-amber-300" />
-        <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(253,230,138,0.8)' }}>
+        <Wallet size={18} style={{ color: 'var(--color-harvest)' }} />
+        <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(231, 207, 143, 0.85)' }}>
           {t('khata.myProfit')}
         </span>
       </div>
-      <p className={`text-4xl font-black mb-5 tracking-tight ${data.net_profit < 0 ? 'text-red-300' : 'text-white'}`}>
+      <p className={`text-4xl font-black mb-5 tracking-tight ${data.net_profit < 0 ? 'text-red-200' : 'text-white'}`}>
         {formatINR(data.net_profit)}
       </p>
 
@@ -145,8 +149,8 @@ const SummaryCard = ({ summary, isLoading }) => {
           style={{ background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(4px)' }}
         >
           <div className="flex items-center gap-1.5 mb-1.5">
-            <TrendingUp size={14} className="text-emerald-300" />
-            <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-200">{t('khata.income')}</span>
+            <TrendingUp size={14} className="text-emerald-200" />
+            <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-100">{t('khata.income')}</span>
           </div>
           <p className="text-xl font-bold text-white">{formatINR(data.total_income)}</p>
         </div>
@@ -155,8 +159,8 @@ const SummaryCard = ({ summary, isLoading }) => {
           style={{ background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(4px)' }}
         >
           <div className="flex items-center gap-1.5 mb-1.5">
-            <TrendingDown size={14} className="text-red-300" />
-            <span className="text-[11px] font-bold uppercase tracking-wide text-red-200">{t('khata.kharcha')}</span>
+            <TrendingDown size={14} className="text-red-200" />
+            <span className="text-[11px] font-bold uppercase tracking-wide text-red-100">{t('khata.kharcha')}</span>
           </div>
           <p className="text-xl font-bold text-white">{formatINR(data.total_expense)}</p>
         </div>
@@ -177,12 +181,12 @@ const TransactionCard = ({ txn, onEdit, onDelete, isDeleting }) => {
   return (
     <div
       className="krishi-card flex items-center gap-3 p-4 tactile"
-      style={{ borderLeft: `4px solid ${isExpense ? '#ef4444' : '#16a34a'}` }}
+      style={{ borderLeft: `4px solid ${isExpense ? 'var(--color-danger)' : 'var(--color-forest-muted)'}` }}
     >
       {/* Category Icon */}
       <div
         className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0"
-        style={{ background: isExpense ? '#fff1f2' : '#f0fdf4' }}
+        style={{ background: isExpense ? 'var(--color-danger-soft)' : 'var(--color-forest-light)' }}
       >
         {meta.icon}
       </div>
@@ -191,14 +195,14 @@ const TransactionCard = ({ txn, onEdit, onDelete, isDeleting }) => {
       <div className="flex-1 min-w-0">
         <p className="font-bold text-sm truncate" style={{ color: 'var(--color-forest)' }}>{catLabel}</p>
         {txn.description && (
-          <p className="text-xs text-stone-400 truncate">{txn.description}</p>
+          <p className="text-xs truncate" style={{ color: 'var(--color-muted)' }}>{txn.description}</p>
         )}
-        <p className="text-[11px] text-stone-400 mt-0.5">{formatDate(txn.transaction_date, i18n.language)}</p>
+        <p className="text-[11px] mt-0.5" style={{ color: 'var(--color-muted)' }}>{formatDate(txn.transaction_date, i18n.language)}</p>
       </div>
 
       {/* Amount */}
       <div className="text-right shrink-0">
-        <p className={`font-extrabold text-base ${isExpense ? 'text-red-500' : 'text-emerald-700'}`}>
+        <p className="font-extrabold text-base" style={{ color: isExpense ? 'var(--color-danger)' : 'var(--color-forest-mid)' }}>
           {isExpense ? '−' : '+'}{formatINR(txn.amount)}
         </p>
       </div>
@@ -242,18 +246,11 @@ const TransactionCard = ({ txn, onEdit, onDelete, isDeleting }) => {
 const EmptyState = () => {
   const { t } = useTranslation();
   return (
-  <div className="flex flex-col items-center justify-center py-16 text-center">
-    <div
-      className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-      style={{ background: '#ecfdf5' }}
-    >
-      <BookOpen size={28} className="text-emerald-600" />
-    </div>
-    <h3 className="font-bold mb-1" style={{ color: 'var(--color-forest)' }}>{t('khata.emptyTitle')}</h3>
-    <p className="text-sm text-stone-400 max-w-[240px]">
-      {t('khata.emptyText')}
-    </p>
-  </div>
+    <EmptyStateUI
+      illustration="/illustrations/empty-khata.svg"
+      title={t('khata.emptyTitle')}
+      subtitle={t('khata.emptyText')}
+    />
   );
 };
 
@@ -282,52 +279,65 @@ const KhataPage = () => {
   };
 
   return (
-    <div className="px-4 py-5 max-w-lg mx-auto space-y-5 pb-28 animate-page-enter">
+    <PageShell ambient="khata">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        className="px-4 py-5 max-w-lg mx-auto space-y-5 pb-28"
+      >
 
       {/* ── Screen Title (Serif) ──────────────────────────── */}
-      <h1
+      <motion.h1
+        variants={fadeUp}
         className="text-2xl font-bold font-serif-accent leading-tight"
         style={{ color: 'var(--color-forest)' }}
       >
         {t('khata.title')}
-      </h1>
+      </motion.h1>
 
       {/* ── Tab Toggle ────────────────────────────────────── */}
-      <TabToggle activeTab={activeTab} onTabChange={setActiveTab} />
+      <motion.div variants={fadeUp}>
+        <TabToggle activeTab={activeTab} onTabChange={setActiveTab} />
+      </motion.div>
 
       {/* ── General Hisab Tab ─────────────────────────────── */}
       {activeTab === 'general' && (
         <div className="space-y-5">
           {/* ── Summary Card ─────────────────────────────────── */}
-          <SummaryCard summary={summary} isLoading={summaryLoading} />
+          <motion.div variants={fadeUp}>
+            <SummaryCard summary={summary} isLoading={summaryLoading} />
+          </motion.div>
 
           {/* ── Add Transaction Button ───────────────────────── */}
-          <button
+          <motion.button
+            variants={fadeUp}
             onClick={() => { setEditingTransaction(null); setIsFormOpen(true); }}
-            className="w-full py-4 text-white font-bold text-base rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+            whileTap={{ scale: 0.98 }}
+            className="w-full py-4 text-white font-bold text-base rounded-2xl flex items-center justify-center gap-2 transition-all"
             style={{
-              background: 'linear-gradient(135deg, #166534, #14532d)',
-              boxShadow: '0 4px 20px rgba(22,101,52,0.35)',
+              background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
+              boxShadow: '0 6px 20px -4px rgba(92,122,85,0.45)',
             }}
           >
             <Plus size={20} strokeWidth={3} />
             {t('khata.addTransaction')}
-          </button>
+          </motion.button>
 
           {/* ── Transaction List ─────────────────────────────── */}
-          <div>
-            <h2 className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-3">
+          <motion.div variants={fadeUp}>
+            <h2 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--color-muted)' }}>
               {t('khata.recentEntries')}
             </h2>
 
             {txnLoading && (
               <div className="flex justify-center py-12">
-                <Loader2 size={28} className="text-emerald-700 animate-spin" />
+                <Loader2 size={28} className="animate-spin" style={{ color: 'var(--color-forest-muted)' }} />
               </div>
             )}
 
             {txnError && (
-              <div className="flex items-center gap-2 bg-red-50 text-red-600 p-4 rounded-2xl border border-red-100">
+              <div className="flex items-center gap-2 p-4 rounded-2xl border" style={{ background: 'var(--color-danger-soft)', color: 'var(--color-danger)', borderColor: 'rgba(184,92,74,0.2)' }}>
                 <AlertCircle size={18} />
                 <p className="text-sm">{t('khata.errorLoad')}</p>
               </div>
@@ -353,7 +363,7 @@ const KhataPage = () => {
                 ))}
               </div>
             )}
-          </div>
+          </motion.div>
         </div>
       )}
 
@@ -367,7 +377,8 @@ const KhataPage = () => {
         isLaborMode={isLaborFormMode}
         onClose={() => { setIsFormOpen(false); setEditingTransaction(null); setIsLaborFormMode(false); }} 
       />
-    </div>
+      </motion.div>
+    </PageShell>
   );
 };
 

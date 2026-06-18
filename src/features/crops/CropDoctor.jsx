@@ -1,7 +1,7 @@
 /**
  * CropDoctor — AI Crop Doctor (फसल डॉक्टर) SOS box.
- * Premium Krishi design: warm earthy aesthetic, deep emerald actions,
- * amber AI-response card with Sparkles label.
+ * Refined Earth aesthetic: warm ivory bg, forest-mid actions,
+ * harvest gold AI-response card with Sparkles label.
  */
 
 import React, { useState } from 'react';
@@ -9,9 +9,9 @@ import { Stethoscope, Camera, Send, Sparkles, X, Loader2 } from 'lucide-react';
 import { askCropAI } from '../../api/crop';
 
 const inputStyle = {
-  background: '#fffdf9',
-  borderColor: '#d6cfc6',
-  color: 'var(--color-forest)',
+  background: 'var(--color-cream)',
+  borderColor: 'var(--border-subtle)',
+  color: 'var(--color-ink)',
 };
 
 const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
@@ -58,12 +58,12 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
   return (
     <div
       className="overflow-hidden rounded-2xl"
-      style={{ border: '1.5px solid #d6cfc6', boxShadow: '0 2px 12px rgba(5,46,22,0.07)' }}
+      style={{ border: '1.5px solid var(--border-subtle)', boxShadow: '0 2px 12px rgba(45,42,36,0.06)' }}
     >
-      {/* Header — green gradient */}
+      {/* Header — forest gradient */}
       <div
         className="px-4 py-3 flex items-center gap-3"
-        style={{ background: 'linear-gradient(135deg, #166534, #14532d)' }}
+        style={{ background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))' }}
       >
         <div
           className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -83,22 +83,22 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
           className="w-6 h-6 rounded-lg flex items-center justify-center"
           style={{ background: 'rgba(255,255,255,0.12)' }}
         >
-          <Sparkles size={12} className="text-amber-300" />
+          <Sparkles size={12} style={{ color: 'var(--color-harvest)' }} />
         </div>
       </div>
 
       {/* Input area */}
-      <div className="px-4 pt-3 pb-2" style={{ background: '#fffdf5' }}>
+      <div className="px-4 pt-3 pb-2" style={{ background: 'var(--color-cream)' }}>
         <textarea
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Describe an issue (e.g., yellow leaves, insects)..."
           rows={3}
-          className="w-full resize-none px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 transition-all rounded-xl placeholder:text-stone-300 font-medium"
+          className="w-full resize-none px-3 py-3 text-sm focus:outline-none transition-all rounded-xl font-medium"
           style={{
             ...inputStyle,
-            border: '1.5px solid #d6cfc6',
+            border: '1.5px solid var(--border-subtle)',
             lineHeight: '24px',
           }}
           disabled={isLoading}
@@ -106,7 +106,7 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
       </div>
 
       {/* Actions */}
-      <div className="px-4 pb-4 flex items-center gap-2" style={{ background: '#fffdf5' }}>
+      <div className="px-4 pb-4 flex items-center gap-2" style={{ background: 'var(--color-cream)' }}>
         {/* Camera stub — "Coming soon" tooltip pattern */}
         <button
           type="button"
@@ -115,27 +115,27 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
             setTimeout(() => setShowCameraHint(false), 2000);
           }}
           className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all active:scale-95 relative"
-          style={{ background: '#f0ebe4', border: '1px solid #d6cfc6', color: '#78716c' }}
+          style={{ background: 'var(--color-soil-dark)', border: '1px solid var(--border-subtle)', color: 'var(--color-muted)' }}
           disabled={isLoading}
         >
           <Camera size={15} />
           <span>Photo</span>
           {showCameraHint && (
-            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-emerald-900 text-white text-[10px] px-2.5 py-1.5 rounded-lg whitespace-nowrap shadow-lg animate-fade-in">
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-white text-[10px] px-2.5 py-1.5 rounded-lg whitespace-nowrap shadow-lg animate-fade-in" style={{ background: 'var(--color-forest)' }}>
               Coming soon! 📸
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 bg-emerald-900 rotate-45 -mt-1" />
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 -mt-1" style={{ background: 'var(--color-forest)' }} />
             </div>
           )}
         </button>
 
         <div className="flex-1" />
         {query.length > 0 && (
-          <span className="text-[10px] text-stone-300 font-medium tabular-nums">
+          <span className="text-[10px] font-medium tabular-nums" style={{ color: 'var(--color-muted)' }}>
             {query.length}/2000
           </span>
         )}
 
-        {/* Submit — deep emerald gradient */}
+        {/* Submit — forest gradient */}
         <button
           type="button"
           onClick={handleSubmit}
@@ -144,10 +144,10 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
           style={
             query.trim() && !isLoading
               ? {
-                  background: 'linear-gradient(135deg, #166534, #14532d)',
-                  boxShadow: '0 4px 16px rgba(22,101,52,0.3)',
+                  background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
+                  boxShadow: '0 4px 16px rgba(61,90,58,0.3)',
                 }
-              : { background: '#e0dcd6', color: '#a8a29e' }
+              : { background: 'var(--color-soil-dark)', color: 'var(--color-muted)' }
           }
         >
           {isLoading ? (
@@ -166,12 +166,12 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
 
       {/* Loading state */}
       {isLoading && (
-        <div className="px-4 pb-4" style={{ background: '#fffdf5' }}>
-          <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
-            <Loader2 size={16} className="text-emerald-600 animate-spin shrink-0" />
+        <div className="px-4 pb-4" style={{ background: 'var(--color-cream)' }}>
+          <div className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: 'var(--color-forest-light)', border: '1px solid var(--color-forest-muted)' }}>
+            <Loader2 size={16} className="animate-spin shrink-0" style={{ color: 'var(--color-forest)' }} />
             <div>
-              <p className="text-xs font-bold text-emerald-700">Doctor is thinking...</p>
-              <p className="text-[10px] text-emerald-500 font-medium mt-0.5">
+              <p className="text-xs font-bold" style={{ color: 'var(--color-forest)' }}>Doctor is thinking...</p>
+              <p className="text-[10px] font-medium mt-0.5" style={{ color: 'var(--color-forest-muted)' }}>
                 Analyzing your {cropName} on Day {daysSincePlanting}
               </p>
             </div>
@@ -181,12 +181,13 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
 
       {/* Error state */}
       {error && !isLoading && (
-        <div className="px-4 pb-4" style={{ background: '#fffdf5' }}>
-          <div className="flex items-center justify-between bg-red-50 border border-red-100 rounded-xl px-4 py-3">
-            <p className="text-xs text-red-500 font-medium flex-1">{error}</p>
+        <div className="px-4 pb-4" style={{ background: 'var(--color-cream)' }}>
+          <div className="flex items-center justify-between rounded-xl px-4 py-3" style={{ background: 'var(--color-danger-soft)', border: '1px solid var(--color-danger)' }}>
+            <p className="text-xs font-medium flex-1" style={{ color: 'var(--color-danger)' }}>{error}</p>
             <button
               onClick={dismissResponse}
-              className="ml-2 p-1 text-red-300 hover:text-red-500 transition-colors"
+              className="ml-2 p-1 transition-colors"
+              style={{ color: 'var(--color-danger)' }}
             >
               <X size={14} />
             </button>
@@ -194,33 +195,34 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
         </div>
       )}
 
-      {/* AI Response card — amber/warm gradient */}
+      {/* AI Response card — harvest gold gradient */}
       {response && !isLoading && (
-        <div className="px-4 pb-4" style={{ background: '#fffdf5' }}>
+        <div className="px-4 pb-4" style={{ background: 'var(--color-cream)' }}>
           <div
             className="rounded-xl overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
-              border: '1.5px solid #fcd34d',
-              boxShadow: '0 2px 12px rgba(245,158,11,0.12)',
+              background: 'linear-gradient(135deg, var(--color-warning-soft), #fbe8c8)',
+              border: '1.5px solid var(--color-harvest)',
+              boxShadow: '0 2px 12px rgba(201,162,75,0.15)',
             }}
           >
             {/* AI label header */}
             <div className="px-4 pt-3 pb-2 flex items-center justify-between">
               <div className="flex items-center gap-1.5">
-                <Sparkles size={12} className="text-amber-500" />
-                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">
+                <Sparkles size={12} style={{ color: 'var(--color-harvest)' }} />
+                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-warning)' }}>
                   AI Advice
                 </span>
                 {response.current_stage && (
-                  <span className="text-[9px] text-amber-400 font-medium ml-1">
+                  <span className="text-[9px] font-medium ml-1" style={{ color: 'var(--color-rust)' }}>
                     • {response.current_stage}
                   </span>
                 )}
               </div>
               <button
                 onClick={dismissResponse}
-                className="w-6 h-6 rounded-lg flex items-center justify-center text-amber-400 hover:text-amber-600 hover:bg-amber-200/50 transition-all"
+                className="w-6 h-6 rounded-lg flex items-center justify-center transition-all"
+                style={{ color: 'var(--color-warning)' }}
               >
                 <X size={14} />
               </button>
@@ -234,8 +236,8 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
                 .map((paragraph, idx) => (
                   <p
                     key={idx}
-                    className="text-xs text-amber-900 leading-relaxed font-medium"
-                    style={{ marginBottom: idx < response.answer.split('\n').filter((l) => l.trim()).length - 1 ? '8px' : '0' }}
+                    className="text-xs leading-relaxed font-medium"
+                    style={{ color: 'var(--color-ink)', marginBottom: idx < response.answer.split('\n').filter((l) => l.trim()).length - 1 ? '8px' : '0' }}
                   >
                     {paragraph}
                   </p>

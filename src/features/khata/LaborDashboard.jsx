@@ -1,13 +1,12 @@
 /**
  * LaborDashboard — "Labor Hisab" premium tab view.
  *
+ * Refined Earth theme: warm soil bg, forest greens, harvest gold, terracotta rust.
  * Features:
  * - Overview grid of laborer cards with color-coded balances
  * - Expandable detailed ledger per laborer
  * - Inline settlement (Pay Laborer) modal
  * - Visual paid-off indicator on old wage rows
- *
- * Follows Krishi design system: warm clay bg, forest greens, serif accents.
  */
 
 import React, { useState } from 'react';
@@ -75,12 +74,10 @@ const SettlementModal = ({ laborer, farmId, onClose, isOpen }) => {
         {/* Header */}
         <div
           className="px-5 py-4 flex items-center justify-between"
-          style={{
-            background: 'linear-gradient(135deg, #052e16 0%, #14532d 100%)',
-          }}
+          style={{ background: 'linear-gradient(135deg, var(--color-forest), var(--color-forest-mid))' }}
         >
           <div className="flex items-center gap-2 text-white">
-            <Banknote size={20} className="text-amber-300" />
+            <Banknote size={20} style={{ color: 'var(--color-harvest)' }} />
             <h3 className="font-bold font-serif-accent">{t('labor.payLaborer')}</h3>
           </div>
           <button
@@ -95,11 +92,11 @@ const SettlementModal = ({ laborer, farmId, onClose, isOpen }) => {
           {/* Laborer Info */}
           <div
             className="flex items-center gap-3 p-3 rounded-xl"
-            style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}
+            style={{ background: 'var(--color-forest-light)', border: '1px solid var(--color-forest-muted)' }}
           >
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
-              style={{ background: 'linear-gradient(135deg, #166534, #14532d)' }}
+              style={{ background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))' }}
             >
               {laborer.name.charAt(0).toUpperCase()}
             </div>
@@ -107,19 +104,19 @@ const SettlementModal = ({ laborer, farmId, onClose, isOpen }) => {
               <p className="font-bold text-sm" style={{ color: 'var(--color-forest)' }}>
                 {laborer.name}
               </p>
-              <p className="text-xs text-stone-500">
-                {t('labor.balance')}: <span className="font-bold text-red-500">{formatINR(laborer.current_balance)}</span>
+              <p className="text-xs" style={{ color: 'var(--color-muted)' }}>
+                {t('labor.balance')}: <span className="font-bold" style={{ color: 'var(--color-danger)' }}>{formatINR(laborer.current_balance)}</span>
               </p>
             </div>
           </div>
 
           {/* Payment Amount */}
           <div>
-            <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
+            <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-muted)' }}>
               <IndianRupee size={14} /> {t('labor.paymentAmount')}
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-stone-400">₹</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg" style={{ color: 'var(--color-muted)' }}>₹</span>
               <input
                 type="number"
                 inputMode="decimal"
@@ -130,15 +127,16 @@ const SettlementModal = ({ laborer, farmId, onClose, isOpen }) => {
                 placeholder="0.00"
                 required
                 autoFocus
-                className="w-full px-4 py-3.5 pl-10 rounded-xl text-xl font-bold transition-all outline-none border-2 focus:ring-2 focus:ring-emerald-800/20 focus:border-emerald-700"
-                style={{ background: '#fffdf9', borderColor: '#d6cfc6', color: 'var(--color-forest)' }}
+                className="w-full px-4 py-3.5 pl-10 rounded-xl text-xl font-bold transition-all outline-none border-2"
+                style={{ background: 'var(--color-cream)', borderColor: 'var(--border-subtle)', color: 'var(--color-ink)' }}
               />
             </div>
             {laborer.current_balance > 0 && (
               <button
                 type="button"
                 onClick={() => setPayAmount(String(laborer.current_balance))}
-                className="text-xs text-emerald-700 font-bold mt-1.5 hover:underline"
+                className="text-xs font-bold mt-1.5 hover:underline"
+                style={{ color: 'var(--color-forest)' }}
               >
                 {t('labor.payFullAmount')} {formatINR(laborer.current_balance)}
               </button>
@@ -150,8 +148,8 @@ const SettlementModal = ({ laborer, farmId, onClose, isOpen }) => {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 rounded-xl font-bold text-sm text-stone-500 transition-all hover:bg-stone-200 active:scale-[0.97]"
-              style={{ background: '#e7e2db' }}
+              className="flex-1 py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.97]"
+              style={{ background: 'var(--color-soil-dark)', color: 'var(--color-muted)' }}
             >
               {t('labor.cancel')}
             </button>
@@ -160,8 +158,8 @@ const SettlementModal = ({ laborer, farmId, onClose, isOpen }) => {
               disabled={settleMutation.isPending || !payAmount || parseFloat(payAmount) <= 0}
               className="flex-1 py-3 rounded-xl font-bold text-sm text-white transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               style={{
-                background: 'linear-gradient(135deg, #166534, #14532d)',
-                boxShadow: '0 4px 16px rgba(22,101,52,0.35)',
+                background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
+                boxShadow: '0 4px 16px rgba(61,90,58,0.3)',
               }}
             >
               {settleMutation.isPending ? (
@@ -179,7 +177,7 @@ const SettlementModal = ({ laborer, farmId, onClose, isOpen }) => {
           </div>
 
           {settleMutation.isError && (
-            <p className="text-center text-sm text-red-500 bg-red-50 rounded-xl py-2 px-3">
+            <p className="text-center text-sm rounded-xl py-2 px-3" style={{ color: 'var(--color-danger)', background: 'var(--color-danger-soft)' }}>
               {t('labor.paymentFailed')}
             </p>
           )}
@@ -204,7 +202,7 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
       {/* Back Header */}
       <button
         onClick={onBack}
-        className="flex items-center gap-1.5 text-sm font-bold transition-colors hover:text-emerald-800"
+        className="flex items-center gap-1.5 text-sm font-bold transition-colors"
         style={{ color: 'var(--color-forest)' }}
       >
         <ChevronLeft size={18} strokeWidth={2.5} />
@@ -216,11 +214,11 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
         className="rounded-2xl p-5 text-white"
         style={{
           background: isSettled
-            ? 'linear-gradient(135deg, #052e16 0%, #14532d 50%, #166534 100%)'
-            : 'linear-gradient(135deg, #7c2d12 0%, #9a3412 50%, #c2410c 100%)',
+            ? 'linear-gradient(135deg, var(--color-forest), var(--color-forest-mid))'
+            : 'linear-gradient(135deg, #7c2d12, var(--color-rust))',
           boxShadow: isSettled
-            ? '0 8px 40px rgba(5,46,22,0.4)'
-            : '0 8px 40px rgba(154,52,18,0.35)',
+            ? '0 8px 40px rgba(61,90,58,0.35)'
+            : '0 8px 40px rgba(201,123,74,0.35)',
         }}
       >
         <div className="flex items-center gap-4 mb-3">
@@ -243,7 +241,7 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
           style={{ background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(4px)' }}
         >
           <div className="flex items-center gap-2">
-            <Wallet size={16} className={isSettled ? 'text-emerald-300' : 'text-amber-300'} />
+            <Wallet size={16} style={{ color: isSettled ? '#a8d5a0' : 'var(--color-harvest)' }} />
             <span className="text-xs font-bold uppercase tracking-wider opacity-80">
               {isSettled ? t('labor.allSettled') : t('labor.balanceDue')}
             </span>
@@ -260,8 +258,8 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
           onClick={() => setShowSettleModal(true)}
           className="w-full py-3.5 rounded-2xl font-bold text-base text-white flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
           style={{
-            background: 'linear-gradient(135deg, #166534, #14532d)',
-            boxShadow: '0 4px 20px rgba(22,101,52,0.35)',
+            background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
+            boxShadow: '0 4px 20px rgba(61,90,58,0.3)',
           }}
         >
           <Banknote size={20} />
@@ -271,13 +269,13 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
 
       {/* Transaction Ledger */}
       <div>
-        <h3 className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-3">
+        <h3 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--color-muted)' }}>
           {t('labor.transactionHistory')}
         </h3>
 
         {isLoading && (
           <div className="flex justify-center py-12">
-            <Loader2 size={28} className="text-emerald-700 animate-spin" />
+            <Loader2 size={28} className="animate-spin" style={{ color: 'var(--color-forest)' }} />
           </div>
         )}
 
@@ -285,11 +283,11 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <div
               className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
-              style={{ background: '#ecfdf5' }}
+              style={{ background: 'var(--color-forest-light)' }}
             >
-              <Clock size={24} className="text-emerald-600" />
+              <Clock size={24} style={{ color: 'var(--color-forest-muted)' }} />
             </div>
-            <p className="text-sm text-stone-400">{t('labor.noTransactions', { name: laborer.name })}</p>
+            <p className="text-sm" style={{ color: 'var(--color-muted)' }}>{t('labor.noTransactions', { name: laborer.name })}</p>
           </div>
         )}
 
@@ -306,7 +304,7 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
                   key={txn.id}
                   className={`krishi-card flex items-center gap-3 p-3.5 transition-all ${isPaidOff ? 'labor-paid-off' : ''}`}
                   style={{
-                    borderLeft: `4px solid ${isPayment ? '#16a34a' : '#f59e0b'}`,
+                    borderLeft: `4px solid ${isPayment ? 'var(--color-success)' : 'var(--color-harvest)'}`,
                     opacity: isPaidOff ? 0.5 : 1,
                   }}
                 >
@@ -314,13 +312,13 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                     style={{
-                      background: isPayment ? '#f0fdf4' : '#fffbeb',
+                      background: isPayment ? 'var(--color-forest-light)' : 'var(--color-warning-soft)',
                     }}
                   >
                     {isPayment ? (
-                      <ArrowDownRight size={18} className="text-emerald-600" />
+                      <ArrowDownRight size={18} style={{ color: 'var(--color-success)' }} />
                     ) : (
-                      <ArrowUpRight size={18} className="text-amber-600" />
+                      <ArrowUpRight size={18} style={{ color: 'var(--color-harvest)' }} />
                     )}
                   </div>
 
@@ -328,14 +326,14 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
                   <div className="flex-1 min-w-0">
                     <p
                       className={`font-bold text-sm ${isPaidOff ? 'line-through' : ''}`}
-                      style={{ color: 'var(--color-forest)' }}
+                      style={{ color: 'var(--color-ink)' }}
                     >
                       {isPayment ? t('labor.paymentMade') : t('labor.workDayWage')}
                     </p>
                     {txn.description && (
-                      <p className="text-xs text-stone-400 truncate">{txn.description}</p>
+                      <p className="text-xs truncate" style={{ color: 'var(--color-muted)' }}>{txn.description}</p>
                     )}
-                    <p className="text-[11px] text-stone-400 mt-0.5 flex items-center gap-1">
+                    <p className="text-[11px] mt-0.5 flex items-center gap-1" style={{ color: 'var(--color-muted)' }}>
                       <Calendar size={10} />
                       {formatDate(txn.transaction_date)}
                     </p>
@@ -343,7 +341,7 @@ const LaborerDetail = ({ laborer, farmId, onBack }) => {
 
                   {/* Amount */}
                   <div className="text-right shrink-0">
-                    <p className={`font-extrabold text-base ${isPayment ? 'text-emerald-700' : 'text-amber-600'}`}>
+                    <p className="font-extrabold text-base" style={{ color: isPayment ? 'var(--color-success)' : 'var(--color-harvest)' }}>
                       {isPayment ? '−' : '+'}{formatINR(txn.amount)}
                     </p>
                   </div>
@@ -378,7 +376,7 @@ const LaborerCard = ({ laborer, onClick }) => {
       onClick={onClick}
       className="krishi-card tactile w-full text-left p-4 transition-all hover:shadow-lg"
       style={{
-        borderLeft: `4px solid ${isSettled ? '#16a34a' : '#f59e0b'}`,
+        borderLeft: `4px solid ${isSettled ? 'var(--color-success)' : 'var(--color-harvest)'}`,
       }}
     >
       <div className="flex items-center gap-3">
@@ -387,8 +385,8 @@ const LaborerCard = ({ laborer, onClick }) => {
           className="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold text-white shrink-0"
           style={{
             background: isSettled
-              ? 'linear-gradient(135deg, #16a34a, #15803d)'
-              : 'linear-gradient(135deg, #f59e0b, #d97706)',
+              ? 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))'
+              : 'linear-gradient(135deg, var(--color-harvest), var(--color-rust))',
           }}
         >
           {initial}
@@ -396,16 +394,16 @@ const LaborerCard = ({ laborer, onClick }) => {
 
         {/* Name + Status */}
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-sm truncate" style={{ color: 'var(--color-forest)' }}>
+          <p className="font-bold text-sm truncate" style={{ color: 'var(--color-ink)' }}>
             {laborer.name}
           </p>
           <div className="flex items-center gap-1 mt-0.5">
             {isSettled ? (
-              <UserCheck size={12} className="text-emerald-600" />
+              <UserCheck size={12} style={{ color: 'var(--color-success)' }} />
             ) : (
-              <Clock size={12} className="text-amber-600" />
+              <Clock size={12} style={{ color: 'var(--color-harvest)' }} />
             )}
-            <span className={`text-xs font-semibold ${isSettled ? 'text-emerald-600' : 'text-amber-600'}`}>
+            <span className="text-xs font-semibold" style={{ color: isSettled ? 'var(--color-success)' : 'var(--color-harvest)' }}>
               {isSettled ? t('labor.settled') : t('labor.due')}
             </span>
           </div>
@@ -413,10 +411,10 @@ const LaborerCard = ({ laborer, onClick }) => {
 
         {/* Balance */}
         <div className="text-right shrink-0">
-          <p className={`font-extrabold text-base ${isSettled ? 'text-emerald-700' : 'text-red-500'}`}>
+          <p className="font-extrabold text-base" style={{ color: isSettled ? 'var(--color-success)' : 'var(--color-danger)' }}>
             {formatINR(Math.abs(laborer.current_balance))}
           </p>
-          <p className="text-[10px] text-stone-400 uppercase font-bold tracking-wide">
+          <p className="text-[10px] uppercase font-bold tracking-wide" style={{ color: 'var(--color-muted)' }}>
             {isSettled ? t('labor.clear') : t('labor.owed')}
           </p>
         </div>
@@ -464,15 +462,15 @@ const LaborDashboard = ({ onAddWage }) => {
       <div
         className="rounded-2xl p-5 text-white"
         style={{
-          background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)',
-          boxShadow: '0 8px 40px rgba(30,27,75,0.35)',
+          background: 'linear-gradient(135deg, var(--color-forest), var(--color-forest-mid))',
+          boxShadow: '0 8px 40px rgba(61,90,58,0.3)',
         }}
       >
         <div className="flex items-center gap-2 mb-1">
-          <Users size={18} className="text-violet-300" />
+          <Users size={18} style={{ color: 'var(--color-harvest)' }} />
           <span
             className="text-xs font-bold uppercase tracking-widest"
-            style={{ color: 'rgba(196,181,253,0.8)' }}
+            style={{ color: 'rgba(201,162,75,0.8)' }}
           >
             {t('labor.title')}
           </span>
@@ -488,8 +486,8 @@ const LaborDashboard = ({ onAddWage }) => {
             style={{ background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(4px)' }}
           >
             <div className="flex items-center gap-1.5 mb-1">
-              <Clock size={14} className="text-amber-300" />
-              <span className="text-[11px] font-bold uppercase tracking-wide text-amber-200">{t('labor.pending')}</span>
+              <Clock size={14} style={{ color: 'var(--color-harvest)' }} />
+              <span className="text-[11px] font-bold uppercase tracking-wide" style={{ color: 'rgba(201,162,75,0.9)' }}>{t('labor.pending')}</span>
             </div>
             <p className="text-xl font-bold text-white">{pendingCount}</p>
           </div>
@@ -498,8 +496,8 @@ const LaborDashboard = ({ onAddWage }) => {
             style={{ background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(4px)' }}
           >
             <div className="flex items-center gap-1.5 mb-1">
-              <UserCheck size={14} className="text-emerald-300" />
-              <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-200">{t('labor.settled')}</span>
+              <UserCheck size={14} style={{ color: '#a8d5a0' }} />
+              <span className="text-[11px] font-bold uppercase tracking-wide" style={{ color: 'rgba(168,213,160,0.9)' }}>{t('labor.settled')}</span>
             </div>
             <p className="text-xl font-bold text-white">{settledCount}</p>
           </div>
@@ -511,8 +509,8 @@ const LaborDashboard = ({ onAddWage }) => {
         onClick={onAddWage}
         className="w-full py-4 text-white font-bold text-base rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
         style={{
-          background: 'linear-gradient(135deg, #166534, #14532d)',
-          boxShadow: '0 4px 20px rgba(22,101,52,0.35)',
+          background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
+          boxShadow: '0 4px 20px rgba(61,90,58,0.3)',
         }}
       >
         <Plus size={20} />
@@ -521,18 +519,18 @@ const LaborDashboard = ({ onAddWage }) => {
 
       {/* ── Laborer List ──────────────────────────────── */}
       <div>
-        <h2 className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-3">
+        <h2 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--color-muted)' }}>
           {t('labor.yourLaborers', { count: laborers.length })}
         </h2>
 
         {isLoading && (
           <div className="flex justify-center py-12">
-            <Loader2 size={28} className="text-emerald-700 animate-spin" />
+            <Loader2 size={28} className="animate-spin" style={{ color: 'var(--color-forest)' }} />
           </div>
         )}
 
         {isError && (
-          <div className="flex items-center gap-2 bg-red-50 text-red-600 p-4 rounded-2xl border border-red-100">
+          <div className="flex items-center gap-2 p-4 rounded-2xl" style={{ color: 'var(--color-danger)', background: 'var(--color-danger-soft)' }}>
             <AlertCircle size={18} />
             <p className="text-sm">{t('labor.errorLoad')}</p>
           </div>
@@ -542,14 +540,14 @@ const LaborDashboard = ({ onAddWage }) => {
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-              style={{ background: '#ecfdf5' }}
+              style={{ background: 'var(--color-forest-light)' }}
             >
-              <Users size={28} className="text-emerald-600" />
+              <Users size={28} style={{ color: 'var(--color-forest-muted)' }} />
             </div>
             <h3 className="font-bold mb-1" style={{ color: 'var(--color-forest)' }}>
               {t('labor.emptyTitle')}
             </h3>
-            <p className="text-sm text-stone-400 max-w-[260px]">
+            <p className="text-sm max-w-[260px]" style={{ color: 'var(--color-muted)' }}>
               {t('labor.emptyText')}
             </p>
           </div>

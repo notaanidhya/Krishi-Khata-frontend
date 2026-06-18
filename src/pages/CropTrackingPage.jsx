@@ -14,6 +14,7 @@ import {
   Plus, CheckCircle2, Timer, Trash2, BookOpen
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useCrops, useDeleteCrop, useRetryCropValidation } from '../hooks/useCrop';
 import CropVisualizer from '../features/crops/CropVisualizer';
@@ -22,6 +23,8 @@ import SmartSchedule from '../features/crops/SmartSchedule';
 import AddCropModal from '../features/crops/AddCropModal';
 import AddLogModal from '../features/crops/AddLogModal';
 import AboutCrop from '../features/crops/AboutCrop';
+import PageShell from '../components/layout/PageShell';
+import { staggerContainer, fadeUp } from '../components/motion/motionPresets';
 
 const CropTrackingPage = () => {
   const { t, i18n } = useTranslation();
@@ -45,47 +48,58 @@ const CropTrackingPage = () => {
   // ── No farm selected ─────────────────────────────────────
   if (!activeFarm) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
-        <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mb-4">
-          <Sprout size={28} className="text-stone-300" />
+      <PageShell ambient="crops">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: 'var(--color-soil-dark)' }}>
+            <Sprout size={28} style={{ color: 'var(--color-muted)' }} />
+          </div>
+          <p className="text-sm font-medium" style={{ color: 'var(--color-muted)' }}>{t('crops.selectFarm')}</p>
         </div>
-        <p className="text-stone-400 text-sm font-medium">{t('crops.selectFarm')}</p>
-      </div>
+      </PageShell>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="px-4 pt-4 pb-24 max-w-lg mx-auto space-y-4 animate-page-enter">
-        {/* Header skeleton */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl skeleton-shimmer" />
-          <div className="space-y-2">
-            <div className="h-5 w-28 rounded-lg skeleton-shimmer" />
-            <div className="h-3 w-20 rounded-md skeleton-shimmer" />
+      <PageShell ambient="crops">
+        <div className="px-4 pt-4 pb-24 max-w-lg mx-auto space-y-4">
+          {/* Header skeleton */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl skeleton-shimmer" />
+            <div className="space-y-2">
+              <div className="h-5 w-28 rounded-lg skeleton-shimmer" />
+              <div className="h-3 w-20 rounded-md skeleton-shimmer" />
+            </div>
+          </div>
+          {/* Crop card skeleton */}
+          <div className="rounded-3xl p-4 space-y-4 krishi-card">
+            <div className="h-6 w-32 rounded-lg skeleton-shimmer" />
+            <div className="rounded-2xl skeleton-shimmer" style={{ height: '80px' }} />
+            <div className="rounded-2xl skeleton-shimmer" style={{ height: '260px' }} />
+            <div className="rounded-2xl skeleton-shimmer" style={{ height: '120px' }} />
+            <div className="rounded-2xl skeleton-shimmer" style={{ height: '160px' }} />
           </div>
         </div>
-        {/* Crop card skeleton */}
-        <div className="rounded-3xl p-4 space-y-4" style={{ background: 'rgba(255,253,249,0.85)', border: '1.5px solid #e5e0d8' }}>
-          <div className="h-6 w-32 rounded-lg skeleton-shimmer" />
-          <div className="rounded-2xl skeleton-shimmer" style={{ height: '80px' }} />
-          <div className="rounded-2xl skeleton-shimmer" style={{ height: '260px' }} />
-          <div className="rounded-2xl skeleton-shimmer" style={{ height: '120px' }} />
-          <div className="rounded-2xl skeleton-shimmer" style={{ height: '160px' }} />
-        </div>
-      </div>
+      </PageShell>
     );
   }
 
   return (
-    <div id="crop-tracking-page" className="px-4 pt-4 pb-24 max-w-lg mx-auto space-y-4 animate-page-enter">
+    <PageShell ambient="crops">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        id="crop-tracking-page"
+        className="px-4 pt-4 pb-24 max-w-lg mx-auto space-y-4"
+      >
 
       {/* ── Page Header ──────────────────────────────────── */}
-      <div className="flex items-center justify-between">
+      <motion.div variants={fadeUp} className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div
             className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #166534, #14532d)', boxShadow: '0 4px 16px rgba(22,101,52,0.3)' }}
+            style={{ background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))', boxShadow: '0 4px 16px -4px rgba(92,122,85,0.5)' }}
           >
             <Sprout size={20} className="text-white" />
           </div>
@@ -97,31 +111,31 @@ const CropTrackingPage = () => {
             >
               {t('crops.title')}
             </h2>
-            <p className="text-xs text-stone-400 font-medium">{activeFarm.name}</p>
+            <p className="text-xs font-medium" style={{ color: 'var(--color-muted)' }}>{activeFarm.name}</p>
           </div>
         </div>
         {activeCrops.length > 0 && (
-          <button
+          <motion.button
+            whileTap={{ scale: 0.92 }}
             onClick={() => setShowAddModal(true)}
-            className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-emerald-100 active:scale-95 transition-all"
-            style={{ background: '#ecfdf5', color: '#166534' }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
+            style={{ background: 'var(--color-forest-light)', color: 'var(--color-forest-muted)' }}
             title={t('crops.plantAnother')}
           >
             <Plus size={20} strokeWidth={2.5} />
-          </button>
+          </motion.button>
         )}
-      </div>
+      </motion.div>
 
       {/* ── EMPTY STATE ──────────────────────────────────── */}
       {activeCrops.length === 0 && !isLoading && (
-        <div className="krishi-card p-8 text-center">
-          <div className="relative mx-auto w-32 h-32 mb-6">
-            <div className="absolute inset-0 rounded-full" style={{ background: 'linear-gradient(135deg,#ecfdf5,#d1fae5)' }} />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <img src="/stages/seedling.png" alt="Plant a crop" className="w-20 h-20 object-contain opacity-80" />
-            </div>
-            <div className="absolute inset-0 border-2 border-dashed border-emerald-200 rounded-full animate-spin" style={{ animationDuration: '20s' }} />
-          </div>
+        <motion.div variants={fadeUp} className="krishi-card p-8 text-center">
+          <img
+            src="/illustrations/empty-crops.svg"
+            alt=""
+            aria-hidden="true"
+            className="w-44 h-36 object-contain mx-auto mb-5 opacity-95"
+          />
 
           <h3
             className="text-lg font-bold font-serif-accent mb-1.5"
@@ -129,34 +143,31 @@ const CropTrackingPage = () => {
           >
             {t('crops.emptyTitle')}
           </h3>
-          <p className="text-sm text-stone-400 font-medium mb-6 max-w-xs mx-auto">
+          <p className="text-sm font-medium mb-6 max-w-xs mx-auto" style={{ color: 'var(--color-muted)' }}>
             {t('crops.emptyText')}
           </p>
 
-          <button
+          <motion.button
+            whileTap={{ scale: 0.97 }}
             onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-2 px-6 py-3.5 text-white font-bold rounded-2xl text-sm transition-all active:scale-[0.97]"
+            className="inline-flex items-center gap-2 px-6 py-3.5 text-white font-bold rounded-2xl text-sm transition-all"
             style={{
-              background: 'linear-gradient(135deg, #166534, #14532d)',
-              boxShadow: '0 6px 24px rgba(22,101,52,0.35)',
+              background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
+              boxShadow: '0 6px 24px -4px rgba(92,122,85,0.45)',
             }}
           >
             <Plus size={18} strokeWidth={2.5} />
             {t('crops.plantNew')}
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       )}
 
       {/* ── ACTIVE CROP CARDS ────────────────────────────── */}
       {activeCrops.map((activeCrop) => (
-        <div
+        <motion.div
           key={activeCrop.id}
-          className="rounded-3xl p-4 space-y-4"
-          style={{
-            background: 'rgba(255,253,249,0.85)',
-            border: '1.5px solid #e5e0d8',
-            boxShadow: '0 4px 20px rgba(5,46,22,0.08)',
-          }}
+          variants={fadeUp}
+          className="rounded-3xl p-4 space-y-4 krishi-card"
         >
           {/* Crop name — serif font, botanical journal */}
           <div className="flex items-center justify-between mb-2 px-1">
@@ -168,20 +179,21 @@ const CropTrackingPage = () => {
                 {activeCrop.crop_name}
               </h3>
               {activeCrop.is_processing && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 animate-pulse border border-amber-200 shadow-sm">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold animate-pulse shadow-sm" style={{ background: 'var(--color-warning-soft)', color: 'var(--color-warning)', border: '1px solid var(--color-harvest)' }}>
                   <Loader2 size={12} className="animate-spin" />
                   {t('crops.processing', 'Processing...')}
                 </span>
               )}
               {activeCrop.validation_failed && (
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 border border-red-200 shadow-sm">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm" style={{ background: 'var(--color-danger-soft)', color: 'var(--color-danger)', border: '1px solid var(--color-danger)' }}>
                     Validation Failed
                   </span>
                   <button
                     onClick={() => retryMutation.mutate({ cropId: activeCrop.id })}
                     disabled={retryMutation.isPending}
-                    className="px-2 py-0.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-[10px] font-bold rounded flex items-center gap-1 transition-colors"
+                    className="px-2 py-0.5 text-[10px] font-bold rounded flex items-center gap-1 transition-colors"
+                    style={{ background: 'var(--color-soil-dark)', color: 'var(--color-ink)' }}
                   >
                     {retryMutation.isPending && activeCrop.id === retryMutation.variables?.cropId ? (
                       <Loader2 size={10} className="animate-spin" />
@@ -195,20 +207,20 @@ const CropTrackingPage = () => {
               <button
                 onClick={() => setShowDeleteConfirm(activeCrop.id)}
                 disabled={activeCrop.is_syncing}
-                className={`p-2 rounded-xl transition-all ${
-                  activeCrop.is_syncing ? 'text-stone-300 cursor-not-allowed' : 'text-stone-400 hover:text-red-500 hover:bg-red-50'
-                }`}
+                className="p-2 rounded-xl transition-all"
+                style={{ color: 'var(--color-muted)' }}
                 title={t('crops.deleteCrop')}
               >
                 <Trash2 size={18} />
               </button>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="text-xs text-red-500 font-medium">{t('crops.deleteConfirm')}</span>
+                <span className="text-xs font-medium" style={{ color: 'var(--color-danger)' }}>{t('crops.deleteConfirm')}</span>
                 <button
                   onClick={() => handleDelete(activeCrop.id)}
                   disabled={deleteMutation.isPending}
-                  className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 active:scale-95 transition-all"
+                  className="p-1.5 text-white rounded-lg active:scale-95 transition-all"
+                  style={{ background: 'var(--color-danger)' }}
                 >
                   {deleteMutation.isPending && showDeleteConfirm === activeCrop.id
                     ? <Loader2 size={14} className="animate-spin" />
@@ -217,7 +229,8 @@ const CropTrackingPage = () => {
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(null)}
-                  className="p-1.5 bg-stone-200 text-stone-600 rounded-lg hover:bg-stone-300 active:scale-95 transition-all"
+                  className="p-1.5 rounded-lg active:scale-95 transition-all"
+                  style={{ background: 'var(--color-soil-dark)', color: 'var(--color-muted)' }}
                 >
                   ✕
                 </button>
@@ -228,22 +241,22 @@ const CropTrackingPage = () => {
           {/* Days since planting badge */}
           <div
             className="krishi-card px-4 py-3 flex items-center justify-between"
-            style={{ boxShadow: 'none', border: '1px solid #e5e0d8' }}
+            style={{ boxShadow: 'none', border: '1px solid var(--border-subtle)' }}
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center">
-                <Timer size={18} className="text-amber-600" />
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'var(--color-warning-soft)' }}>
+                <Timer size={18} style={{ color: 'var(--color-harvest)' }} />
               </div>
               <div>
-                <p className="text-xs text-stone-400 font-bold uppercase tracking-wider">{t('crops.daysSincePlanting')}</p>
+                <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-muted)' }}>{t('crops.daysSincePlanting')}</p>
                 <p className="text-lg font-extrabold" style={{ color: 'var(--color-forest)' }}>
                   {activeCrop.days_since_planting}
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-[10px] text-stone-400 font-medium">{t('crops.planted')}</p>
-              <p className="text-xs font-bold text-stone-600">
+              <p className="text-[10px] font-medium" style={{ color: 'var(--color-muted)' }}>{t('crops.planted')}</p>
+              <p className="text-xs font-bold" style={{ color: 'var(--color-ink)' }}>
                 {new Date(activeCrop.planting_date + 'T00:00:00').toLocaleDateString(i18n.language === 'hi' ? 'hi-IN' : 'en-IN', {
                   day: 'numeric', month: 'short', year: 'numeric',
                 })}
@@ -273,53 +286,56 @@ const CropTrackingPage = () => {
           />
 
           {/* Crop Diary Section */}
-          <div className="pt-4 mt-4 border-t border-stone-200">
+          <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--border-subtle)' }}>
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-bold text-sm text-stone-700 flex items-center gap-1.5">
-                <BookOpen size={16} className="text-emerald-700" />
+              <h4 className="font-bold text-sm flex items-center gap-1.5" style={{ color: 'var(--color-ink)' }}>
+                <BookOpen size={16} style={{ color: 'var(--color-forest)' }} />
                 {t('crops.diary', 'Crop Diary')}
               </h4>
               <button
                 onClick={() => setActiveLogCropId(activeCrop.id)}
                 disabled={activeCrop.is_syncing}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
-                  activeCrop.is_syncing ? 'bg-stone-100 text-stone-400 cursor-not-allowed' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                }`}
+                className="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors"
+                style={
+                  activeCrop.is_syncing
+                    ? { background: 'var(--color-soil-dark)', color: 'var(--color-muted)', cursor: 'not-allowed' }
+                    : { background: 'var(--color-forest-light)', color: 'var(--color-forest)' }
+                }
               >
                 + {t('crops.addLogBtn', 'Add Log')}
               </button>
             </div>
-            
+
             {activeCrop.logs && activeCrop.logs.length > 0 ? (
               <div className="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                 {activeCrop.logs.map(log => (
-                  <div key={log.id} className="bg-white p-3 rounded-xl border border-stone-100 shadow-sm">
+                  <div key={log.id} className="p-3 rounded-xl shadow-sm" style={{ background: 'var(--color-cream)', border: '1px solid var(--border-subtle)' }}>
                     <div className="flex justify-between items-start mb-1">
-                      <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                      <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-muted)' }}>
                         {new Date(log.log_date).toLocaleDateString()}
                       </span>
                       {log.ai_extracted_stage && (
-                        <span className="text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--color-warning-soft)', color: 'var(--color-warning)' }}>
                           {log.ai_extracted_stage}
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-stone-700 leading-relaxed">{log.raw_content}</p>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--color-ink)' }}>{log.raw_content}</p>
                     {log.ai_health_notes && (
-                      <div className="mt-2 p-2 bg-emerald-50 rounded-lg border border-emerald-100">
-                        <p className="text-xs text-emerald-800 font-medium">🩺 AI Notes: {log.ai_health_notes}</p>
+                      <div className="mt-2 p-2 rounded-lg" style={{ background: 'var(--color-forest-light)', border: '1px solid var(--color-forest-muted)' }}>
+                        <p className="text-xs font-medium" style={{ color: 'var(--color-forest)' }}>🩺 AI Notes: {log.ai_health_notes}</p>
                       </div>
                     )}
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-6 bg-stone-50 rounded-xl border border-stone-100">
-                <p className="text-xs text-stone-400">{t('crops.noLogs', 'No diary entries yet. Add one to track progress!')}</p>
+              <div className="text-center py-6 rounded-xl" style={{ background: 'var(--color-soil-dark)', border: '1px solid var(--border-subtle)' }}>
+                <p className="text-xs" style={{ color: 'var(--color-muted)' }}>{t('crops.noLogs', 'No diary entries yet. Add one to track progress!')}</p>
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       ))}
 
       {/* ── Add Crop Modal ──────────────────────────────── */}
@@ -331,7 +347,8 @@ const CropTrackingPage = () => {
         onClose={() => setActiveLogCropId(null)} 
         cropId={activeLogCropId} 
       />
-    </div>
+      </motion.div>
+    </PageShell>
   );
 };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, MapPin, Search, LineChart as LineChartIcon, Sprout, Flame, Database } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useCrops } from '../hooks/useCrop';
 import { getMandiHistory, getMandiMetadata, getMandiPrices } from '../api/mandi';
@@ -9,6 +10,8 @@ import Combobox from '../components/ui/Combobox';
 import { PriceCard } from '../features/dashboard/MandiTicker';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ArrowLeft } from 'lucide-react';
+import PageShell from '../components/layout/PageShell';
+import { staggerContainer, fadeUp } from '../components/motion/motionPresets';
 
 // ── Static regional fallback commodities ────────────────────────────
 const MARKET_FAVORITES = ['Wheat', 'Soybean', 'Mustard', 'Chana'];
@@ -126,16 +129,16 @@ const MandiDashboard = () => {
   const renderChartOrEmptyState = () => {
     if (isLoading || isFetching) {
       return (
-        <div className="h-72 flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50/50 to-white rounded-3xl shadow-sm border border-stone-100/50 gap-4">
+        <div className="h-72 flex flex-col items-center justify-center rounded-3xl krishi-card gap-4">
           <div className="relative">
-            <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-            <Database size={18} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-emerald-600" />
+            <div className="w-12 h-12 border-4 rounded-full animate-spin" style={{ borderColor: 'var(--color-forest-muted)', borderTopColor: 'transparent' }}></div>
+            <Database size={18} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ color: 'var(--color-forest)' }} />
           </div>
           <div className="text-center">
-            <p className="text-sm font-semibold text-emerald-900">
+            <p className="text-sm font-semibold" style={{ color: 'var(--color-forest)' }}>
               {t('mandi.fetchingData')}
             </p>
-            <p className="text-xs text-stone-400 mt-1">
+            <p className="text-xs mt-1" style={{ color: 'var(--color-muted)' }}>
               {t('mandi.fetchingSubtext')}
             </p>
           </div>
@@ -145,12 +148,12 @@ const MandiDashboard = () => {
     
     if (historyData.length < 2) {
       return (
-        <div className="h-72 flex flex-col items-center justify-center bg-gradient-to-br from-stone-50 to-white rounded-3xl shadow-sm border border-stone-100/50 p-6 text-center">
-          <LineChartIcon size={48} className="text-emerald-800/20 mb-4" />
-          <h3 className="font-serif-accent text-xl font-bold text-emerald-950 mb-2">
+        <div className="h-72 flex flex-col items-center justify-center rounded-3xl krishi-card p-6 text-center">
+          <LineChartIcon size={48} className="mb-4" style={{ color: 'var(--color-forest-muted)', opacity: 0.3 }} />
+          <h3 className="font-serif-accent text-xl font-bold mb-2" style={{ color: 'var(--color-forest)' }}>
             {t('mandi.gatheringTitle')}
           </h3>
-          <p className="text-stone-500 text-sm max-w-sm">
+          <p className="text-sm max-w-sm" style={{ color: 'var(--color-muted)' }}>
             {t('mandi.gatheringText')}
           </p>
         </div>
@@ -158,16 +161,16 @@ const MandiDashboard = () => {
     }
     
     return (
-      <div className="h-72 bg-white rounded-3xl shadow-sm border border-stone-100/50 p-4 sm:p-6">
+      <div className="h-72 rounded-3xl krishi-card p-4 sm:p-6">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={historyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                <stop offset="5%" stopColor="#6b7b4f" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#6b7b4f" stopOpacity={0}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f5f5f4" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e8e2d6" />
             <XAxis 
               dataKey="arrival_date" 
               axisLine={false} 
@@ -181,18 +184,18 @@ const MandiDashboard = () => {
               tick={{ fill: '#a8a29e', fontSize: 12 }}
             />
             <Tooltip 
-              contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
+              contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 6px 24px -6px rgba(61,58,36,0.18)', background: '#fffdf9' }}
               formatter={(value) => [formatINR(value), t('mandi.price')]}
-              labelStyle={{ color: '#052e16', fontWeight: 'bold', marginBottom: '4px' }}
+              labelStyle={{ color: 'var(--color-forest)', fontWeight: 'bold', marginBottom: '4px' }}
             />
             <Area 
               type="monotone" 
               dataKey="price" 
-              stroke="#10b981" 
+              stroke="#5c7a55" 
               strokeWidth={3}
               fillOpacity={1} 
               fill="url(#colorPrice)" 
-              activeDot={{ r: 6, fill: '#052e16', stroke: '#fff', strokeWidth: 2 }}
+              activeDot={{ r: 6, fill: '#3d5a3a', stroke: '#fff', strokeWidth: 2 }}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -201,21 +204,27 @@ const MandiDashboard = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in space-y-6">
+    <PageShell ambient="mandi">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6"
+      >
       
       {/* Header & Filters */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <motion.div variants={fadeUp} className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-serif-accent font-bold text-emerald-950 flex items-center gap-3">
-            <TrendingUp className="text-amber-500" size={32} />
+          <h1 className="text-2xl sm:text-3xl font-serif-accent font-bold flex items-center gap-3" style={{ color: 'var(--color-forest)' }}>
+            <TrendingUp size={32} style={{ color: 'var(--color-harvest)' }} />
             {t('mandi.title')}
           </h1>
-          <p className="text-stone-500 text-sm sm:text-base mt-1">
+          <p className="text-sm sm:text-base mt-1" style={{ color: 'var(--color-muted)' }}>
             {t('mandi.subtitle')}
           </p>
         </div>
         
-        <div className="flex gap-3 bg-white p-2 rounded-2xl shadow-sm border border-stone-100/50">
+        <div className="flex gap-3 p-2 rounded-2xl krishi-card">
           <div className="flex items-center gap-2 bg-stone-50 rounded-xl px-3 py-2 border border-stone-200/50">
             <Search className="text-stone-400" size={18} />
             <Combobox 
@@ -242,12 +251,12 @@ const MandiDashboard = () => {
             />
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* ── Quick-Select Crop Hub ──────────────────────────────────── */}
       {(myCropNames.length > 0 || filteredFavorites.length > 0) && (
-        <div className="space-y-2">
-          <p className="text-xs font-bold uppercase tracking-wider text-stone-400">
+        <motion.div variants={fadeUp} className="space-y-2">
+          <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-muted)' }}>
             {t('mandi.quickSelect')}
           </p>
           <div
@@ -262,17 +271,13 @@ const MandiDashboard = () => {
                   key={`my-${name}`}
                   id={`crop-chip-${name.toLowerCase().replace(/\s+/g, '-')}`}
                   onClick={() => handleChipClick(name)}
-                  className={`
-                    inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2
-                    text-sm font-semibold transition-all duration-200 cursor-pointer
-                    border select-none shrink-0
-                    ${isActive
-                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-200 scale-105'
-                      : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 hover:shadow-sm'
-                    }
-                  `}
+                  style={isActive
+                    ? { background: 'var(--color-forest-muted)', borderColor: 'var(--color-forest-muted)', color: '#fff', boxShadow: '0 4px 12px -2px rgba(107,123,79,0.4)' }
+                    : { background: 'var(--color-forest-light)', color: 'var(--color-forest)', borderColor: 'rgba(107,123,79,0.2)' }
+                  }
+                  className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 cursor-pointer border select-none shrink-0 hover:shadow-sm"
                 >
-                  <Sprout size={14} className={isActive ? 'text-emerald-200' : 'text-emerald-500'} />
+                  <Sprout size={14} />
                   {t(`mandi.commodities.${name}`, { defaultValue: name })}
                 </button>
               );
@@ -291,37 +296,33 @@ const MandiDashboard = () => {
                   key={`fav-${name}`}
                   id={`fav-chip-${name.toLowerCase().replace(/\s+/g, '-')}`}
                   onClick={() => handleChipClick(name)}
-                  className={`
-                    inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2
-                    text-sm font-semibold transition-all duration-200 cursor-pointer
-                    border select-none shrink-0
-                    ${isActive
-                      ? 'bg-stone-700 text-white border-stone-700 shadow-md shadow-stone-200 scale-105'
-                      : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100 hover:border-stone-300 hover:shadow-sm'
-                    }
-                  `}
+                  style={isActive
+                    ? { background: 'var(--color-ink)', borderColor: 'var(--color-ink)', color: '#fff' }
+                    : { background: 'var(--color-soil-dark)', color: 'var(--color-ink)', borderColor: 'var(--border-subtle)' }
+                  }
+                  className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 cursor-pointer border select-none shrink-0 hover:shadow-sm"
                 >
-                  <Flame size={14} className={isActive ? 'text-amber-300' : 'text-amber-500/60'} />
+                  <Flame size={14} style={{ color: isActive ? 'var(--color-harvest)' : 'var(--color-rust)', opacity: isActive ? 1 : 0.7 }} />
                   {t(`mandi.commodities.${name}`, { defaultValue: name })}
                 </button>
               );
             })}
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Overview or Graph View */}
       {!selectedDistrict ? (
-        <div className="space-y-4 animate-fade-in">
+        <motion.div variants={fadeUp} className="space-y-4">
           <div className="flex items-center gap-2">
-            <div className="w-1.5 h-6 bg-amber-500 rounded-full"></div>
-            <h2 className="text-lg font-bold text-emerald-950 font-serif-accent">
+            <div className="w-1.5 h-6 rounded-full" style={{ background: 'var(--color-harvest)' }}></div>
+            <h2 className="text-lg font-bold font-serif-accent" style={{ color: 'var(--color-forest)' }}>
               {t('mandi.marketOverview', 'Market Overview')}
             </h2>
           </div>
           {overviewLoading ? (
-            <div className="h-48 flex items-center justify-center bg-white rounded-3xl shadow-sm border border-stone-100/50">
-              <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            <div className="h-48 flex items-center justify-center rounded-3xl krishi-card">
+              <div className="w-10 h-10 border-4 rounded-full animate-spin" style={{ borderColor: 'var(--color-forest-muted)', borderTopColor: 'transparent' }}></div>
             </div>
           ) : overviewData.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -334,51 +335,53 @@ const MandiDashboard = () => {
               ))}
             </div>
           ) : (
-            <div className="h-48 flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm border border-stone-100/50 text-stone-500">
+            <div className="h-48 flex flex-col items-center justify-center rounded-3xl krishi-card" style={{ color: 'var(--color-muted)' }}>
               <Database size={32} className="mb-2 opacity-50" />
               <p>{t('mandi.noOverviewData', 'No recent markets found for this crop.')}</p>
             </div>
           )}
-        </div>
+        </motion.div>
       ) : (
-        <div className="space-y-6 animate-fade-in">
+        <motion.div variants={fadeUp} className="space-y-6">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setSelectedDistrict("")}
-              className="p-2 hover:bg-stone-100 rounded-full transition-colors text-stone-500 hover:text-emerald-900"
+              className="p-2 hover:bg-stone-100 rounded-full transition-colors text-stone-500"
             >
               <ArrowLeft size={20} />
             </button>
-            <h2 className="text-xl font-bold text-emerald-950 font-serif-accent">
+            <h2 className="text-xl font-bold font-serif-accent" style={{ color: 'var(--color-forest)' }}>
               {i18n.language === 'hi' ? (metadata?.districts_hi?.[selectedDistrict] || selectedDistrict) : selectedDistrict} Market Details
             </h2>
           </div>
 
           {/* KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-white rounded-3xl p-5 shadow-sm border border-stone-100/50 flex flex-col justify-center transition-transform hover:scale-[1.02]">
-              <span className="text-stone-400 text-xs font-bold uppercase tracking-wider mb-1">{t('mandi.todayPrice')}</span>
-              <span className="text-3xl font-bold text-emerald-950">
+            <div className="rounded-3xl p-5 krishi-card flex flex-col justify-center transition-transform hover:scale-[1.02]">
+              <span className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--color-muted)' }}>{t('mandi.todayPrice')}</span>
+              <span className="text-3xl font-bold" style={{ color: 'var(--color-forest)' }}>
                 {todayPrice > 0 ? formatINR(todayPrice) : '---'}
               </span>
             </div>
             
-            <div className="bg-white rounded-3xl p-5 shadow-sm border border-stone-100/50 flex flex-col justify-center transition-transform hover:scale-[1.02]">
-              <span className="text-stone-400 text-xs font-bold uppercase tracking-wider mb-1">{t('mandi.yesterdayPrice')}</span>
+            <div className="rounded-3xl p-5 krishi-card flex flex-col justify-center transition-transform hover:scale-[1.02]">
+              <span className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--color-muted)' }}>{t('mandi.yesterdayPrice')}</span>
               <span className="text-2xl font-bold text-stone-600">
                 {yesterdayPrice > 0 ? formatINR(yesterdayPrice) : '---'}
               </span>
             </div>
 
-            <div className={`rounded-3xl p-5 shadow-sm border flex flex-col justify-center transition-transform hover:scale-[1.02] ${
-              isPositiveTrend ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100'
-            }`}>
-              <span className={`text-xs font-bold uppercase tracking-wider mb-1 ${
-                isPositiveTrend ? 'text-emerald-600/80' : 'text-red-600/80'
-              }`}>{t('mandi.trend24h')}</span>
-              <span className={`text-2xl font-bold ${
-                isPositiveTrend ? 'text-emerald-700' : 'text-red-700'
-              }`}>
+            <div
+              className="rounded-3xl p-5 border flex flex-col justify-center transition-transform hover:scale-[1.02]"
+              style={{
+                background: isPositiveTrend ? 'var(--color-forest-light)' : 'var(--color-danger-soft)',
+                borderColor: isPositiveTrend ? 'rgba(107,123,79,0.2)' : 'rgba(184,92,74,0.2)',
+              }}
+            >
+              <span className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: isPositiveTrend ? 'var(--color-forest-muted)' : 'var(--color-danger)' }}>
+                {t('mandi.trend24h')}
+              </span>
+              <span className="text-2xl font-bold" style={{ color: isPositiveTrend ? 'var(--color-forest)' : 'var(--color-danger)' }}>
                 {isPositiveTrend ? '+' : ''}{trendPct.toFixed(1)}%
               </span>
             </div>
@@ -387,15 +390,16 @@ const MandiDashboard = () => {
           {/* Main Chart Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
-              <h2 className="text-lg font-bold text-emerald-950 font-serif-accent">{t('mandi.chartTitle')}</h2>
+              <div className="w-1.5 h-6 rounded-full" style={{ background: 'var(--color-forest-muted)' }}></div>
+              <h2 className="text-lg font-bold font-serif-accent" style={{ color: 'var(--color-forest)' }}>{t('mandi.chartTitle')}</h2>
             </div>
             {renderChartOrEmptyState()}
           </div>
-        </div>
+        </motion.div>
       )}
 
-    </div>
+      </motion.div>
+    </PageShell>
   );
 };
 

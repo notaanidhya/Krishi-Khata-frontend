@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="160" viewBox="0 0 200 160" fill="none">
+  <!-- Empty Weather — sun behind a cloud over a field. -->
+  <!-- Sun -->
+  <circle cx="70" cy="58" r="18" fill="#c9a24b" fill-opacity="0.3" stroke="#c9a24b" stroke-width="2"/>
+  <g stroke="#c9a24b" stroke-width="2" stroke-linecap="round" stroke-opacity="0.6">
+    <path d="M70 28 L70 34"/><path d="M40 58 L46 58"/><path d="M94 58 L100 58"/>
+    <path d="M50 38 L54 42"/><path d="M90 38 L86 42"/>
+  </g>
+  <!-- Cloud -->
+  <path d="M88 78 C82 66 96 58 106 64 C112 54 128 56 130 68 C140 66 146 78 138 86 L92 86 C84 86 82 80 88 78 Z" fill="#ffffff" stroke="#6b8a9e" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Rain drops -->
+  <path d="M100 92 C100 92 97 97 97 100 C97 102.5 98.5 104 100 104 C101.5 104 103 102.5 103 100 C103 97 100 92 100 92 Z" fill="#6b8a9e" fill-opacity="0.4"/>
+  <path d="M118 92 C118 92 115 97 115 100 C115 102.5 116.5 104 118 104 C119.5 104 121 102.5 121 100 C121 97 118 92 118 92 Z" fill="#6b8a9e" fill-opacity="0.4"/>
+  <!-- Field rows -->
+  <path d="M40 124 C70 120 130 120 160 124" stroke="#6b7b4f" stroke-width="2" stroke-linecap="round"/>
+  <path d="M48 134 C72 130 128 130 152 134" stroke="#6b7b4f" stroke-width="1.8" stroke-linecap="round" stroke-opacity="0.6"/>
+  <path d="M56 142 C76 138.5 124 138.5 144 142" stroke="#c9a24b" stroke-width="1.6" stroke-linecap="round" stroke-opacity="0.5"/>
+</svg>

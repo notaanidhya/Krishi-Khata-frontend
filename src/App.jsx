@@ -1,7 +1,8 @@
 /**
- * App.jsx — Root layout with Krishi warm aesthetic.
- * Bottom nav uses deep forest green active state.
- * Page background: warm stone-50 / clay.
+ * App.jsx — Root layout with the Refined Earth aesthetic.
+ * Lighter warm-paper background, per-page ambient overlays, a
+ * framer-motion animated route shell, and a refined bottom nav
+ * with a sliding active pill (layoutId).
  *
  * Auth flow:
  *   1. New user → WelcomeScreen (name + PIN setup)
@@ -11,14 +12,16 @@
  * Farm-aware: fetches user farms from the API on load.
  */
 
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, NavLink } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Route, Navigate, NavLink } from 'react-router-dom';
 import { BookOpen, CloudSun, Sprout, Users, Loader2, TrendingUp } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
 import TopBar from './components/layout/TopBar';
 import WelcomeScreen from './components/WelcomeScreen';
 import PinEntryScreen from './components/PinEntryScreen';
+import AnimatedRoutes from './components/motion/AnimatedRoutes';
 
 import KhataPage from './pages/KhataPage';
 import CropTrackingPage from './pages/CropTrackingPage';
@@ -47,7 +50,6 @@ function App() {
     userName,
     register,
     login,
-    checkUsername,
     isLoading: authLoading,
     error: authError,
   } = useGhostAuth();
@@ -86,51 +88,52 @@ function App() {
         className="min-h-screen flex flex-col items-center justify-center gap-3"
         style={{ backgroundColor: 'var(--color-soil)' }}
       >
-        <Loader2 size={32} className="text-emerald-700 animate-spin" />
-        <p className="text-sm text-stone-400 font-medium">{t('app.loadingFarms')}</p>
+        <Loader2 size={32} className="animate-spin" style={{ color: 'var(--color-forest-muted)' }} />
+        <p className="text-sm font-medium" style={{ color: 'var(--color-muted)' }}>{t('app.loadingFarms')}</p>
       </div>
     );
   }
 
   return (
     <Router>
-      {/* Warm clay background fills the entire screen */}
+      {/* Refined Earth paper-white background fills the entire screen */}
       <div className="min-h-screen pb-20" style={{ backgroundColor: 'var(--color-soil)' }}>
         <TopBar />
-        <Toaster 
-          position="bottom-center" 
+        <Toaster
+          position="bottom-center"
           toastOptions={{
             style: {
-              background: '#333',
+              background: 'var(--color-ink)',
               color: '#fff',
-              borderRadius: '12px',
+              borderRadius: '14px',
               padding: '12px 16px',
+              boxShadow: 'var(--shadow-elevated)',
             },
             success: {
               style: {
-                background: '#166534',
+                background: 'var(--color-forest-mid)',
                 color: '#fff',
               },
             },
             error: {
               style: {
-                background: '#dc2626',
+                background: 'var(--color-danger)',
                 color: '#fff',
               },
             },
-          }} 
+          }}
         />
 
         <main>
-          {/* ── Normal Routes ─────────────────────────────── */}
-          <Routes>
+          {/* ── Animated page routes ──────────────────────── */}
+          <AnimatedRoutes>
             <Route path="/"          element={<KhataPage />} />
             <Route path="/crops"     element={<CropTrackingPage />} />
             <Route path="/mandi"     element={<MandiDashboard />} />
             <Route path="/weather"   element={<WeatherPage />} />
             <Route path="/community" element={<CommunityPage />} />
             <Route path="*"          element={<Navigate to="/" replace />} />
-          </Routes>
+          </AnimatedRoutes>
         </main>
 
         {/* ── Mobile Bottom Navigation ── */}
@@ -138,8 +141,8 @@ function App() {
           className="fixed bottom-0 left-0 right-0 px-2 py-1.5 flex justify-around items-center h-16 z-40"
           style={{
             backgroundColor: 'var(--color-cream)',
-            borderTop: '1px solid #e5e0d8',
-            boxShadow: '0 -4px 24px rgba(5,46,22,0.07)',
+            borderTop: '1px solid var(--border-subtle)',
+            boxShadow: '0 -4px 24px -6px rgba(61, 58, 36, 0.1)',
           }}
         >
           {NAV_ITEMS.map(({ to, end, icon: Icon, labelKey }) => (
@@ -148,23 +151,34 @@ function App() {
               to={to}
               end={end}
               aria-label={t(labelKey)}
-              className={({ isActive }) =>
-                `flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all duration-200 ${
-                  isActive
-                    ? 'text-emerald-800'
-                    : 'text-stone-400 hover:text-stone-600'
-                }`
-              }
+              className="relative flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-colors duration-200"
+              style={({ isActive }) => ({
+                color: isActive ? 'var(--color-forest-muted)' : 'var(--color-muted)',
+              })}
             >
               {({ isActive }) => (
                 <>
-                  <div className={`p-1 rounded-lg transition-all ${isActive ? 'bg-emerald-50' : ''}`}>
-                    <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                  {/* Sliding active pill via shared layoutId */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="nav-active-pill"
+                      className="absolute top-1/2 left-1/2 rounded-xl"
+                      style={{
+                        width: 40,
+                        height: 32,
+                        x: '-50%',
+                        y: '-50%',
+                        backgroundColor: 'var(--color-forest-light)',
+                      }}
+                      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                    />
+                  )}
+                  <div className="relative z-10 p-1 rounded-lg">
+                    <Icon size={20} strokeWidth={isActive ? 2.4 : 1.8} />
                   </div>
-                  <span className={`text-[10px] font-bold uppercase tracking-wide ${isActive ? 'text-emerald-800' : ''}`}>
+                  <span className={`relative z-10 text-[10px] font-bold uppercase tracking-wide ${isActive ? '' : 'opacity-70'}`}>
                     {t(labelKey)}
                   </span>
-                  <div className={`nav-indicator-dot ${isActive ? 'nav-indicator-dot--active' : 'nav-indicator-dot--inactive'}`} />
                 </>
               )}
             </NavLink>

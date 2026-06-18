@@ -9,13 +9,16 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Send, Paperclip, X, Loader2, Users, Wifi, WifiOff } from 'lucide-react';
 import { getChatHistory, uploadChatImage } from '../api/chat';
+import PageShell from '../components/layout/PageShell';
+import { fadeUp } from '../components/motion/motionPresets';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:8001'
+    ? 'http://127.0.0.1:8000'
     : 'https://krishi-khata.onrender.com'
 );
 const BACKEND_BASE = apiBaseUrl;
@@ -159,17 +162,17 @@ const CommunityPage = () => {
   const getInitials = (name) =>
     name?.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2) || '?';
 
-  // Warm earthy avatar palette
+  // Refined Earth avatar palette
   const getAvatarColor = (name) => {
     const colors = [
-      { bg: '#166534', text: '#ffffff' },
+      { bg: '#5c7a55', text: '#ffffff' },
       { bg: '#92400e', text: '#ffffff' },
-      { bg: '#1e3a5f', text: '#ffffff' },
+      { bg: '#3d5a3a', text: '#ffffff' },
       { bg: '#7c2d12', text: '#ffffff' },
-      { bg: '#14532d', text: '#ffffff' },
+      { bg: '#c97b4a', text: '#ffffff' },
       { bg: '#78350f', text: '#ffffff' },
-      { bg: '#1c1917', text: '#ffffff' },
-      { bg: '#713f12', text: '#ffffff' },
+      { bg: '#2d2a24', text: '#ffffff' },
+      { bg: '#6b7b4f', text: '#ffffff' },
     ];
     let hash = 0;
     for (let i = 0; i < (name?.length || 0); i++) {
@@ -179,12 +182,18 @@ const CommunityPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] animate-page-enter">
+    <PageShell ambient="chaupal" className="flex flex-col h-[calc(100vh-8rem)]">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+        className="flex flex-col h-full"
+      >
 
       {/* ── Header ─────────────────────────────────────────── */}
       <div
         className="px-4 py-3 border-b"
-        style={{ background: 'var(--color-cream)', borderColor: '#e5e0d8' }}
+        style={{ background: 'var(--color-cream)', borderColor: 'var(--border-subtle)' }}
       >
         <div className="flex items-center justify-between">
           <div>
@@ -192,17 +201,17 @@ const CommunityPage = () => {
               className="text-lg font-bold font-serif-accent flex items-center gap-2"
               style={{ color: 'var(--color-forest)' }}
             >
-              <Users size={20} className="text-amber-600" />
+              <Users size={20} style={{ color: 'var(--color-harvest)' }} />
               {t('community.title')}
             </h1>
-            <p className="text-xs text-stone-400 mt-0.5">{t('community.subtitle')}</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--color-muted)' }}>{t('community.subtitle')}</p>
           </div>
           <div className="flex items-center gap-1.5">
             {isConnected
-              ? <Wifi size={14} className="text-emerald-600" />
-              : <WifiOff size={14} className="text-red-400" />
+              ? <Wifi size={14} style={{ color: 'var(--color-forest-muted)' }} />
+              : <WifiOff size={14} style={{ color: 'var(--color-danger)' }} />
             }
-            <span className={`text-[10px] font-bold ${isConnected ? 'text-emerald-700' : 'text-red-400'}`}>
+            <span className="text-[10px] font-bold" style={{ color: isConnected ? 'var(--color-forest-muted)' : 'var(--color-danger)' }}>
               {isConnected ? t('community.live') : t('community.offline')}
             </span>
           </div>
@@ -212,7 +221,7 @@ const CommunityPage = () => {
       {/* ── Messages Area — chaupal bg pattern ─────────────── */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 chaupal-bg">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-stone-400">
+          <div className="flex flex-col items-center justify-center h-full" style={{ color: 'var(--color-muted)' }}>
             <Users size={48} className="mb-3 opacity-20" />
             <p className="text-sm font-medium">{t('community.noMessages')}</p>
             <p className="text-xs">{t('community.firstHello')} 👋</p>
@@ -239,13 +248,13 @@ const CommunityPage = () => {
                 style={
                   isMe
                     ? {
-                        background: 'linear-gradient(135deg,#166534,#14532d)',
+                        background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
                         color: '#ffffff',
                         borderRadius: '1rem 0.25rem 1rem 1rem',
                       }
                     : {
                         background: 'var(--color-cream)',
-                        border: '1.5px solid #e5e0d8',
+                        border: '1.5px solid var(--border-subtle)',
                         color: 'var(--color-forest)',
                         borderRadius: '0.25rem 1rem 1rem 1rem',
                       }
@@ -254,11 +263,11 @@ const CommunityPage = () => {
                 {/* Sender name + crop tag */}
                 {!isMe && (
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="text-[11px] font-bold text-amber-700">{msg.sender_name}</p>
+                    <p className="text-[11px] font-bold" style={{ color: 'var(--color-rust)' }}>{msg.sender_name}</p>
                     {/* Faux region tag — would be real data in prod */}
                     <span
                       className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                      style={{ background: '#ecfdf5', color: '#166534' }}
+                      style={{ background: 'var(--color-forest-light)', color: 'var(--color-forest)' }}
                     >
                       {t('community.kisan')}
                     </span>
@@ -280,7 +289,7 @@ const CommunityPage = () => {
 
                 <p
                   className="text-[10px] mt-1.5"
-                  style={{ color: isMe ? 'rgba(255,255,255,0.55)' : '#a8a29e', textAlign: isMe ? 'right' : 'left' }}
+                  style={{ color: isMe ? 'rgba(255,255,255,0.55)' : 'var(--color-muted)', textAlign: isMe ? 'right' : 'left' }}
                 >
                   {formatTime(msg.created_at)}
                 </p>
@@ -293,12 +302,13 @@ const CommunityPage = () => {
 
       {/* ── Image Preview ──────────────────────────────────── */}
       {imagePreview && (
-        <div className="px-4 py-2 border-t" style={{ background: 'var(--color-soil)', borderColor: '#e5e0d8' }}>
+        <div className="px-4 py-2 border-t" style={{ background: 'var(--color-soil)', borderColor: 'var(--border-subtle)' }}>
           <div className="relative inline-block">
-            <img src={imagePreview} alt="preview" className="h-20 rounded-xl object-cover border border-stone-200" />
+            <img src={imagePreview} alt="preview" className="h-20 rounded-xl object-cover border" style={{ borderColor: 'var(--border-subtle)' }} />
             <button
               onClick={clearImage}
-              className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-sm"
+              className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center shadow-sm"
+              style={{ background: 'var(--color-danger)', color: '#fff' }}
             >
               <X size={12} />
             </button>
@@ -309,7 +319,7 @@ const CommunityPage = () => {
       {/* ── Input Area ─────────────────────────────────────── */}
       <div
         className="px-3 py-2.5 border-t"
-        style={{ background: 'var(--color-cream)', borderColor: '#e5e0d8' }}
+        style={{ background: 'var(--color-cream)', borderColor: 'var(--border-subtle)' }}
       >
         <div className="flex items-end gap-2">
           {/* Attach */}
@@ -318,7 +328,7 @@ const CommunityPage = () => {
             disabled={isUploading}
             aria-label="Attach image"
             className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-            style={{ background: '#f0ebe4', color: '#78716c' }}
+            style={{ background: 'var(--color-soil-dark)', color: 'var(--color-muted)' }}
           >
             <Paperclip size={18} />
           </button>
@@ -333,10 +343,10 @@ const CommunityPage = () => {
               onKeyDown={handleKeyDown}
               placeholder={t('community.inputPlaceholder')}
               disabled={isUploading}
-              className="w-full px-4 py-2.5 rounded-full text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 transition-all"
+              className="w-full px-4 py-2.5 rounded-full text-sm focus:outline-none focus-visible:ring-2 transition-all"
               style={{
-                background: '#f5f0eb',
-                border: '1.5px solid #d6cfc6',
+                background: 'var(--color-soil)',
+                border: '1.5px solid var(--border-strong)',
                 color: 'var(--color-forest)',
               }}
             />
@@ -350,8 +360,8 @@ const CommunityPage = () => {
             className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-200"
             style={
               (input.trim() || selectedImage) && !isUploading
-                ? { background: 'linear-gradient(135deg,#166534,#14532d)', color: '#fff', boxShadow: '0 4px 16px rgba(22,101,52,0.35)' }
-                : { background: '#e0dcd6', color: '#a8a29e' }
+                ? { background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))', color: '#fff', boxShadow: '0 4px 16px -4px rgba(92,122,85,0.5)' }
+                : { background: 'var(--color-soil-dark)', color: 'var(--color-muted)' }
             }
           >
             {isUploading
@@ -361,7 +371,8 @@ const CommunityPage = () => {
           </button>
         </div>
       </div>
-    </div>
+      </motion.div>
+    </PageShell>
   );
 };
 

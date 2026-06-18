@@ -1,10 +1,11 @@
 /**
  * TransactionForm — Krishi modal redesign.
  *
- * - bg-stone-50 warm off-white modal background
- * - Deep forest green header
+ * Refined Earth theme:
+ * - warm soil bg modal background
+ * - Forest green header accents
  * - Large rounded-xl inputs (krishi style)
- * - Save button: bg-emerald-800
+ * - Save button: forest-mid → forest gradient (income) / danger gradient (expense)
  * - Serif "Add Transaction" header
  * - Conditional laborer dropdown when "Labor" category is selected
  * - Inline "+ Add New Majdoor" flow for creating laborers without leaving the form
@@ -38,9 +39,13 @@ const INCOME_CATEGORIES = [
 
 // ── Shared input style ─────────────────────────────────────────
 const inputClass =
-  'w-full px-4 py-3.5 rounded-xl text-base transition-all outline-none border-2 focus:ring-2 focus:ring-emerald-800/20 focus:border-emerald-700';
+  'w-full px-4 py-3.5 rounded-xl text-base transition-all outline-none border-2 focus:ring-2';
 
-const inputStyle = { background: '#fffdf9', borderColor: '#d6cfc6', color: 'var(--color-forest)' };
+const inputStyle = {
+  background: 'var(--color-cream)',
+  borderColor: 'var(--border-subtle)',
+  color: 'var(--color-ink)',
+};
 
 const ADD_NEW_VALUE = '__add_new__';
 const ADD_CUSTOM_VALUE = '__add_custom__';
@@ -75,7 +80,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
   const [localNewLaborer, setLocalNewLaborer] = useState(null);
 
   // Populate from initialData for editing
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+   
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
@@ -116,7 +121,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
   }, [isOpen, initialData]);
   
   // Voice input handling
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+   
   useEffect(() => {
     if (isListening && transcript) {
       setDescription(baseDescription ? `${baseDescription} ${transcript}` : transcript);
@@ -250,28 +255,29 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
       {/* Modal Card */}
       <div
         className={`w-full max-w-lg rounded-t-3xl shadow-2xl max-h-[90vh] overflow-y-auto modal-sheet ${animating ? 'modal-open' : ''}`}
-        style={{ background: 'var(--color-soil)', borderTop: '3px solid #14532d' }}
+        style={{ background: 'var(--color-soil)', borderTop: '3px solid var(--color-forest)' }}
       >
         {/* Handle bar */}
-        <div className="w-10 h-1 bg-stone-300 rounded-full mx-auto mt-4" />
+        <div className="w-10 h-1 rounded-full mx-auto mt-4" style={{ background: 'var(--border-subtle)' }} />
 
         {/* Header */}
         <div
           className="flex items-center justify-between px-5 pt-4 pb-4 border-b"
-          style={{ borderColor: '#e5e0d8' }}
+          style={{ borderColor: 'var(--border-subtle)' }}
         >
           <h2
             className="text-lg font-bold font-serif-accent"
-            style={{ color: 'var(--color-forest)' }}
+            style={{ color: 'var(--color-ink)' }}
           >
             {initialData ? t('khata.form.editTitle', 'Edit Transaction') : t('khata.form.title')}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-stone-200 active:bg-stone-300 transition-colors"
+            className="p-2 rounded-full transition-colors"
+            style={{ color: 'var(--color-muted)' }}
             aria-label={t('khata.form.close')}
           >
-            <X size={20} className="text-stone-500" />
+            <X size={20} />
           </button>
         </div>
 
@@ -286,11 +292,11 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
                 className={`py-3.5 rounded-xl font-bold text-sm transition-all ${
                   type === 'expense'
                     ? 'text-white scale-[1.02]'
-                    : 'text-stone-500 hover:bg-stone-200'
+                    : 'hover:opacity-80'
                 }`}
                 style={type === 'expense'
-                  ? { background: '#ef4444', boxShadow: '0 4px 16px rgba(239,68,68,0.3)' }
-                  : { background: '#e7e2db' }
+                  ? { background: 'var(--color-danger)', boxShadow: '0 4px 16px rgba(201,74,74,0.3)', color: '#fff' }
+                  : { background: 'var(--color-soil-dark)', color: 'var(--color-muted)' }
                 }
               >
                 ↗ {t('khata.form.kharcha')}
@@ -301,11 +307,11 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
                 className={`py-3.5 rounded-xl font-bold text-sm transition-all ${
                   type === 'income'
                     ? 'text-white scale-[1.02]'
-                    : 'text-stone-500 hover:bg-stone-200'
+                    : 'hover:opacity-80'
                 }`}
                 style={type === 'income'
-                  ? { background: '#166534', boxShadow: '0 4px 16px rgba(22,101,52,0.35)' }
-                  : { background: '#e7e2db' }
+                  ? { background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))', boxShadow: '0 4px 16px rgba(61,90,58,0.3)', color: '#fff' }
+                  : { background: 'var(--color-soil-dark)', color: 'var(--color-muted)' }
                 }
               >
                 ↙ {t('khata.form.amdani')}
@@ -315,11 +321,11 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
 
           {/* ── Amount ───────────────────────────────────── */}
           <div>
-            <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
+            <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-muted)' }}>
               <IndianRupee size={14} /> {t('khata.form.amount')}
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-stone-400">₹</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg" style={{ color: 'var(--color-muted)' }}>₹</span>
               <input
                 type="number"
                 inputMode="decimal"
@@ -338,7 +344,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
           {/* ── Category ─────────────────────────────────── */}
           {!isLaborMode && (
           <div>
-            <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
+            <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-muted)' }}>
               <Tag size={14} /> {t('khata.form.category')}
             </label>
             <select
@@ -352,7 +358,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
               {categories.map((cat) => (
                 <option key={cat.value} value={cat.value}>{cat.icon} {t(`khata.categories.${cat.value}`)}</option>
               ))}
-              <option value={ADD_CUSTOM_VALUE} style={{ fontWeight: 'bold', color: '#166534' }}>
+              <option value={ADD_CUSTOM_VALUE} style={{ fontWeight: 'bold', color: 'var(--color-forest)' }}>
                 {t('khata.form.addCustomCategory')}
               </option>
             </select>
@@ -363,7 +369,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
                 className="mt-3 animate-slide-up"
                 style={{ animationDuration: '0.2s' }}
               >
-                <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
+                <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-muted)' }}>
                   {t('khata.form.customCategoryName')}
                 </label>
                 <input
@@ -387,7 +393,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
               className="animate-slide-up"
               style={{ animationDuration: '0.2s' }}
             >
-              <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
+              <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-muted)' }}>
                 <Users size={14} /> {t('khata.form.selectLaborer')}
               </label>
               <select
@@ -412,7 +418,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
                     👷 {lab.name}{lab.phone_number ? ` (${lab.phone_number})` : ''}
                   </option>
                 ))}
-                <option value={ADD_NEW_VALUE} style={{ fontWeight: 'bold', color: '#166534' }}>
+                <option value={ADD_NEW_VALUE} style={{ fontWeight: 'bold', color: 'var(--color-forest)' }}>
                   {t('khata.form.addNewMajdoor')}
                 </option>
               </select>
@@ -422,14 +428,14 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
                 <div
                   className="mt-3 p-3.5 rounded-xl border-2 border-dashed animate-slide-up"
                   style={{
-                    borderColor: '#a7c4a0',
-                    background: 'linear-gradient(135deg, #f0fdf4, #ecfdf5)',
+                    borderColor: 'var(--color-forest-muted)',
+                    background: 'var(--color-forest-light)',
                     animationDuration: '0.2s',
                   }}
                 >
                   <div className="flex items-center gap-1.5 mb-2">
-                    <UserPlus size={14} className="text-emerald-700" />
-                    <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                    <UserPlus size={14} style={{ color: 'var(--color-forest)' }} />
+                    <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-forest)' }}>
                       {t('khata.form.newLaborer')}
                     </span>
                   </div>
@@ -442,7 +448,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
                       maxLength={150}
                       autoFocus
                       className={`${inputClass} flex-1 py-2.5 text-sm`}
-                      style={{ ...inputStyle, background: '#ffffff', borderColor: '#a7c4a0' }}
+                      style={{ ...inputStyle, background: 'var(--color-cream)', borderColor: 'var(--color-forest-muted)' }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
@@ -456,8 +462,8 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
                       disabled={!newLaborerName.trim() || createLaborerMutation.isPending}
                       className="px-4 py-2.5 rounded-xl font-bold text-sm text-white transition-all active:scale-[0.96] disabled:opacity-50 disabled:cursor-not-allowed shrink-0 flex items-center gap-1.5"
                       style={{
-                        background: 'linear-gradient(135deg, #166534, #14532d)',
-                        boxShadow: '0 2px 10px rgba(22,101,52,0.3)',
+                        background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
+                        boxShadow: '0 2px 10px rgba(61,90,58,0.3)',
                       }}
                     >
                       {createLaborerMutation.isPending ? (
@@ -469,7 +475,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
                     </button>
                   </div>
                   {createLaborerMutation.isError && (
-                    <p className="text-xs text-red-500 mt-1.5 pl-1">
+                    <p className="text-xs mt-1.5 pl-1" style={{ color: 'var(--color-danger)' }}>
                       {t('khata.form.createFailed')}
                     </p>
                   )}
@@ -477,7 +483,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
               )}
 
               {laborers.length === 0 && !laborersLoading && !isAddingLaborer && (
-                <p className="text-xs text-stone-400 mt-1.5 pl-1">
+                <p className="text-xs mt-1.5 pl-1" style={{ color: 'var(--color-muted)' }}>
                   {t('khata.form.noLaborers')}
                 </p>
               )}
@@ -486,7 +492,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
 
           {/* ── Date ─────────────────────────────────────── */}
           <div>
-            <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
+            <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-muted)' }}>
               <Calendar size={14} /> {t('khata.form.date')}
             </label>
             <input
@@ -501,7 +507,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
 
           {/* ── Note ─────────────────────────────────────── */}
           <div>
-            <label className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
+            <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-muted)' }}>
               <FileText size={14} /> {t('khata.form.noteOptional')}
             </label>
             <div className="relative">
@@ -520,9 +526,13 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
                   onClick={toggleListening}
                   className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all ${
                     isListening 
-                      ? 'bg-red-50 text-red-500 shadow-sm animate-pulse' 
-                      : 'text-emerald-700 hover:bg-stone-100'
+                      ? 'animate-pulse' 
+                      : ''
                   }`}
+                  style={isListening
+                    ? { background: 'var(--color-danger-soft)', color: 'var(--color-danger)' }
+                    : { color: 'var(--color-forest-muted)' }
+                  }
                   title="Voice input"
                 >
                   {isListening ? <MicOff size={20} /> : <Mic size={20} />}
@@ -545,11 +555,11 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
             className="w-full py-4 rounded-xl font-bold text-base text-white transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background: type === 'expense'
-                ? 'linear-gradient(135deg,#dc2626,#b91c1c)'
-                : 'linear-gradient(135deg,#166534,#14532d)',
+                ? 'linear-gradient(135deg, var(--color-danger), #a33a3a)'
+                : 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
               boxShadow: type === 'expense'
-                ? '0 4px 20px rgba(220,38,38,0.3)'
-                : '0 4px 20px rgba(22,101,52,0.35)',
+                ? '0 4px 20px rgba(201,74,74,0.3)'
+                : '0 4px 20px rgba(61,90,58,0.3)',
             }}
           >
             {addMutation.isPending || updateMutation.isPending ? (
@@ -566,7 +576,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
           </button>
 
           {(addMutation.isError || updateMutation.isError) && (
-            <p className="text-center text-sm text-red-500 bg-red-50 rounded-xl py-2 px-3">
+            <p className="text-center text-sm rounded-xl py-2 px-3" style={{ color: 'var(--color-danger)', background: 'var(--color-danger-soft)' }}>
               {t('khata.form.saveFailed')}
             </p>
           )}

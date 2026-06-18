@@ -1,24 +1,22 @@
 /**
- * CropVisualizer — Krishi redesign.
+ * CropVisualizer — Refined Earth redesign.
  * - Chunky progress bar (h-3)
- * - Warm card surface
- * - Botanical journal aesthetic
+ * - Warm cream card surface
+ * - Botanical journal aesthetic with olive/gold/rust stage palette
  */
 
 import React, { useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sprout, Leaf, Flower2, Wheat } from 'lucide-react';
 
+// Refined Earth stage palette — each stage uses inline styles for full control
 const STAGES = [
   {
     key: 'Seedling',
     label: 'Seedling',
     imageSrc: '/stages/seedling.png',
     icon: Sprout,
-    color: 'from-lime-400 to-emerald-400',
-    bgRing: 'ring-lime-200',
-    dotColor: 'bg-lime-500',
-    soilGlow: 'shadow-lime-300/40',
+    gradient: 'linear-gradient(135deg, #8aa56f, #6b7b4f)',
     description: 'Young sprout emerging from the soil',
   },
   {
@@ -26,10 +24,7 @@ const STAGES = [
     label: 'Vegetative',
     imageSrc: '/stages/vegetative.png',
     icon: Leaf,
-    color: 'from-emerald-400 to-green-500',
-    bgRing: 'ring-emerald-200',
-    dotColor: 'bg-emerald-500',
-    soilGlow: 'shadow-emerald-300/40',
+    gradient: 'linear-gradient(135deg, #5c7a55, #3d5a3a)',
     description: 'Growing plant with lush green leaves',
   },
   {
@@ -37,10 +32,7 @@ const STAGES = [
     label: 'Flowering',
     imageSrc: '/stages/flowering.png',
     icon: Flower2,
-    color: 'from-pink-400 to-rose-400',
-    bgRing: 'ring-pink-200',
-    dotColor: 'bg-pink-500',
-    soilGlow: 'shadow-pink-300/40',
+    gradient: 'linear-gradient(135deg, #c97b4a, #b5683a)',
     description: 'Beautiful flowers blooming on the plant',
   },
   {
@@ -48,10 +40,7 @@ const STAGES = [
     label: 'Ready to Harvest',
     imageSrc: '/stages/harvest.png',
     icon: Wheat,
-    color: 'from-amber-400 to-yellow-500',
-    bgRing: 'ring-amber-200',
-    dotColor: 'bg-amber-500',
-    soilGlow: 'shadow-amber-300/40',
+    gradient: 'linear-gradient(135deg, #c9a24b, #b58a35)',
     description: 'Mature fruit fully ripe and ready to harvest! 🎉',
   },
 ];
@@ -80,10 +69,10 @@ const CropVisualizer = ({ growth_stage, cropName }) => {
     <div id="crop-visualizer" className="relative">
       <div
         className="overflow-hidden rounded-2xl"
-        style={{ background: 'var(--color-cream)', border: '1px solid #e5e0d8', boxShadow: '0 2px 10px rgba(5,46,22,0.07)' }}
+        style={{ background: 'var(--color-cream)', border: '1px solid var(--border-subtle)', boxShadow: '0 2px 10px rgba(45,42,36,0.06)' }}
       >
         {/* Gradient Header */}
-        <div className={`bg-gradient-to-r ${stage.color} p-4 pb-6 relative overflow-hidden`}>
+        <div className="p-4 pb-6 relative overflow-hidden" style={{ background: stage.gradient }}>
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-2 right-8 w-2 h-2 bg-white/20 rounded-full animate-float-slow" />
             <div className="absolute top-6 right-20 w-1.5 h-1.5 bg-white/15 rounded-full animate-float-medium" />
@@ -108,7 +97,7 @@ const CropVisualizer = ({ growth_stage, cropName }) => {
         </div>
 
         {/* Plant Visualization */}
-        <div className="flex justify-center py-4 relative" style={{ background: 'linear-gradient(to bottom, #f0fdf4/50, var(--color-cream))' }}>
+        <div className="flex justify-center py-4 relative" style={{ background: 'linear-gradient(to bottom, rgba(238,241,232,0.5), var(--color-cream))' }}>
           <div key={stage.key} className="relative flex flex-col items-center animate-stage-enter">
             <div className="w-44 h-44 flex items-end justify-center">
               <img
@@ -119,23 +108,23 @@ const CropVisualizer = ({ growth_stage, cropName }) => {
             </div>
             {/* Soil */}
             <div
-              className={`w-28 h-3 rounded-full shadow-lg ${stage.soilGlow} transition-all duration-500 mt-2`}
-              style={{ background: 'linear-gradient(90deg, #92400e, #78350f, #92400e)' }}
+              className="w-28 h-3 rounded-full shadow-lg transition-all duration-500 mt-2"
+              style={{ background: 'linear-gradient(90deg, #7c5a3a, #5e4329, #7c5a3a)' }}
             />
-            <div className="w-24 h-1.5 rounded-full mt-0.5" style={{ background: 'rgba(120,53,15,0.25)' }} />
+            <div className="w-24 h-1.5 rounded-full mt-0.5" style={{ background: 'rgba(94,67,41,0.25)' }} />
           </div>
         </div>
 
         {/* Progress Bar — chunky h-3 */}
         <div className="px-4 pb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] text-stone-400 font-bold uppercase tracking-wide">{t('crops.schedule.progress')}</span>
-            <span className="text-xs text-stone-500 font-medium">{currentIndex + 1} / {STAGES.length}</span>
+            <span className="text-[11px] font-bold uppercase tracking-wide" style={{ color: 'var(--color-muted)' }}>{t('crops.schedule.progress')}</span>
+            <span className="text-xs font-medium" style={{ color: 'var(--color-muted)' }}>{currentIndex + 1} / {STAGES.length}</span>
           </div>
-          <div className="h-3 bg-stone-100 rounded-full overflow-hidden">
+          <div className="h-3 rounded-full overflow-hidden" style={{ background: 'var(--color-soil-dark)' }}>
             <div
-              className={`h-full bg-gradient-to-r ${stage.color} rounded-full transition-all duration-1000 ease-out`}
-              style={{ width: `${progress}%` }}
+              className="h-full rounded-full transition-all duration-1000 ease-out"
+              style={{ width: `${progress}%`, background: stage.gradient }}
             />
           </div>
 
@@ -148,20 +137,20 @@ const CropVisualizer = ({ growth_stage, cropName }) => {
               return (
                 <div key={s.key} className="flex flex-col items-center gap-1.5">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${
+                    className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500"
+                    style={
                       isCurrent
-                        ? `bg-gradient-to-br ${s.color} shadow-md ring-2 ${s.bgRing} scale-110`
+                        ? { background: s.gradient, boxShadow: '0 4px 12px rgba(45,42,36,0.18)', transform: 'scale(1.1)' }
                         : isActive
-                        ? `bg-gradient-to-br ${s.color} opacity-60`
-                        : 'bg-stone-100'
-                    }`}
+                          ? { background: s.gradient, opacity: 0.6 }
+                          : { background: 'var(--color-soil-dark)' }
+                    }
                   >
-                    <SIcon size={14} className={`transition-colors duration-500 ${isActive ? 'text-white' : 'text-stone-400'}`} />
+                    <SIcon size={14} style={{ color: isActive ? '#fff' : 'var(--color-muted)' }} className="transition-colors duration-500" />
                   </div>
                   <span
-                    className={`text-[10px] font-bold transition-colors duration-300 text-center leading-tight max-w-[52px] ${
-                      isCurrent ? 'text-emerald-900' : isActive ? 'text-stone-500' : 'text-stone-400'
-                    }`}
+                    className="text-[10px] font-bold transition-colors duration-300 text-center leading-tight max-w-[52px]"
+                    style={{ color: isCurrent ? 'var(--color-ink)' : isActive ? 'var(--color-muted)' : 'var(--color-muted)' }}
                   >
                     {t(`crops.schedule.stages.${s.key}`, { defaultValue: s.label })}
                   </span>
@@ -170,7 +159,7 @@ const CropVisualizer = ({ growth_stage, cropName }) => {
             })}
           </div>
 
-          <p className="text-center text-xs text-stone-400 mt-3 font-medium transition-all duration-500">
+          <p className="text-center text-xs mt-3 font-medium transition-all duration-500" style={{ color: 'var(--color-muted)' }}>
             {t(`crops.schedule.stageDescriptions.${stage.key}`, { defaultValue: stage.description })}
           </p>
         </div>

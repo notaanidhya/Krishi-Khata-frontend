@@ -13,6 +13,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import {
   CloudSun, Sparkles, Droplets, Sprout,
   Wind, Thermometer, CloudOff,
@@ -22,6 +23,8 @@ import { useWeatherDashboard, useWeatherAdvisory } from '../hooks/useWeather';
 import { getExactLocationName } from '../api/weather';
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useLocation } from '../hooks/useLocation';
+import PageShell from '../components/layout/PageShell';
+import { staggerContainer, fadeUp } from '../components/motion/motionPresets';
 
 const conditionTranslations = {
   "Clear Sky": "साफ मौसम",
@@ -56,46 +59,46 @@ const getSprayStyle = (status) => {
   switch (status) {
     case 'GREEN':
       return {
-        bg: 'linear-gradient(135deg, #ecfdf5, #d1fae5)',
-        border: '1.5px solid #6ee7b7',
-        badgeBg: '#059669', badgeText: '#fff',
-        label: 'weather.optimal', textColor: '#065f46',
+        bg: 'linear-gradient(135deg, var(--color-success-soft), var(--color-forest-light))',
+        border: '1.5px solid var(--color-forest-muted)',
+        badgeBg: 'var(--color-success)', badgeText: '#fff',
+        label: 'weather.optimal', textColor: 'var(--color-forest)',
       };
     case 'YELLOW':
       return {
-        bg: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
-        border: '1.5px solid #fcd34d',
-        badgeBg: '#d97706', badgeText: '#fff',
-        label: 'weather.caution', textColor: '#92400e',
+        bg: 'linear-gradient(135deg, var(--color-warning-soft), #fef3c7)',
+        border: '1.5px solid var(--color-harvest)',
+        badgeBg: 'var(--color-warning)', badgeText: '#fff',
+        label: 'weather.caution', textColor: 'var(--color-ink)',
       };
     case 'RED':
       return {
-        bg: 'linear-gradient(135deg, #fef2f2, #fee2e2)',
-        border: '1.5px solid #fca5a5',
-        badgeBg: '#dc2626', badgeText: '#fff',
-        label: 'weather.avoid', textColor: '#991b1b',
+        bg: 'linear-gradient(135deg, var(--color-danger-soft), #fee2e2)',
+        border: '1.5px solid var(--color-danger)',
+        badgeBg: 'var(--color-danger)', badgeText: '#fff',
+        label: 'weather.avoid', textColor: 'var(--color-ink)',
       };
     default:
       return {
-        bg: '#f5f5f4', border: '1.5px solid #e7e5e4',
-        badgeBg: '#78716c', badgeText: '#fff',
-        label: '—', textColor: '#44403c',
+        bg: 'var(--color-soil-dark)', border: '1.5px solid var(--border-subtle)',
+        badgeBg: 'var(--color-muted)', badgeText: '#fff',
+        label: '—', textColor: 'var(--color-ink)',
       };
   }
 };
 
 /* ── Moisture status → color helper ────────────────────────── */
 const getMoistureColor = (status) => {
-  if (status?.includes('Dry') || status?.includes('सूखा')) return { bg: '#fef2f2', text: '#dc2626', border: '#fca5a5' };
-  if (status === 'Moderate' || status === 'सामान्य') return { bg: '#fffbeb', text: '#d97706', border: '#fcd34d' };
-  return { bg: '#ecfdf5', text: '#059669', border: '#6ee7b7' };
+  if (status?.includes('Dry') || status?.includes('सूखा')) return { bg: 'var(--color-danger-soft)', text: 'var(--color-danger)', border: 'var(--color-danger)' };
+  if (status === 'Moderate' || status === 'सामान्य') return { bg: 'var(--color-warning-soft)', text: 'var(--color-warning)', border: 'var(--color-harvest)' };
+  return { bg: 'var(--color-success-soft)', text: 'var(--color-success)', border: 'var(--color-forest-muted)' };
 };
 
 /* ── Rain probability → color helper ───────────────────────── */
 const getRainColor = (pct) => {
-  if (pct > 60) return { bg: '#fef2f2', text: '#dc2626' };
-  if (pct > 30) return { bg: '#fffbeb', text: '#d97706' };
-  return { bg: '#ecfdf5', text: '#059669' };
+  if (pct > 60) return { bg: 'var(--color-danger-soft)', text: 'var(--color-danger)' };
+  if (pct > 30) return { bg: 'var(--color-warning-soft)', text: 'var(--color-warning)' };
+  return { bg: 'var(--color-success-soft)', text: 'var(--color-success)' };
 };
 
 
@@ -182,13 +185,15 @@ const WeatherPage = () => {
   /* ── Error state ─────────────────────────────────────────── */
   if (isError || (!data && !isLoading)) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
-        <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mb-4">
-          <CloudOff size={28} className="text-stone-300" />
+      <PageShell ambient="weather">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: 'var(--color-soil-dark)' }}>
+            <CloudOff size={28} style={{ color: 'var(--color-muted)' }} />
+          </div>
+          <p className="text-sm font-bold mb-1" style={{ color: 'var(--color-ink)' }}>{t('weather.errorTitle')}</p>
+          <p className="text-xs" style={{ color: 'var(--color-muted)' }}>{t('weather.errorText')}</p>
         </div>
-        <p className="text-stone-500 text-sm font-bold mb-1">{t('weather.errorTitle')}</p>
-        <p className="text-stone-400 text-xs">{t('weather.errorText')}</p>
-      </div>
+      </PageShell>
     );
   }
 
@@ -197,15 +202,22 @@ const WeatherPage = () => {
   const daily_tip = advisoryData?.daily_tip;
 
   return (
-    <div id="weather-page" className="px-4 pt-4 pb-24 max-w-lg mx-auto space-y-4 animate-page-enter">
+    <PageShell ambient="weather">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        id="weather-page"
+        className="px-4 pt-4 pb-24 max-w-lg mx-auto space-y-4"
+      >
 
       {/* ═══════════════════════════════════════════════════════
           1. PAGE HEADER
       ═══════════════════════════════════════════════════════ */}
-      <div className="flex items-center gap-3">
+      <motion.div variants={fadeUp} className="flex items-center gap-3">
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{ background: 'linear-gradient(135deg, #166534, #14532d)', boxShadow: '0 4px 16px rgba(22,101,52,0.3)' }}
+          style={{ background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))', boxShadow: '0 4px 16px -4px rgba(92,122,85,0.5)' }}
         >
           <CloudSun size={20} className="text-white" />
         </div>
@@ -216,23 +228,19 @@ const WeatherPage = () => {
           >
             {t('weather.title')}
           </h2>
-          <p className="text-xs text-stone-400 font-medium">
+          <p className="text-xs font-medium" style={{ color: 'var(--color-muted)' }}>
             {exactVillage ? `${exactVillage}, ` : ''}{location?.city || 'Local'}, {location?.state || ''}
           </p>
         </div>
-      </div>
+      </motion.div>
 
 
       {/* ═══════════════════════════════════════════════════════
           2. CURRENT CONDITIONS STRIP
       ═══════════════════════════════════════════════════════ */}
-      <div
-        className="rounded-2xl px-4 py-3 flex items-center justify-between"
-        style={{
-          background: 'rgba(255,253,249,0.9)',
-          border: '1.5px solid #e5e0d8',
-          boxShadow: '0 2px 12px rgba(5,46,22,0.06)',
-        }}
+      <motion.div
+        variants={fadeUp}
+        className="rounded-2xl px-4 py-3 flex items-center justify-between krishi-card"
       >
         <div className="flex items-center gap-3">
           <span className="text-4xl leading-none">{getWeatherEmoji(current?.condition)}</span>
@@ -240,40 +248,41 @@ const WeatherPage = () => {
             <p className="text-2xl font-black" style={{ color: 'var(--color-forest)' }}>
               {current?.temperature_c ?? '--'}°
             </p>
-            <p className="text-xs text-stone-500 font-semibold">{translateCondition(current?.condition_text, i18n.language) || 'Loading...'}</p>
+            <p className="text-xs font-semibold" style={{ color: 'var(--color-muted)' }}>{translateCondition(current?.condition_text, i18n.language) || 'Loading...'}</p>
           </div>
         </div>
         <div className="flex gap-2">
-          <div className="px-2.5 py-1.5 rounded-lg text-center" style={{ background: '#f0f9ff', border: '1px solid #bae6fd' }}>
-            <p className="text-[9px] text-sky-400 font-bold uppercase tracking-wider">{t('weather.humidity')}</p>
-            <p className="text-xs font-extrabold text-sky-600">{current?.humidity_pct ?? '--'}%</p>
+          <div className="px-2.5 py-1.5 rounded-lg text-center" style={{ background: 'var(--color-info-soft)', border: '1px solid rgba(107,138,158,0.2)' }}>
+            <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-info)' }}>{t('weather.humidity')}</p>
+            <p className="text-xs font-extrabold" style={{ color: 'var(--color-info)' }}>{current?.humidity_pct ?? '--'}%</p>
           </div>
-          <div className="px-2.5 py-1.5 rounded-lg text-center" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
-            <p className="text-[9px] text-emerald-400 font-bold uppercase tracking-wider">{t('weather.wind')}</p>
-            <p className="text-xs font-extrabold text-emerald-600">{current?.wind_speed_kmh ?? '--'} km/h</p>
+          <div className="px-2.5 py-1.5 rounded-lg text-center" style={{ background: 'var(--color-forest-light)', border: '1px solid rgba(107,123,79,0.15)' }}>
+            <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-forest-muted)' }}>{t('weather.wind')}</p>
+            <p className="text-xs font-extrabold" style={{ color: 'var(--color-forest)' }}>{current?.wind_speed_kmh ?? '--'} km/h</p>
           </div>
         </div>
-      </div>
+      </motion.div>
 
 
       {/* ═══════════════════════════════════════════════════════
           3. AI WEATHER IMPACT SUMMARY — HERO CARD
       ═══════════════════════════════════════════════════════ */}
-      <div
+      <motion.div
+        variants={fadeUp}
         className="rounded-2xl overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)',
-          boxShadow: '0 8px 32px rgba(15,23,42,0.35)',
+          background: 'linear-gradient(135deg, #3d5a3a 0%, #2d2a24 100%)',
+          boxShadow: 'var(--shadow-hero)',
         }}
       >
         <div className="px-5 py-4">
           <div className="flex items-center gap-2 mb-3">
             <div
               className="px-2 py-1 rounded-lg flex items-center gap-1.5"
-              style={{ background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.3)' }}
+              style={{ background: 'rgba(201,162,75,0.15)', border: '1px solid rgba(201,162,75,0.3)' }}
             >
-              <Sparkles size={11} className="text-amber-400" />
-              <span className="text-[9px] font-bold text-amber-400 uppercase tracking-wider">{t('weather.aiAdvisory')}</span>
+              <Sparkles size={11} style={{ color: 'var(--color-harvest)' }} />
+              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-harvest)' }}>{t('weather.aiAdvisory')}</span>
             </div>
           </div>
           {advisoryLoading ? (
@@ -282,7 +291,7 @@ const WeatherPage = () => {
               <div className="h-3.5 bg-white/10 rounded-lg w-5/6" />
               <div className="h-3.5 bg-white/10 rounded-lg w-4/6" />
               <p className="text-[10px] text-white/30 font-medium mt-1 flex items-center gap-1.5">
-                <Sparkles size={9} className="text-amber-400/50 animate-spin" style={{ animationDuration: '3s' }} />
+                <Sparkles size={9} style={{ color: 'var(--color-harvest)', opacity: 0.5 }} className="animate-spin" style={{ animationDuration: '3s' }} />
                 {t('weather.analysisLoading')}
               </p>
             </div>
@@ -292,52 +301,53 @@ const WeatherPage = () => {
             </p>
           )}
         </div>
-      </div>
+      </motion.div>
 
 
       {/* ═══════════════════════════════════════════════════════
           4. DAILY FARMING TIP
       ═══════════════════════════════════════════════════════ */}
-      <div
+      <motion.div
+        variants={fadeUp}
         className="rounded-2xl overflow-hidden relative"
-        style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)', border: '1.5px solid #d1fae5', boxShadow: '0 2px 12px rgba(5,46,22,0.04)' }}
+        style={{ background: 'linear-gradient(135deg, var(--color-forest-light) 0%, #e4ebda 100%)', border: '1.5px solid rgba(107,123,79,0.15)', boxShadow: 'var(--shadow-card)' }}
       >
         <div className="px-4 py-4 flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-            <Sprout size={20} className="text-emerald-600" />
+          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(107,123,79,0.15)' }}>
+            <Sprout size={20} style={{ color: 'var(--color-forest-muted)' }} />
           </div>
           <div>
             <div className="flex items-center gap-1.5 mb-1">
-              <Sparkles size={12} className="text-emerald-500" />
-              <h4 className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
+              <Sparkles size={12} style={{ color: 'var(--color-forest-muted)' }} />
+              <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-forest-mid)' }}>
                 आज का कृषि सुझाव
               </h4>
             </div>
             {advisoryLoading ? (
               <div className="space-y-1.5 animate-pulse mt-2">
-                 <div className="h-3 bg-emerald-200/50 rounded w-full" />
-                 <div className="h-3 bg-emerald-200/50 rounded w-4/5" />
+                 <div className="h-3 rounded w-full" style={{ background: 'rgba(107,123,79,0.12)' }} />
+                 <div className="h-3 rounded w-4/5" style={{ background: 'rgba(107,123,79,0.12)' }} />
               </div>
             ) : (
-              <p className="text-sm font-medium text-emerald-900 leading-snug">
+              <p className="text-sm font-medium leading-snug" style={{ color: 'var(--color-forest)' }}>
                 {daily_tip || "स्वस्थ फसल के लिए अच्छे बीजों का चयन करें और समय पर सिंचाई करें।"}
               </p>
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
 
 
       {/* ═══════════════════════════════════════════════════════
           5. SOIL & WATER RETENTION METRICS
       ═══════════════════════════════════════════════════════ */}
-      <div
-        className="rounded-2xl overflow-hidden"
-        style={{ border: '1.5px solid #e5e0d8', boxShadow: '0 2px 12px rgba(5,46,22,0.06)' }}
+      <motion.div
+        variants={fadeUp}
+        className="rounded-2xl overflow-hidden krishi-card"
       >
-        <div className="px-4 pt-4 pb-2 flex items-center gap-2" style={{ background: '#fffdf5' }}>
-          <div className="w-8 h-8 bg-amber-50 rounded-xl flex items-center justify-center">
-            <Sprout size={16} className="text-amber-600" />
+        <div className="px-4 pt-4 pb-2 flex items-center gap-2" style={{ background: 'var(--color-cream)' }}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'var(--color-warning-soft)' }}>
+            <Sprout size={16} style={{ color: 'var(--color-harvest)' }} />
           </div>
           <div>
             <h4 className="text-sm font-bold font-serif-accent" style={{ color: 'var(--color-forest)' }}>
@@ -346,7 +356,7 @@ const WeatherPage = () => {
           </div>
         </div>
 
-        <div className="px-4 pb-4 pt-2" style={{ background: '#fffdf5' }}>
+        <div className="px-4 pb-4 pt-2" style={{ background: 'var(--color-cream)' }}>
           {/* Moisture Status */}
           {(() => {
             const status = advisoryData?.moisture_status || soil_insights?.moisture_status;
@@ -372,19 +382,19 @@ const WeatherPage = () => {
             );
           })()}
         </div>
-      </div>
+      </motion.div>
 
 
       {/* ═══════════════════════════════════════════════════════
           6. 7-DAY AGRICULTURAL FORECAST
       ═══════════════════════════════════════════════════════ */}
-      <div
-        className="rounded-2xl overflow-hidden"
-        style={{ border: '1.5px solid #e5e0d8', boxShadow: '0 2px 12px rgba(5,46,22,0.06)' }}
+      <motion.div
+        variants={fadeUp}
+        className="rounded-2xl overflow-hidden krishi-card"
       >
-        <div className="px-4 pt-4 pb-2 flex items-center gap-2" style={{ background: '#fffdf5' }}>
-          <div className="w-8 h-8 bg-sky-50 rounded-xl flex items-center justify-center">
-            <CalendarDays size={16} className="text-sky-600" />
+        <div className="px-4 pt-4 pb-2 flex items-center gap-2" style={{ background: 'var(--color-cream)' }}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'var(--color-info-soft)' }}>
+            <CalendarDays size={16} style={{ color: 'var(--color-info)' }} />
           </div>
           <div>
             <h4 className="text-sm font-bold font-serif-accent" style={{ color: 'var(--color-forest)' }}>
@@ -393,7 +403,7 @@ const WeatherPage = () => {
           </div>
         </div>
 
-        <div className="px-4 pb-4 pt-1 space-y-2" style={{ background: '#fffdf5' }}>
+        <div className="px-4 pb-4 pt-1 space-y-2" style={{ background: 'var(--color-cream)' }}>
           {(() => {
             const weekMin = Math.min(...(forecast_7day || []).map(d => d.temp_min));
             const weekMax = Math.max(...(forecast_7day || []).map(d => d.temp_max));
@@ -412,15 +422,15 @@ const WeatherPage = () => {
                   className="rounded-xl px-3 py-2 flex items-center gap-2 transition-all"
                   style={{
                     background: isToday
-                      ? 'linear-gradient(135deg, rgba(22,101,52,0.06), rgba(20,83,45,0.03))'
-                      : 'rgba(255,253,249,0.6)',
-                    border: isToday ? '1.5px solid #bbf7d0' : '1px solid #f0ebe4',
+                      ? 'linear-gradient(135deg, rgba(107,123,79,0.06), rgba(92,122,85,0.03))'
+                      : 'rgba(255,255,255,0.6)',
+                    border: isToday ? '1.5px solid rgba(107,123,79,0.2)' : '1px solid var(--border-subtle)',
                   }}
                 >
                   {/* Day + emoji */}
                   <div className="w-10 text-center shrink-0">
                     <span className="text-[16px] leading-none">{getWeatherEmoji(day.condition)}</span>
-                    <p className="text-[9px] font-bold text-stone-500 mt-0.5 uppercase tracking-wider">
+                    <p className="text-[9px] font-bold mt-0.5 uppercase tracking-wider" style={{ color: 'var(--color-muted)' }}>
                       {isToday ? t('weather.today') : day.day_name?.slice(0, 3)}
                     </p>
                   </div>
@@ -430,21 +440,21 @@ const WeatherPage = () => {
                     <p className="text-[11px] font-bold truncate" style={{ color: 'var(--color-forest)' }}>
                       {translateCondition(day.condition_text, i18n.language)}
                     </p>
-                    <p className="text-[9px] text-stone-400 font-medium">
+                    <p className="text-[9px] font-medium" style={{ color: 'var(--color-muted)' }}>
                       {new Date(day.date + 'T00:00:00').toLocaleDateString(i18n.language === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'short' })}
                     </p>
                   </div>
   
                   {/* Temp Bar */}
                   <div className="flex-1 flex items-center gap-1.5 px-1 min-w-[70px]">
-                    <span className="text-[9px] font-bold text-stone-400 shrink-0 w-4 text-right">{day.temp_min}°</span>
-                    <div className="flex-1 h-1.5 bg-stone-200 rounded-full relative overflow-hidden">
+                    <span className="text-[9px] font-bold shrink-0 w-4 text-right" style={{ color: 'var(--color-muted)' }}>{day.temp_min}°</span>
+                    <div className="flex-1 h-1.5 rounded-full relative overflow-hidden" style={{ background: 'var(--color-soil-dark)' }}>
                       <div 
                         className="absolute h-full rounded-full"
                         style={{
                           left: `${leftPercent}%`,
                           width: `${widthPercent}%`,
-                          background: 'linear-gradient(90deg, #60a5fa, #f87171)'
+                          background: 'linear-gradient(90deg, var(--color-info), var(--color-rust))'
                         }}
                       />
                     </div>
@@ -459,7 +469,7 @@ const WeatherPage = () => {
                     <p className="text-[9px] font-bold" style={{ color: rain.text }}>
                       {day.precip_probability_pct}%
                     </p>
-                    <p className="text-[7px] font-semibold text-stone-400">{t('weather.rain')}</p>
+                    <p className="text-[7px] font-semibold" style={{ color: 'var(--color-muted)' }}>{t('weather.rain')}</p>
                   </div>
                 </div>
               );
@@ -467,9 +477,10 @@ const WeatherPage = () => {
           })()}
 
         </div>
-      </div>
+      </motion.div>
 
-    </div>
+      </motion.div>
+    </PageShell>
   );
 };
 

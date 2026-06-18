@@ -1,13 +1,15 @@
 /**
  * PinEntryScreen — Shown when a returning user needs to enter their PIN.
  *
- * Clean, minimal design matching the WelcomeScreen aesthetic.
+ * Refined Earth theme — warm paper bg, olive accents, subtle motion.
  * Supports error display and loading state.
  */
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Sprout, Lock, AlertTriangle, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Lock, AlertTriangle, Loader2, Eye, EyeOff } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { fadeScale, fadeUp, spring } from '../components/motion/motionPresets';
 
 const PinEntryScreen = ({ userName, onLogin, isLoading, error }) => {
   const { t } = useTranslation();
@@ -36,30 +38,51 @@ const PinEntryScreen = ({ userName, onLogin, isLoading, error }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'linear-gradient(135deg, #f5f0eb 0%, #ede8e1 50%, #e5e0d8 100%)' }}>
-      {/* Decorative background circles */}
-      <div className="absolute top-20 left-10 w-32 h-32 bg-amber-200/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-10 w-48 h-48 bg-emerald-200/15 rounded-full blur-3xl" />
+    <div
+      className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden"
+      style={{ background: 'linear-gradient(160deg, var(--color-soil), var(--color-soil-dark), #e8e2d6)' }}
+    >
+      {/* Decorative background circles — gold / olive tints */}
+      <div className="absolute top-20 left-10 w-32 h-32 rounded-full blur-3xl" style={{ background: 'rgba(201,162,75,0.12)' }} />
+      <div className="absolute bottom-20 right-10 w-48 h-48 rounded-full blur-3xl" style={{ background: 'rgba(107,123,79,0.10)' }} />
 
       <div className="w-full max-w-sm relative z-10">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl shadow-xl mb-5" style={{ background: 'linear-gradient(135deg, #166534, #14532d)', boxShadow: '0 8px 32px rgba(22,101,52,0.3)' }}>
-            <Sprout size={36} className="text-amber-300" />
+        <motion.div
+          className="text-center mb-8"
+          variants={fadeScale}
+          initial="initial"
+          animate="animate"
+          transition={{ ...spring, delay: 0 }}
+        >
+          <div
+            className="inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-5"
+            style={{
+              background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
+              boxShadow: '0 8px 32px rgba(61,90,58,0.25)',
+            }}
+          >
+            <img src="/brand/logo-mark.svg" alt="Agroo" className="w-10 h-10" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight font-serif" style={{ color: 'var(--color-forest, #064e3b)' }}>
+          <h1 className="text-3xl font-black tracking-tight font-serif" style={{ color: 'var(--color-ink)' }}>
             {t('pin.greeting')}, {userName?.split(' ')[0]}
           </h1>
-          <p className="text-sm text-stone-500 mt-2">
+          <p className="text-sm mt-2" style={{ color: 'var(--color-muted)' }}>
             {t('pin.subtitle')}
           </p>
-        </div>
+        </motion.div>
 
         {/* Card */}
-        <div className="rounded-2xl p-6" style={{ background: 'var(--color-cream, #ffffff)', boxShadow: '0 4px 24px rgba(5,46,22,0.1)', border: '1.5px solid #e5e0d8' }}>
+        <motion.div
+          className="krishi-card rounded-2xl p-6"
+          variants={fadeUp}
+          initial="initial"
+          animate="animate"
+          transition={{ ...spring, delay: 0.1 }}
+        >
           <div className="flex items-center gap-2 mb-6">
-            <Lock size={18} className="text-emerald-600" />
-            <h2 className="text-lg font-bold" style={{ color: 'var(--color-forest, #064e3b)' }}>
+            <Lock size={18} style={{ color: 'var(--color-forest-muted)' }} />
+            <h2 className="text-lg font-bold" style={{ color: 'var(--color-ink)' }}>
               {t('pin.enterPin')}
             </h2>
           </div>
@@ -74,13 +97,19 @@ const PinEntryScreen = ({ userName, onLogin, isLoading, error }) => {
                 onChange={(e) => handlePinInput(e.target.value)}
                 placeholder="● ● ● ●"
                 maxLength={4}
-                className="w-full px-4 py-4 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 text-center text-2xl tracking-[0.5em] font-mono placeholder-stone-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-600 transition-all"
+                className="w-full px-4 py-4 rounded-xl text-center text-2xl tracking-[0.5em] font-mono transition-all"
+                style={{
+                  background: 'var(--color-soil)',
+                  border: '1.5px solid var(--color-border-subtle)',
+                  color: 'var(--color-ink)',
+                }}
                 disabled={isLoading}
               />
               <button
                 type="button"
                 onClick={() => setShowPin(!showPin)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 p-1"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 transition-colors"
+                style={{ color: 'var(--color-muted)' }}
                 disabled={isLoading}
               >
                 {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -88,21 +117,32 @@ const PinEntryScreen = ({ userName, onLogin, isLoading, error }) => {
             </div>
 
             {error && (
-              <div className="flex items-center gap-1.5 mt-3 text-red-700 bg-red-50 px-3 py-2 rounded-lg">
+              <div
+                className="flex items-center gap-1.5 mt-3 px-3 py-2 rounded-lg text-xs font-medium"
+                style={{ color: 'var(--color-danger)', background: 'var(--color-danger-soft)' }}
+              >
                 <AlertTriangle size={14} />
-                <span className="text-xs font-medium">{error}</span>
+                <span>{error}</span>
               </div>
             )}
 
             <button
               type="submit"
               disabled={pin.length !== 4 || isLoading}
-              className={`w-full mt-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 ${
+              className="w-full mt-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300"
+              style={
                 pin.length === 4 && !isLoading
-                  ? 'text-white active:scale-[0.98]'
-                  : 'bg-stone-100 text-stone-400 cursor-not-allowed'
-              }`}
-              style={pin.length === 4 && !isLoading ? { background: 'linear-gradient(135deg, #166534, #14532d)', boxShadow: '0 4px 20px rgba(22,101,52,0.35)' } : {}}
+                  ? {
+                      background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
+                      boxShadow: '0 4px 20px rgba(61,90,58,0.3)',
+                      color: '#fff',
+                    }
+                  : {
+                      background: 'var(--color-soil-dark)',
+                      color: 'var(--color-muted)',
+                      cursor: 'not-allowed',
+                    }
+              }
             >
               {isLoading ? (
                 <>
@@ -117,11 +157,18 @@ const PinEntryScreen = ({ userName, onLogin, isLoading, error }) => {
               )}
             </button>
           </form>
-        </div>
+        </motion.div>
 
-        <p className="text-center text-xs text-stone-400 mt-6">
+        <motion.p
+          className="text-center text-xs mt-6"
+          style={{ color: 'var(--color-muted)' }}
+          variants={fadeUp}
+          initial="initial"
+          animate="animate"
+          transition={{ ...spring, delay: 0.2 }}
+        >
           {t('pin.forgotPin')}
-        </p>
+        </motion.p>
       </div>
     </div>
   );
