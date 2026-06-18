@@ -229,8 +229,10 @@ const WeatherPage = () => {
             {t('weather.title')}
           </h2>
           <p className="text-xs font-medium" style={{ color: 'var(--color-muted)' }}>
-            {locationDetails.village ? `${locationDetails.village}, ` : ''}
-            {locationDetails.city || location?.city || 'Local'}, {locationDetails.state || location?.state || ''}
+            {locationDetails.city || locationDetails.village || locationDetails.state 
+              ? [locationDetails.village, locationDetails.city, locationDetails.state].filter(Boolean).join(', ')
+              : [location?.city || 'Local', location?.state].filter(Boolean).join(', ')
+            }
           </p>
         </div>
       </motion.div>
