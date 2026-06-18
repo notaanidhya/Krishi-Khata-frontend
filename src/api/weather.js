@@ -70,7 +70,7 @@ export const getWeatherAdvisory = async (lat, lon, city, state) => {
 /**
  * Perform reverse geocoding to get the exact village/locality name.
  */
-export const getExactLocationName = async (lat, lon) => {
+export const getExactLocationDetails = async (lat, lon) => {
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`
@@ -78,7 +78,11 @@ export const getExactLocationName = async (lat, lon) => {
     const data = await res.json();
     if (data && data.address) {
       const addr = data.address;
-      return addr.village || addr.town || addr.suburb || addr.city || addr.county || null;
+      return {
+        village: addr.village || addr.town || addr.suburb || addr.neighbourhood || null,
+        city: addr.city || addr.state_district || addr.county || null,
+        state: addr.state || null
+      };
     }
   } catch (err) {
     console.error("Reverse geocoding failed", err);

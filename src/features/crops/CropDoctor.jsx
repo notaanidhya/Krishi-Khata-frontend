@@ -5,6 +5,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Stethoscope, Camera, Send, Sparkles, X, Loader2 } from 'lucide-react';
 import { askCropAI } from '../../api/crop';
 
@@ -15,6 +16,8 @@ const inputStyle = {
 };
 
 const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
+  const { i18n } = useTranslation();
+  const isHindi = i18n.language && i18n.language.startsWith('hi');
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState(null);
@@ -93,7 +96,7 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Describe an issue (e.g., yellow leaves, insects)..."
+          placeholder={isHindi ? "समस्या बताएं (जैसे, पीली पत्तियां, कीड़े)..." : "Describe an issue (e.g., yellow leaves, insects)..."}
           rows={3}
           className="w-full resize-none px-3 py-3 text-sm focus:outline-none transition-all rounded-xl font-medium"
           style={{

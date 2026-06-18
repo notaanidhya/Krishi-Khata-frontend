@@ -554,7 +554,7 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
               !category ||
               (category === ADD_CUSTOM_VALUE && !customCategoryName.trim()) ||
               isAddingLaborer ||
-              (isLaborMode && (!laborerId || laborerId === 'general' || laborerId === ADD_NEW_VALUE))
+              (isLaborMode && (!laborerId || laborerId === ADD_NEW_VALUE))
             }
             className="w-full py-4 rounded-xl font-bold text-base text-white transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             style={{

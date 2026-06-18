@@ -44,7 +44,9 @@ export const useWeatherAdvisory = (lat, lon, city, state) => {
     queryKey,
     queryFn: async () => {
       const data = await getWeatherAdvisory(lat, lon, city, state);
-      localStorage.setItem('agroo_weather_advisory_cache', JSON.stringify(data));
+      if (!data.is_fallback) {
+        localStorage.setItem('agroo_weather_advisory_cache', JSON.stringify(data));
+      }
       return data;
     },
     staleTime: 1000 * 60 * 10, // 10 minutes

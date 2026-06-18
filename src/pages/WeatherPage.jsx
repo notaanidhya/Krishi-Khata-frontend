@@ -20,7 +20,7 @@ import {
   CalendarDays,
 } from 'lucide-react';
 import { useWeatherDashboard, useWeatherAdvisory } from '../hooks/useWeather';
-import { getExactLocationName } from '../api/weather';
+import { getExactLocationDetails } from '../api/weather';
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useLocation } from '../hooks/useLocation';
 import PageShell from '../components/layout/PageShell';
@@ -112,19 +112,19 @@ const WeatherPage = () => {
     }
     return null;
   });
-  const [exactVillage, setExactVillage] = useState(null);
+  const [locationDetails, setLocationDetails] = useState({ village: null, city: null, state: null });
 
-  // Fetch village name if we have coords
+  // Fetch precise live location details
   useEffect(() => {
-    const fetchVillage = async (lat, lon) => {
-      const name = await getExactLocationName(lat, lon);
-      if (name) setExactVillage(name);
+    const fetchLocation = async (lat, lon) => {
+      const details = await getExactLocationDetails(lat, lon);
+      if (details) setLocationDetails(details);
     };
     
     if (liveCoords) {
-      fetchVillage(liveCoords.lat, liveCoords.lon);
+      fetchLocation(liveCoords.lat, liveCoords.lon);
     } else if (activeFarm?.latitude && activeFarm?.longitude) {
-      fetchVillage(activeFarm.latitude, activeFarm.longitude);
+      fetchLocation(activeFarm.latitude, activeFarm.longitude);
     }
   }, [liveCoords, activeFarm]);
 
@@ -229,7 +229,8 @@ const WeatherPage = () => {
             {t('weather.title')}
           </h2>
           <p className="text-xs font-medium" style={{ color: 'var(--color-muted)' }}>
-            {exactVillage ? `${exactVillage}, ` : ''}{location?.city || 'Local'}, {location?.state || ''}
+            {locationDetails.village ? `${locationDetails.village}, ` : ''}
+            {locationDetails.city || location?.city || 'Local'}, {locationDetails.state || location?.state || ''}
           </p>
         </div>
       </motion.div>

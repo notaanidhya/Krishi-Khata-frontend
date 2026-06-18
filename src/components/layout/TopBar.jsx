@@ -53,14 +53,6 @@ const TopBar = () => {
             >
               {isHindi ? 'कृषि खाता' : 'Krishi Khata'}
             </h1>
-            {activeFarm && (
-              <div className="flex items-center gap-1 mt-0.5 opacity-80">
-                <span className="text-[11px]">📍</span>
-                <span className="text-[10px] font-bold tracking-wide uppercase" style={{ color: 'var(--color-cream)' }}>
-                  {activeFarm.name}
-                </span>
-              </div>
-            )}
           </div>
         </motion.div>
 
