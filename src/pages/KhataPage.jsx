@@ -209,7 +209,7 @@ const TransactionCard = ({ txn, onEdit, onDelete, isDeleting }) => {
 
       {/* Edit & Delete Buttons */}
       <div className="flex gap-1 shrink-0">
-        {txn.is_syncing ? (
+        {txn.isGeneralLabor ? null : txn.is_syncing ? (
           <div className="flex items-center justify-center p-2 px-4">
             <Loader2 size={16} className="text-stone-300 animate-spin" />
           </div>
@@ -269,7 +269,25 @@ const KhataPage = () => {
   const [deletingId, setDeletingId] = useState(null);
 
   const { data: rawTransactions = [], isLoading: txnLoading, isError: txnError } = useTransactions(farmId);
-  const transactions = rawTransactions.filter(t => !['labor_wage', 'labor_payment'].includes(t.type) && t.category !== 'labor');
+  const transactions = (() => {
+    const generalTxns = rawTransactions.filter(t => !['labor_wage', 'labor_payment'].includes(t.type) && t.category !== 'labor');
+    const laborTxns = rawTransactions.filter(t => ['labor_wage', 'labor_payment'].includes(t.type) || t.category === 'labor');
+    
+    const totalLaborCost = laborTxns.filter(t => t.type === 'labor_wage' || (t.category === 'labor' && t.type === 'expense')).reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    
+    if (totalLaborCost > 0 || laborTxns.length > 0) {
+      generalTxns.unshift({
+        id: 'general-labor-aggregate',
+        type: 'expense',
+        category: 'labor',
+        description: t('khata.totalLaborExpenses', 'Total Labor Expenses'),
+        amount: totalLaborCost,
+        transaction_date: laborTxns.length > 0 ? laborTxns[0].transaction_date : new Date().toISOString(),
+        isGeneralLabor: true
+      });
+    }
+    return generalTxns;
+  })();
   const { data: summary, isLoading: summaryLoading } = useSummary(farmId);
   const deleteMutation = useDeleteTransaction();
 

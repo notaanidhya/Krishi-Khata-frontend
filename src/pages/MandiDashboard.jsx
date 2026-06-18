@@ -184,6 +184,10 @@ const MandiDashboard = () => {
               axisLine={false} 
               tickLine={false} 
               tick={{ fill: '#a8a29e', fontSize: 12 }}
+              domain={[
+                dataMin => Math.max(0, Math.floor(dataMin * 0.95)),
+                dataMax => Math.ceil(dataMax * 1.05)
+              ]}
             />
             <Tooltip 
               contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 6px 24px -6px rgba(61,58,36,0.18)', background: '#fffdf9' }}

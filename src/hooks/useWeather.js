@@ -14,14 +14,14 @@ import { getWeatherDashboard, getWeatherAdvisory } from '../api/weather';
  */
 export const useWeatherDashboard = (lat, lon, city, state) => {
   const queryKey = ['weatherDashboard', lat, lon, city, state];
-  const cachedData = localStorage.getItem('agroo_weather_dashboard_cache');
+  const cachedData = localStorage.getItem('agroo_weather_dashboard_cache_v2');
   const initialData = cachedData ? JSON.parse(cachedData) : undefined;
 
   return useQuery({
     queryKey,
     queryFn: async () => {
       const data = await getWeatherDashboard(lat, lon, city, state);
-      localStorage.setItem('agroo_weather_dashboard_cache', JSON.stringify(data));
+      localStorage.setItem('agroo_weather_dashboard_cache_v2', JSON.stringify(data));
       return data;
     },
     staleTime: 1000 * 60 * 10, // 10 minutes
