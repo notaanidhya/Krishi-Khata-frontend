@@ -1,127 +1,176 @@
-```markdown
-# Krishi Khata Frontend PWA
+# Krishi Khata — Frontend
 
-A mobile-first, production-ready Progressive Web Application engineered to deliver accessible digital ledger accounting, real-time market insights, and localized AI agricultural assistance to Indian farmers. This application is optimized for low-bandwidth rural connectivity, featuring an intuitive, bilingual design system that operates seamlessly across all modern screen footprints.
+A mobile-first Progressive Web App (PWA) built for Indian farmers. It brings together a digital farm ledger (khata), live mandi prices, crop tracking, weather forecasts, and a community chat — all in one place, in Hindi and English.
 
-The client layer is compiled via Vite and deployed on **Vercel**.
-
----
-
-## 🏗️ Core Engineering Highlights & Added Features
-
-### 1. Bilingual Display Isolation Layer (i18n Integration)
-*   **Decoupled State Architecture:** Implemented `i18next` and `react-i18next` to extract over 70+ user-facing strings across all modular pages. 
-*   **Database-Safe Translation Map:** To protect data integrity, underlying backend database enumerations (e.g., categories like `'seeds'`, `'fertilizer'`, `'pesticide'`) remain strictly uniform in English. The frontend intercepts these strings and dynamically renders them via runtime translation hooks: `t('khata.categories.seeds')`. This protects analytical metrics and database filtering from data corruption when switching dialects.
-*   **Farmer-Centric Vocabulary:** Translations discard overly formal, hyper-academic terms in favor of conversational, regionally accurate terminology (e.g., utilizing "मंडी भाव" for market price metrics and "भारी बारिश" for weather conditions).
-
-### 2. Searchable Combobox Dropdowns & Quick-Select Hub
-*   **Eliminating Typing Friction:** Replaced free-text entry parameters in the Mandi price tracker with interactive, searchable Combobox dropdown components. It fetches deduplicated, pre-sorted, and alphabetized indices dynamically from the server metadata endpoints to prevent spelling validation mismatches.
-*   **Active Crop Context Binding:** Introduced a responsive **Quick-Select Crop Hub** right above the data visualization metrics. This layout automatically surfaces interactive shortcut badges of the farmer's currently sown active crops next to standard regional baselines. Clicking a crop chip instantly hooks into local state parameters, auto-populating search parameters and triggering TanStack Query refetches to render historical `recharts` trends.
-
-### 3. Dynamic Protocol-Swapped WebSockets with Auth
-*   **Automatic Environment Parsing:** Upgraded the real-time "Kisan Chaupal" community chat gateway to dynamically map server host addresses from environment parameters. It systematically transforms HTTP protocols into synchronous WebSockets (`http://` to `ws://` and `https://` to `wss://`) automatically across development and production builds.
-*   **Authenticated Handshakes:** The connection setup securely isolates the active user's JWT credentials from local application contexts and appends them cleanly as encrypted query string segments (`?token=${token}`). This allows the client to seamlessly bypass strict state validation layers enforced by backend socket firewalls.
-
-### 4. Native Runtime Locale-Aware Formatting
-*   **Zero-Dependency Date Management:** Eradicated heavy string parsing packages by integrating the browser's native `Intl.DateTimeFormat` API into global utility layers. 
-*   **Localized Context Refreshes:** Formatting utilities natively ingest the current active `i18n.language` status to toggle the display layout, immediately translating temporal benchmarks (e.g., transforming "31 May 2026" seamlessly into "31 मई 2026" inside Hindi render loops).
-
-### 5. Production Routing Fixes (`vercel.json`)
-*   **SPA Rewrite Architecture:** Embedded dedicated fallback rules to resolve deep-linking disruptions typical of client-side routing setups. The server forces all fallback navigation records directly back into the entry path (`index.html`), allowing React Router to maintain structural layout states upon hard browser reloads without dropping users into `404: NOT_FOUND` errors.
+Deployed on **Vercel**. Works offline after the first load.
 
 ---
 
-## 🛠️ Technology Stack
+## What's Inside
 
-*   **Core Build Layer:** React, Vite Execution Engine
-*   **State Hydration & Fetching:** React Context API, TanStack Query (React Query)
-*   **Application Routing Router:** React Router
-*   **Style Framework:** Tailwind CSS with fluid custom variables
-*   **Data Visualization Engine:** Recharts (Optimized Vector Layouts)
-*   **Internationalization:** `i18next`, `react-i18next`, `i18next-browser-languagedetector`
-*   **Asset Management Gateway:** Axios interceptor configurations
+### Pages
+
+| Route | Page | What it does |
+|---|---|---|
+| `/` | Khata | Farm income/expense ledger with category filters |
+| `/crops` | Crop Tracking | Sow, monitor, and close crop seasons with photo uploads |
+| `/mandi` | Mandi Dashboard | Live and historical market prices with charts |
+| `/weather` | Weather | AI-powered forecasts with farm-specific advisories |
+| `/community` | Kisan Chaupal | Real-time community chat over WebSocket |
+
+### Authentication
+
+The app uses a **device-ID + PIN** flow — no phone number or email required. This was built for farmers who may not have or remember credentials.
+
+1. First visit → Name and PIN setup screen (`WelcomeScreen`)
+2. Return visit → PIN entry screen (`PinEntryScreen`)
+3. Authenticated → Dashboard with all features
+
+### Bilingual Support (Hindi / English)
+
+All user-facing text is managed through `i18next`. You can switch languages from the top bar at any time. The underlying API calls always use English identifiers (e.g., `"seeds"`, `"fertilizer"`) so the database stays consistent regardless of the selected language.
+
+### Mandi Price Tracker
+
+- Searchable dropdowns for commodity and district (no free-text, so no spelling mismatches)
+- A quick-select row shows the farmer's currently active crops as chips — tap one to instantly load its price history
+- Price history is displayed as a line chart using Recharts
+
+### Community Chat (WebSocket)
+
+The chat connects over WebSocket with the farmer's JWT token passed as a query parameter. The client automatically handles the `http → ws` and `https → wss` protocol swap based on the API URL in the environment.
+
+### PWA & Offline Support
+
+The app is configured as a full PWA via `vite-plugin-pwa`. After the first load, the app shell and static assets are cached by the service worker. Workbox handles cache cleanup on updates.
 
 ---
 
-## ⚙️ Installation & Workspace Setup
+## Tech Stack
 
-### Step 1: Clone and Navigate
+| Category | Library / Tool |
+|---|---|
+| Framework | React 19, Vite 8 |
+| Routing | React Router v7 |
+| Data fetching | TanStack Query (React Query v5) |
+| HTTP client | Axios |
+| Styling | Tailwind CSS v4 |
+| Charts | Recharts |
+| Animations | Framer Motion |
+| i18n | i18next, react-i18next, i18next-http-backend |
+| Icons | Lucide React |
+| Notifications | react-hot-toast |
+| PWA | vite-plugin-pwa (Workbox) |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18 or higher
+- The backend server running (see `/server/README.md`)
+
+### 1. Install dependencies
+
 ```bash
 cd agroo/client
-
-```
-
-### Step 2: Synchronize Target Dependencies
-
-```bash
 npm install
-
 ```
 
-### Step 3: Configure Environment Manifests
+### 2. Configure environment
 
-Create an explicit configuration instance within a `.env` file located inside the root of the client folder:
+Create a `.env` file in the `client/` folder:
 
 ```env
-# Path to the active backend FastAPI microservice
-VITE_API_BASE_URL=[https://your-krishi-khata-backend.onrender.com](https://your-krishi-khata-backend.onrender.com)
-# For local environment operations swap to: http://localhost:8001
+# URL of the backend API
+VITE_API_BASE_URL=http://localhost:8001
 
+# For production, point this to your deployed backend:
+# VITE_API_BASE_URL=https://your-backend.onrender.com
 ```
 
----
-
-## 🚀 Serving and Compiling the App
-
-### Launch Local Development Server
+### 3. Run locally
 
 ```bash
 npm run dev
-
 ```
 
-The application spins up locally on `http://localhost:5173`.
+Opens at `http://localhost:5173`.
 
-### Compile Minimalist Production Bundle
+### 4. Build for production
 
 ```bash
 npm run build
-
 ```
 
-This routine triggers asset optimizations and generates server-ready static bundles inside the `dist/` workspace directory.
+Output goes to `dist/`. Deploy that folder to Vercel (or any static host).
 
 ---
 
-## 📁 Updated Structural Folder Blueprint
+## Folder Structure
 
-```text
+```
 client/
-├── public/                 # Static global metadata configurations and PWA manifest layouts
-│   └── locales/            # Structured localization assets split across languages
-│       ├── en/             # Key value dictionary translations for English interfaces
-│       └── hi/             # Colloquial farmer-adapted Devanagari script translations
+├── public/
+│   ├── locales/
+│   │   ├── en/             # English translation files
+│   │   └── hi/             # Hindi translation files
+│   ├── brand/              # Logo and brand assets
+│   ├── illustrations/      # Onboarding and empty-state SVGs
+│   └── stages/             # Crop growth stage images
 ├── src/
-│   ├── components/         # Reusable structural components (Combobox, Modals, Empty State layouts)
-│   ├── context/            # React Context providers monitoring core metrics (ActiveFarm, Language states)
-│   ├── features/           # Scoped business domain implementations (khata, crops, dashboard)
-│   ├── hooks/              # Global extraction mechanisms (useGhostAuth, useWebSocket wrappers)
-│   ├── pages/              # Main route component engines (DashboardPage, MandiDashboard, KhataPage)
-│   ├── App.jsx             # Main routing gateways and baseline authentication validation layout
-│   ├── i18n.js             # Centralized i18next engine bootstrapping and initialization controls
-│   ├── main.jsx            # Top-level React mount lifecycle point
-│   └── index.css           # Global core design configurations and Tailwind variable declarations
-├── vercel.json             # Single Page Application routing rewrite configurations
-└── vite.config.js          # Optimization compilation rules and caching layers
-
+│   ├── api/                # Axios instance and per-feature API calls
+│   ├── components/
+│   │   ├── layout/         # TopBar, PageShell
+│   │   ├── motion/         # AnimatedRoutes (Framer Motion page transitions)
+│   │   ├── ui/             # Shared UI: Combobox, EmptyState, PriceCard
+│   │   ├── WelcomeScreen   # New-user onboarding + PIN setup
+│   │   └── PinEntryScreen  # Returning-user PIN login
+│   ├── context/
+│   │   └── ActiveFarmContext.jsx  # Tracks the currently selected farm
+│   ├── features/
+│   │   ├── crops/          # Crop form and crop card components
+│   │   ├── dashboard/      # Dashboard summary widgets
+│   │   └── khata/          # Ledger entry form, filter bar, summary cards
+│   ├── hooks/
+│   │   ├── useGhostAuth.js       # Device-ID + PIN auth logic
+│   │   ├── useKhata.js           # Ledger CRUD queries
+│   │   ├── useCrop.js            # Crop tracking queries
+│   │   ├── useFarm.js            # Farm list queries
+│   │   ├── useDashboard.js       # Dashboard summary queries
+│   │   ├── useWeather.js         # Weather data queries
+│   │   ├── useLocation.js        # Browser geolocation hook
+│   │   ├── useVoiceInput.js      # Web Speech API voice input
+│   │   └── useModalAnimation.js  # Shared modal open/close animation state
+│   ├── pages/
+│   │   ├── KhataPage.jsx         # Farm ledger
+│   │   ├── CropTrackingPage.jsx  # Crop seasons
+│   │   ├── MandiDashboard.jsx    # Market prices
+│   │   ├── WeatherPage.jsx       # Weather and AI advisory
+│   │   └── CommunityPage.jsx     # Kisan Chaupal chat
+│   ├── App.jsx             # Root component: auth gate, routing, bottom nav
+│   ├── i18n.js             # i18next initialization
+│   ├── main.jsx            # React DOM mount
+│   └── index.css           # Global styles, CSS custom properties (design tokens)
+├── vercel.json             # SPA fallback rewrite rules
+└── vite.config.js          # Vite + Tailwind + PWA plugin config
 ```
 
 ---
 
-## 📄 Licensing & Security Context
+## Deployment Notes
 
-This frontend source mapping, utility framework, and layout configuration are proprietary and confidential. Any unauthorized extraction, modification, or tracking across production proxies without prior agreement is strictly prohibited.
+The `vercel.json` at the root of `client/` contains a catch-all rewrite rule that sends all requests to `index.html`. This is required for React Router to work correctly when users refresh the page or navigate directly to a deep link.
 
+```json
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
 ```
 
-```
+---
+
+## License
+
+Proprietary. Do not distribute without permission.
