@@ -32,10 +32,14 @@ const EXPENSE_CATEGORIES = [
 ];
 
 const INCOME_CATEGORIES = [
-  { value: 'mandi_sale',   icon: '🏪' },
-  { value: 'subsidy',      icon: '🏛️' },
-  { value: 'other_income', icon: '💰' },
+  { value: 'mandi_sale',    icon: '🏪' },
+  { value: 'trader_sale',   icon: '🤝' },
+  { value: 'subsidy',       icon: '🏛️' },
+  { value: 'other_income',  icon: '💰' },
 ];
+
+// Categories that unlock the Quintal × Bhav quick-calculator
+const SALE_CATEGORIES = ['mandi_sale', 'trader_sale'];
 
 // ── Shared input style ─────────────────────────────────────────
 const inputClass =
@@ -71,6 +75,10 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
   const [transactionDate, setTransactionDate] = useState(
     new Date().toISOString().split('T')[0]
   );
+
+  // Sale calculator (quintals × bhav)
+  const [quintals, setQuintals] = useState('');
+  const [bhav, setBhav] = useState('');
   
   const [baseDescription, setBaseDescription] = useState('');
 
@@ -117,6 +125,8 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
         setLaborerId('');
         setDescription('');
         setTransactionDate(new Date().toISOString().split('T')[0]);
+        setQuintals('');
+        setBhav('');
       }
       setIsAddingLaborer(false);
       setNewLaborerName('');
@@ -157,6 +167,8 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
     setIsAddingLaborer(false);
     setNewLaborerName('');
     setCustomCategoryName('');
+    setQuintals('');
+    setBhav('');
   };
 
   const handleCategoryChange = (newCategory) => {
@@ -169,6 +181,30 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
       setLaborerId('');
       setIsAddingLaborer(false);
       setNewLaborerName('');
+    }
+    // Clear sale fields when leaving a sale category
+    if (!SALE_CATEGORIES.includes(newCategory)) {
+      setQuintals('');
+      setBhav('');
+    }
+  };
+
+  // Derived helpers for sale calculator
+  const isSaleCategory = SALE_CATEGORIES.includes(category);
+  const calculatedSaleAmount =
+    quintals && bhav ? (parseFloat(quintals) * parseFloat(bhav)).toFixed(2) : null;
+
+  const handleQuintalsChange = (val) => {
+    setQuintals(val);
+    if (val && bhav) {
+      setAmount((parseFloat(val) * parseFloat(bhav)).toFixed(2));
+    }
+  };
+
+  const handleBhavChange = (val) => {
+    setBhav(val);
+    if (quintals && val) {
+      setAmount((parseFloat(quintals) * parseFloat(val)).toFixed(2));
     }
   };
 
@@ -240,6 +276,8 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
         setTransactionDate(new Date().toISOString().split('T')[0]);
         setIsAddingLaborer(false);
         setNewLaborerName('');
+        setQuintals('');
+        setBhav('');
         onClose();
       }
     } catch (error) {
@@ -389,6 +427,90 @@ const TransactionForm = ({ isOpen, onClose, initialData = null, isLaborMode = fa
               </div>
             )}
           </div>
+          )}
+
+          {/* ── Sale Calculator (Quintal × Bhav) ─────────── */}
+          {isSaleCategory && (
+            <div
+              className="animate-slide-up rounded-2xl p-4 border-2"
+              style={{
+                animationDuration: '0.25s',
+                borderColor: 'var(--color-forest-muted)',
+                background: 'var(--color-forest-light)',
+              }}
+            >
+              {/* Header */}
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-base">⚖️</span>
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-forest)' }}>
+                  बिक्री कैलकुलेटर <span className="normal-case font-normal opacity-70">(वैकल्पिक / Optional)</span>
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {/* Quintals */}
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--color-forest)' }}>
+                    क्विंटल / Quintals
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    min="0"
+                    value={quintals}
+                    onChange={(e) => handleQuintalsChange(e.target.value)}
+                    placeholder="जैसे 10"
+                    className={`${inputClass} text-base font-semibold`}
+                    style={inputStyle}
+                  />
+                </div>
+
+                {/* Bhav / Price per quintal */}
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--color-forest)' }}>
+                    भाव / Rate (₹/क्विं.)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold" style={{ color: 'var(--color-muted)' }}>₹</span>
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      step="0.01"
+                      min="0"
+                      value={bhav}
+                      onChange={(e) => handleBhavChange(e.target.value)}
+                      placeholder="जैसे 2500"
+                      className={`${inputClass} pl-8 text-base font-semibold`}
+                      style={inputStyle}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Calculated preview */}
+              {calculatedSaleAmount && (
+                <div
+                  className="mt-3 rounded-xl px-4 py-3 flex items-center justify-between animate-slide-up"
+                  style={{ background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))', animationDuration: '0.2s' }}
+                >
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-white/70">कुल बिक्री राशि</p>
+                    <p className="text-xs text-white/60 mt-0.5">
+                      {quintals} क्विंटल × ₹{bhav}/क्विं.
+                    </p>
+                  </div>
+                  <p className="text-xl font-black text-white">
+                    ₹{Number(calculatedSaleAmount).toLocaleString('en-IN')}
+                  </p>
+                </div>
+              )}
+              {!calculatedSaleAmount && (
+                <p className="text-[11px] mt-2 pl-1" style={{ color: 'var(--color-forest)' }}>
+                  क्विंटल और भाव भरने पर राशि अपने आप भरेगी।
+                </p>
+              )}
+            </div>
           )}
 
           {/* ── Laborer Dropdown (conditional) ────────────── */}

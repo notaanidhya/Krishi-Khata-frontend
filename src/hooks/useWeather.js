@@ -34,24 +34,67 @@ export const useWeatherDashboard = (lat, lon, city, state) => {
  * Fetch the AI weather advisory separately.
  * This allows the main dashboard to load instantly while the AI
  * summary loads in the background.
+ *
+ * Caching strategy (two-tier):
+ *  - agroo_weather_advisory_good_cache: ONLY updated when Gemini succeeds.
+ *    Represents the farmer's last real AI response. No TTL expiry — we
+ *    always prefer showing this over a static fallback.
+ *  - agroo_weather_advisory_cache: Always updated (fallback too), used to
+ *    detect whether we need to refetch at all.
  */
-export const useWeatherAdvisory = (lat, lon, city, state) => {
-  const queryKey = ['weatherAdvisory', lat, lon, city, state];
-  const cachedData = localStorage.getItem('agroo_weather_advisory_cache');
-  const initialData = cachedData ? JSON.parse(cachedData) : undefined;
+export const useWeatherAdvisory = (lat, lon, city, state, cropName, daysSincePlanting, currentStage) => {
+  const queryKey = ['weatherAdvisory', lat, lon, city, state, cropName, currentStage];
+
+  // Cache key includes crop+stage so a different crop gets its own advisory
+  const localStorageKey = `agroo_weather_advisory_cache|${cropName || ''}|${currentStage || ''}`;
+  const localStorageGoodKey = `agroo_weather_advisory_good_cache|${cropName || ''}|${currentStage || ''}`;
+
+  // Prefer the last real Gemini response. Fall back to any cached data
+  // (including weather-aware fallback), respecting a 30-min TTL on fallbacks.
+  const initialData = (() => {
+    try {
+      // First choice: last successful Gemini response for this crop+stage (no expiry)
+      const good = localStorage.getItem(localStorageGoodKey);
+      if (good) return JSON.parse(good);
+
+      // Second choice: any cached response (fallback), but only if recent
+      const raw = localStorage.getItem(localStorageKey);
+      if (!raw) return undefined;
+      const parsed = JSON.parse(raw);
+      const cachedAt = parsed?._cachedAt || 0;
+      const maxAge = 1000 * 60 * 30; // 30 min TTL on fallbacks
+      if (Date.now() - cachedAt > maxAge) return undefined;
+      return parsed;
+    } catch {
+      return undefined;
+    }
+  })();
 
   return useQuery({
     queryKey,
     queryFn: async () => {
-      const data = await getWeatherAdvisory(lat, lon, city, state);
+      const data = await getWeatherAdvisory(lat, lon, city, state, cropName, daysSincePlanting, currentStage);
+
+      // Always write to the general cache (with timestamp)
+      localStorage.setItem(
+        localStorageKey,
+        JSON.stringify({ ...data, _cachedAt: Date.now() })
+      );
+
+      // Only write to the "good" cache if Gemini actually succeeded
       if (!data.is_fallback) {
-        localStorage.setItem('agroo_weather_advisory_cache', JSON.stringify(data));
+        localStorage.setItem(localStorageGoodKey, JSON.stringify(data));
       }
+
       return data;
     },
-    staleTime: 1000 * 60 * 10, // 10 minutes
-    initialData, // Instantly load last known advisory
+    // Fallback initial data → retry soon; real Gemini data → relax
+    staleTime: initialData?.is_fallback
+      ? 1000 * 60 * 5   // retry fallbacks after 5 min
+      : 1000 * 60 * 60, // real responses: 1 hour
+    initialData,
     refetchOnWindowFocus: false,
-    retry: 1,
+    retry: 2,
+    retryDelay: 3000,
   });
 };

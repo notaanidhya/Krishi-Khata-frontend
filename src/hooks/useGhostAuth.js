@@ -43,10 +43,12 @@ export const useGhostAuth = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Auth state
+  // Auth state — always derive from current localStorage to detect if the
+  // interceptor cleared the token after mount (e.g. after a 401 response).
+  const liveJwt = localStorage.getItem(JWT_KEY);
   const isNewUser = !deviceId;
-  const needsPin = Boolean(deviceId && !jwt);
-  const isAuthenticated = Boolean(deviceId && jwt);
+  const needsPin = Boolean(deviceId && !liveJwt);
+  const isAuthenticated = Boolean(deviceId && liveJwt);
 
   /**
    * Register a new user — called from WelcomeScreen.

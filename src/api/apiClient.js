@@ -53,10 +53,10 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('agroo_device_id');
       localStorage.removeItem('agroo_user_name');
       
-      // Redirect to root without triggering a hard reload loop
-      if (window.location.pathname !== '/') {
-        window.location.href = '/';
-      }
+      // Force a full reload so React re-evaluates auth state from scratch.
+      // A pathname check + href redirect is not enough when already on '/',
+      // because it becomes a no-op and the app stays in a broken state.
+      window.location.reload();
     }
     return Promise.reject(error);
   }

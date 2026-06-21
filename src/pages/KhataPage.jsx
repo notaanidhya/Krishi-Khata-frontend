@@ -13,7 +13,7 @@
 import { useState } from 'react';
 import {
   Plus, TrendingUp, TrendingDown, Wallet,
-  Trash2, Loader2, AlertCircle, BookOpen, Users, Edit2
+  Trash2, Loader2, AlertCircle, BookOpen, Users, Edit2, CheckCircle2
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -39,7 +39,8 @@ const CATEGORY_META = {
   irrigation:    { label: 'Irrigation',   icon: '💧' },
   transport:     { label: 'Transport',    icon: '🚚' },
   other_expense: { label: 'Other',        icon: '📦' },
-  mandi_sale:    { label: 'Mandi Sale',   icon: '🏪' },
+  mandi_sale:    { label: 'मंडी बिक्री',         icon: '🏪' },
+  trader_sale:   { label: 'व्यापारी को बिक्री',   icon: '🤝' },
   subsidy:       { label: 'Subsidy',      icon: '🏛️' },
   other_income:  { label: 'Other Income', icon: '💰' },
 };
@@ -174,6 +175,7 @@ const SummaryCard = ({ summary, isLoading }) => {
 // ═══════════════════════════════════════════════════════════════
 const TransactionCard = ({ txn, onEdit, onDelete, isDeleting }) => {
   const { t, i18n } = useTranslation();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const meta = CATEGORY_META[txn.category] || { label: txn.category, icon: '📋' };
   const catLabel = t(`khata.categories.${txn.category}`, { defaultValue: meta.label });
   const isExpense = txn.type === 'expense' || txn.type === 'labor_wage';
@@ -213,7 +215,7 @@ const TransactionCard = ({ txn, onEdit, onDelete, isDeleting }) => {
           <div className="flex items-center justify-center p-2 px-4">
             <Loader2 size={16} className="text-stone-300 animate-spin" />
           </div>
-        ) : (
+        ) : !showDeleteConfirm ? (
           <>
             <button
               onClick={() => onEdit(txn)}
@@ -224,7 +226,7 @@ const TransactionCard = ({ txn, onEdit, onDelete, isDeleting }) => {
               <Edit2 size={16} className="text-stone-400 hover:text-emerald-700 transition-colors" />
             </button>
             <button
-              onClick={() => onDelete(txn.id)}
+              onClick={() => setShowDeleteConfirm(true)}
               disabled={isDeleting}
               className="p-2 rounded-lg hover:bg-red-50 active:bg-red-100 transition-colors"
               aria-label={t('khata.deleteLabel')}
@@ -236,6 +238,28 @@ const TransactionCard = ({ txn, onEdit, onDelete, isDeleting }) => {
               )}
             </button>
           </>
+        ) : (
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium" style={{ color: 'var(--color-danger)' }}>{t('khata.deleteConfirm', 'Sure?')}</span>
+            <button
+              onClick={() => onDelete(txn.id)}
+              disabled={isDeleting}
+              className="p-1.5 text-white rounded-lg active:scale-95 transition-all"
+              style={{ background: 'var(--color-danger)' }}
+            >
+              {isDeleting
+                ? <Loader2 size={14} className="animate-spin" />
+                : <CheckCircle2 size={14} />
+              }
+            </button>
+            <button
+              onClick={() => setShowDeleteConfirm(false)}
+              className="p-1.5 rounded-lg active:scale-95 transition-all"
+              style={{ background: 'var(--color-soil-dark)', color: 'var(--color-muted)' }}
+            >
+              ✕
+            </button>
+          </div>
         )}
       </div>
     </div>

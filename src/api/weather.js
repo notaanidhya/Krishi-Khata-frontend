@@ -57,12 +57,15 @@ export const getWeatherDashboard = async (lat, lon, city, state) => {
  * @param {string} [state] - State name
  * @returns {Object} { ai_summary: string }
  */
-export const getWeatherAdvisory = async (lat, lon, city, state) => {
+export const getWeatherAdvisory = async (lat, lon, city, state, cropName, daysSincePlanting, currentStage) => {
   const params = {};
   if (lat != null) params.lat = lat;
   if (lon != null) params.lon = lon;
   if (city) params.city = city;
   if (state) params.state = state;
+  if (cropName) params.crop_name = cropName;
+  if (daysSincePlanting != null) params.days_since_planting = daysSincePlanting;
+  if (currentStage) params.current_stage = currentStage;
   const { data } = await apiClient.get('/api/v1/weather/ai-advisory', { params });
   return data;
 };

@@ -99,6 +99,7 @@
       "transport": "Transport",
       "other_expense": "Other",
       "mandi_sale": "Mandi Sale",
+      "trader_sale": "Trader Sale",
       "subsidy": "Subsidy",
       "other_income": "Other Income"
     },

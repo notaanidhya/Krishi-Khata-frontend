@@ -23,6 +23,7 @@ import { useWeatherDashboard, useWeatherAdvisory } from '../hooks/useWeather';
 import { getExactLocationDetails } from '../api/weather';
 import { useActiveFarm } from '../context/ActiveFarmContext';
 import { useLocation } from '../hooks/useLocation';
+import { useActiveCrop } from '../hooks/useCrop';
 import PageShell from '../components/layout/PageShell';
 import { staggerContainer, fadeUp } from '../components/motion/motionPresets';
 
@@ -175,11 +176,16 @@ const WeatherPage = () => {
     activeFarm?.state
   );
 
+  const { data: activeCrop } = useActiveCrop(activeFarm?.id);
+
   const { data: advisoryData, isLoading: advisoryLoading } = useWeatherAdvisory(
     lat,
     lon,
     activeFarm?.district,
-    activeFarm?.state
+    activeFarm?.state,
+    activeCrop?.crop_name || null,
+    activeCrop?.days_since_planting ?? null,
+    activeCrop?.current_stage || null,
   );
 
   /* ── Error state ─────────────────────────────────────────── */
@@ -288,20 +294,27 @@ const WeatherPage = () => {
               <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-harvest)' }}>{t('weather.aiAdvisory')}</span>
             </div>
           </div>
-          {advisoryLoading ? (
+          {advisoryLoading && !ai_summary ? (
             <div className="space-y-2.5 animate-pulse">
               <div className="h-3.5 bg-white/10 rounded-lg w-full" />
               <div className="h-3.5 bg-white/10 rounded-lg w-5/6" />
               <div className="h-3.5 bg-white/10 rounded-lg w-4/6" />
               <p className="text-[10px] text-white/30 font-medium mt-1 flex items-center gap-1.5">
-                <Sparkles size={9} style={{ color: 'var(--color-harvest)', opacity: 0.5 }} className="animate-spin" style={{ animationDuration: '3s' }} />
+                <Sparkles size={9} style={{ color: 'var(--color-harvest)', opacity: 0.5 }} />
                 {t('weather.analysisLoading')}
               </p>
             </div>
           ) : (
-            <p className="text-sm text-white/90 leading-relaxed font-medium">
-              {ai_summary || t('weather.analysisLoading')}
-            </p>
+            <>
+              <p className="text-sm text-white/90 leading-relaxed font-medium">
+                {ai_summary || t('weather.analysisLoading')}
+              </p>
+              {advisoryData?.is_fallback && (
+                <p className="text-[10px] text-white/30 mt-2">
+                  ⚡ {t('weather.usingCached', 'लाइव AI उपलब्ध नहीं — पुराना सुझाव दिखाया जा रहा है।')}
+                </p>
+              )}
+            </>
           )}
         </div>
       </motion.div>
