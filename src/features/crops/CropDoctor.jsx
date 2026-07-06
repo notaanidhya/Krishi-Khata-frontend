@@ -16,7 +16,7 @@ const inputStyle = {
 };
 
 const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isHindi = i18n.language && i18n.language.startsWith('hi');
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -76,10 +76,10 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
         </div>
         <div className="flex-1">
           <h4 className="text-sm font-bold font-serif-accent text-white">
-            Crop Doctor (फसल डॉक्टर)
+            {t('crops.cropDoctorTitle')}
           </h4>
           <p className="text-[10px] text-white/60 font-medium">
-            {cropName} • Day {daysSincePlanting}
+            {cropName} • {t('crops.day')} {daysSincePlanting}
           </p>
         </div>
         <div
@@ -96,7 +96,7 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={isHindi ? "समस्या बताएं (जैसे, पीली पत्तियां, कीड़े)..." : "Describe an issue (e.g., yellow leaves, insects)..."}
+          placeholder={t('crops.doctorPlaceholder')}
           rows={3}
           className="w-full resize-none px-3 py-3 text-sm focus:outline-none transition-all rounded-xl font-medium"
           style={{
@@ -122,10 +122,10 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
           disabled={isLoading}
         >
           <Camera size={15} />
-          <span>Photo</span>
+          <span>{t('crops.photo')}</span>
           {showCameraHint && (
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-white text-[10px] px-2.5 py-1.5 rounded-lg whitespace-nowrap shadow-lg animate-fade-in" style={{ background: 'var(--color-forest)' }}>
-              Coming soon! 📸
+              {t('crops.comingSoon')} 📸
               <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 -mt-1" style={{ background: 'var(--color-forest)' }} />
             </div>
           )}
@@ -156,12 +156,12 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
           {isLoading ? (
             <>
               <Loader2 size={14} className="animate-spin" />
-              <span>Asking…</span>
+              <span>{t('crops.asking')}…</span>
             </>
           ) : (
             <>
               <Send size={14} />
-              <span>Ask Doctor</span>
+              <span>{t('crops.askDoctor')}</span>
             </>
           )}
         </button>
@@ -173,9 +173,9 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
           <div className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: 'var(--color-forest-light)', border: '1px solid var(--color-forest-muted)' }}>
             <Loader2 size={16} className="animate-spin shrink-0" style={{ color: 'var(--color-forest)' }} />
             <div>
-              <p className="text-xs font-bold" style={{ color: 'var(--color-forest)' }}>Doctor is thinking...</p>
+              <p className="text-xs font-bold" style={{ color: 'var(--color-forest)' }}>{t('crops.doctorThinking')}</p>
               <p className="text-[10px] font-medium mt-0.5" style={{ color: 'var(--color-forest-muted)' }}>
-                Analyzing your {cropName} on Day {daysSincePlanting}
+                {t('crops.doctorAnalyzing', { cropName, day: daysSincePlanting })}
               </p>
             </div>
           </div>
@@ -214,7 +214,7 @@ const CropDoctor = ({ cropId, cropName, daysSincePlanting }) => {
               <div className="flex items-center gap-1.5">
                 <Sparkles size={12} style={{ color: 'var(--color-harvest)' }} />
                 <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-warning)' }}>
-                  AI Advice
+                  {t('crops.aiAdvice')}
                 </span>
                 {response.current_stage && (
                   <span className="text-[9px] font-medium ml-1" style={{ color: 'var(--color-rust)' }}>

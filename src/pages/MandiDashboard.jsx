@@ -94,13 +94,15 @@ const MandiDashboard = () => {
     setSelectedDistrict(""); // Return to Overview
   }, []);
 
-  const { data: overviewResponse, isLoading: overviewLoading } = useQuery({
+  const { data: overviewResult, isLoading: overviewLoading } = useQuery({
     queryKey: ['mandiOverview', selectedCommodity],
     queryFn: () => getMandiPrices({ commodity: selectedCommodity, overview: true }),
     enabled: !!selectedCommodity && !selectedDistrict,
     staleTime: 1000 * 60 * 5,
   });
-  const overviewData = overviewResponse?.prices || [];
+  const overviewData = overviewResult?.prices || [];
+  const overviewApiError = overviewResult?.api_error;
+
 
   const { data: historyResponse, isLoading, isFetching } = useQuery({
     queryKey: ['mandiHistory', selectedCommodity, selectedDistrict],
@@ -242,7 +244,12 @@ const MandiDashboard = () => {
               }}
               className="w-28 sm:w-36"
               placeholder={t('mandi.commodity')}
-              getDisplayValue={(val) => t(`mandi.commodities.${val}`, { defaultValue: val })}
+              getDisplayValue={(val) => {
+                if (i18n.language === 'hi') {
+                  return metadata?.commodities_hi?.[val] || t(`mandi.commodities.${val}`, { defaultValue: val });
+                }
+                return t(`mandi.commodities.${val}`, { defaultValue: val });
+              }}
             />
           </div>
           <div className="flex items-center gap-2 bg-stone-50 rounded-xl px-3 py-2 border border-stone-200/50">
@@ -272,6 +279,9 @@ const MandiDashboard = () => {
             {/* My Crops badges */}
             {myCropNames.map((name) => {
               const isActive = selectedCommodity.toLowerCase() === name.toLowerCase();
+              const displayName = i18n.language === 'hi'
+                ? (metadata?.commodities_hi?.[name] || t(`mandi.commodities.${name}`, { defaultValue: name }))
+                : t(`mandi.commodities.${name}`, { defaultValue: name });
               return (
                 <button
                   key={`my-${name}`}
@@ -284,7 +294,7 @@ const MandiDashboard = () => {
                   className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 cursor-pointer border select-none shrink-0 hover:shadow-sm"
                 >
                   <Sprout size={14} />
-                  {t(`mandi.commodities.${name}`, { defaultValue: name })}
+                  {displayName}
                 </button>
               );
             })}
@@ -297,6 +307,9 @@ const MandiDashboard = () => {
             {/* Market Favorites badges */}
             {filteredFavorites.map((name) => {
               const isActive = selectedCommodity.toLowerCase() === name.toLowerCase();
+              const displayName = i18n.language === 'hi'
+                ? (metadata?.commodities_hi?.[name] || t(`mandi.commodities.${name}`, { defaultValue: name }))
+                : t(`mandi.commodities.${name}`, { defaultValue: name });
               return (
                 <button
                   key={`fav-${name}`}
@@ -309,7 +322,7 @@ const MandiDashboard = () => {
                   className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 cursor-pointer border select-none shrink-0 hover:shadow-sm"
                 >
                   <Flame size={14} style={{ color: isActive ? 'var(--color-harvest)' : 'var(--color-rust)', opacity: isActive ? 1 : 0.7 }} />
-                  {t(`mandi.commodities.${name}`, { defaultValue: name })}
+                  {displayName}
                 </button>
               );
             })}
@@ -323,7 +336,7 @@ const MandiDashboard = () => {
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-6 rounded-full" style={{ background: 'var(--color-harvest)' }}></div>
             <h2 className="text-lg font-bold font-serif-accent" style={{ color: 'var(--color-forest)' }}>
-              {t('mandi.marketOverview', 'Market Overview')}
+              {t('mandi.marketOverview')}
             </h2>
           </div>
           {overviewLoading ? (
@@ -341,9 +354,16 @@ const MandiDashboard = () => {
               ))}
             </div>
           ) : (
-            <div className="h-48 flex flex-col items-center justify-center rounded-3xl krishi-card" style={{ color: 'var(--color-muted)' }}>
-              <Database size={32} className="mb-2 opacity-50" />
-              <p>{t('mandi.noOverviewData', 'No recent markets found for this crop.')}</p>
+            <div className="h-48 flex flex-col items-center justify-center rounded-3xl krishi-card p-6 text-center" style={{ color: 'var(--color-muted)' }}>
+              <Database size={32} className="mb-3 opacity-40" />
+              <p className="text-sm font-semibold mb-1" style={{ color: 'var(--color-forest)' }}>
+                {overviewApiError ? t('mandi.govApiError') : t('mandi.noOverviewData').split('—')[0]}
+              </p>
+              {!overviewApiError && (
+                <p className="text-xs" style={{ color: 'var(--color-muted)' }}>
+                  {t('mandi.noOverviewData').split('—')[1]?.trim()}
+                </p>
+              )}
             </div>
           )}
         </motion.div>

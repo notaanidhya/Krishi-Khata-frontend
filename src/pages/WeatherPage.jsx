@@ -106,70 +106,29 @@ const getRainColor = (pct) => {
 const WeatherPage = () => {
   const { t, i18n } = useTranslation();
   const { activeFarm } = useActiveFarm();
-  const [liveCoords, setLiveCoords] = useState(() => {
-    const cached = localStorage.getItem('cached_location');
-    if (cached) {
-      try { return JSON.parse(cached); } catch (e) { /* ignore */ }
-    }
-    return null;
-  });
+
+  // Single source of truth for GPS — all caching + refresh logic is inside useLocation.
+  const { coords: liveCoords, status: locationStatus } = useLocation();
   const [locationDetails, setLocationDetails] = useState({ village: null, city: null, state: null });
 
-  // Fetch precise live location details
+  // Reverse-geocode via Nominatim whenever we have precise coordinates.
+  // Prefer live GPS coords; fall back to the saved farm location.
   useEffect(() => {
-    const fetchLocation = async (lat, lon) => {
-      const details = await getExactLocationDetails(lat, lon);
-      if (details) setLocationDetails(details);
-    };
-    
-    if (liveCoords) {
-      fetchLocation(liveCoords.lat, liveCoords.lon);
-    } else if (activeFarm?.latitude && activeFarm?.longitude) {
-      fetchLocation(activeFarm.latitude, activeFarm.longitude);
-    }
+    const bestLat = liveCoords?.lat ?? activeFarm?.latitude;
+    const bestLon = liveCoords?.lon ?? activeFarm?.longitude;
+    if (!bestLat || !bestLon) return;
+
+    let cancelled = false;
+    getExactLocationDetails(bestLat, bestLon).then((details) => {
+      if (!cancelled && details) setLocationDetails(details);
+    });
+    return () => { cancelled = true; };
   }, [liveCoords, activeFarm]);
 
-  // Fetch precise live location on mount if not cached
-  useEffect(() => {
-    if (liveCoords) return;
+  const lat = liveCoords?.lat ?? activeFarm?.latitude;
+  const lon = liveCoords?.lon ?? activeFarm?.longitude;
 
-    if ('geolocation' in navigator) {
-      const askLocation = () => {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const newCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-            localStorage.setItem('cached_location', JSON.stringify(newCoords));
-            localStorage.setItem('location_asked', 'true');
-            setLiveCoords(newCoords);
-          },
-          (err) => {
-            localStorage.setItem('location_asked', 'true');
-            console.warn('Live location failed, falling back to farm coords', err);
-          },
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-      };
-
-      if (navigator.permissions && navigator.permissions.query) {
-        navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-          if (result.state === 'granted') {
-            askLocation();
-          } else if (result.state === 'prompt') {
-            if (!localStorage.getItem('location_asked')) {
-              askLocation();
-            }
-          }
-        });
-      } else if (!localStorage.getItem('location_asked')) {
-        askLocation();
-      }
-    }
-  }, [liveCoords]);
-
-  const lat = liveCoords?.lat || activeFarm?.latitude;
-  const lon = liveCoords?.lon || activeFarm?.longitude;
-
-  const { data, isLoading, isError } = useWeatherDashboard(
+  const { data, isLoading, isError, error: dashboardError } = useWeatherDashboard(
     lat,
     lon,
     activeFarm?.district,
@@ -189,7 +148,25 @@ const WeatherPage = () => {
   );
 
   /* ── Error state ─────────────────────────────────────────── */
-  if (isError || (!data && !isLoading)) {
+  // If GPS is still resolving, we shouldn't show the error state yet
+  const isWaitingForGPS = locationStatus === 'loading';
+  const isGPSFailed = locationStatus === 'error' && !lat && !lon;
+  
+  if (isGPSFailed) {
+    return (
+      <PageShell ambient="weather">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: 'var(--color-soil-dark)' }}>
+            <CloudOff size={28} style={{ color: 'var(--color-muted)' }} />
+          </div>
+          <p className="text-sm font-bold mb-1" style={{ color: 'var(--color-ink)' }}>Location Not Found</p>
+          <p className="text-xs" style={{ color: 'var(--color-muted)' }}>We couldn't detect your location. Please check your browser's GPS permissions or manually set your farm location.</p>
+        </div>
+      </PageShell>
+    );
+  }
+
+  if (isError || (!data && !isLoading && !isWaitingForGPS)) {
     return (
       <PageShell ambient="weather">
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
@@ -198,6 +175,31 @@ const WeatherPage = () => {
           </div>
           <p className="text-sm font-bold mb-1" style={{ color: 'var(--color-ink)' }}>{t('weather.errorTitle')}</p>
           <p className="text-xs" style={{ color: 'var(--color-muted)' }}>{t('weather.errorText')}</p>
+          {(isError || dashboardError) && (
+            <p className="text-[10px] mt-2 p-2 rounded bg-red-50 text-red-600 font-mono text-left w-full overflow-auto">
+              Error details: {dashboardError?.message || "Data missing and query disabled"}
+              <br />
+              Location status: {locationStatus}
+              <br />
+              Coords: {lat}, {lon}
+            </p>
+          )}
+        </div>
+      </PageShell>
+    );
+  }
+
+  /* ── Loading state ───────────────────────────────────────── */
+  if (!data || isWaitingForGPS) {
+    return (
+      <PageShell ambient="weather">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center animate-pulse">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: 'var(--color-forest-light)' }}>
+            <CloudSun size={28} style={{ color: 'var(--color-forest)' }} />
+          </div>
+          <p className="text-sm font-bold mb-1" style={{ color: 'var(--color-forest)' }}>
+            {isWaitingForGPS ? "Locating your farm..." : "Fetching local weather..."}
+          </p>
         </div>
       </PageShell>
     );

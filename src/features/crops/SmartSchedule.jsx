@@ -27,13 +27,13 @@ const addDaysToDate = (isoDateStr, days, language) => {
   });
 };
 
-const SmartSchedule = ({ cropId, cropName, daysSincePlanting, plantingDate }) => {
+const SmartSchedule = ({ cropId, cropName, daysSincePlanting, plantingDate, isProcessing }) => {
   const { t, i18n } = useTranslation();
 
   const { data, isLoading } = useQuery({
     queryKey: ['cropTasks', cropId, i18n.language],
     queryFn: () => fetchCropTasks(cropId),
-    enabled: !!cropId,
+    enabled: !isProcessing && !!cropId,
   });
 
   const milestones = useMemo(() => {
@@ -90,7 +90,7 @@ const SmartSchedule = ({ cropId, cropName, daysSincePlanting, plantingDate }) =>
 
       {/* Timeline */}
       <div className="px-4 pb-5 relative" style={{ background: 'var(--color-cream)' }}>
-        {isLoading && (
+        {(isLoading || isProcessing) && (
           <div className="absolute inset-0 flex items-center justify-center z-20 backdrop-blur-[1px]" style={{ background: 'rgba(255,253,249,0.6)' }}>
             <div className="flex flex-col items-center gap-2">
               <Sparkles className="animate-pulse" size={24} style={{ color: 'var(--color-harvest)' }} />

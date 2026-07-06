@@ -18,7 +18,7 @@ const inputStyle = {
 };
 
 const AddCropModal = ({ isOpen, onClose, farmId }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { mounted, animating } = useModalAnimation(isOpen, 380);
   const [cropName, setCropName] = useState('');
   const [plantingDate, setPlantingDate] = useState(new Date().toISOString().split('T')[0]);
@@ -29,6 +29,7 @@ const AddCropModal = ({ isOpen, onClose, farmId }) => {
 
   const { data: presets = [] } = useCropPresets();
   const createCropMutation = useCreateCrop();
+  const isHindi = i18n.language?.startsWith('hi');
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -44,18 +45,25 @@ const AddCropModal = ({ isOpen, onClose, farmId }) => {
     if (isOpen) { setCropName(''); setPlantingDate(new Date().toISOString().split('T')[0]); setSearchFilter(''); setShowDropdown(false); }
   }
 
-  const filteredPresets = presets.filter((p) =>
-    p.toLowerCase().includes((searchFilter || cropName).toLowerCase())
-  );
+  const filteredPresets = presets.filter((p) => {
+    const displayName = isHindi ? p.hi : p.en;
+    return displayName.toLowerCase().includes((searchFilter || cropName).toLowerCase());
+  });
 
   const handleSelectPreset = (preset) => {
-    setCropName(preset); setSearchFilter(''); setShowDropdown(false);
+    setCropName(isHindi ? preset.hi : preset.en);
+    setSearchFilter('');
+    setShowDropdown(false);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!cropName.trim()) return;
-    createCropMutation.mutate({ farmId, cropData: { crop_name: cropName.trim(), planting_date: plantingDate } });
+    
+    const exactMatch = presets.find(p => (isHindi ? p.hi : p.en).toLowerCase() === cropName.trim().toLowerCase());
+    const submitName = exactMatch ? exactMatch.en : cropName.trim();
+
+    createCropMutation.mutate({ farmId, cropData: { crop_name: submitName, planting_date: plantingDate } });
     onClose();
   };
 
@@ -141,26 +149,29 @@ const AddCropModal = ({ isOpen, onClose, farmId }) => {
                 className="absolute z-20 w-full mt-1 rounded-xl shadow-xl max-h-48 overflow-y-auto"
                 style={{ background: 'var(--color-cream)', border: '1.5px solid var(--border-subtle)' }}
               >
-                {filteredPresets.map((preset) => (
+                {filteredPresets.map((preset) => {
+                  const displayName = isHindi ? preset.hi : preset.en;
+                  return (
                   <button
-                    key={preset}
+                    key={preset.en}
                     type="button"
                     onClick={() => handleSelectPreset(preset)}
                     className="w-full text-left px-4 py-2.5 text-sm font-medium transition-colors first:rounded-t-xl last:rounded-b-xl"
                     style={
-                      cropName === preset
+                      cropName === displayName
                         ? { background: 'var(--color-forest-light)', color: 'var(--color-forest)' }
                         : { color: 'var(--color-muted)' }
                     }
-                    onMouseEnter={(e) => { if (cropName !== preset) e.currentTarget.style.background = 'var(--color-soil-dark)'; }}
-                    onMouseLeave={(e) => { if (cropName !== preset) e.currentTarget.style.background = 'transparent'; }}
+                    onMouseEnter={(e) => { if (cropName !== displayName) e.currentTarget.style.background = 'var(--color-soil-dark)'; }}
+                    onMouseLeave={(e) => { if (cropName !== displayName) e.currentTarget.style.background = 'transparent'; }}
                   >
                     <span className="flex items-center gap-2">
                       <Sprout size={14} style={{ color: 'var(--color-forest-muted)' }} className="shrink-0" />
-                      {preset}
+                      {displayName}
                     </span>
                   </button>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

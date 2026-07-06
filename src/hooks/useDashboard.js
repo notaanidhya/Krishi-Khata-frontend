@@ -9,7 +9,6 @@
  * 4. On failure → keeps showing the placeholder (never shows an error state)
  */
 
-import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentWeather } from '../api/weather';
 import { getMandiPrices } from '../api/mandi';
@@ -26,8 +25,8 @@ const buildMockWeather = () => {
   const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const conditions = ['sunny','partly_cloudy','sunny','cloudy','sunny','sunny','partly_cloudy'];
   const condTexts  = ['Clear Sky','Partly Cloudy','Mainly Clear','Overcast','Clear Sky','Clear Sky','Partly Cloudy'];
-  const maxTemps   = [42, 41, 39, 38, 40, 42, 43];
-  const minTemps   = [30, 29, 28, 27, 28, 29, 30];
+  const maxTemps   = [36, 35, 34, 33, 35, 36, 36];
+  const minTemps   = [26, 25, 25, 24, 25, 26, 26];
 
   const daily = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(today);
@@ -40,28 +39,26 @@ const buildMockWeather = () => {
       condition: conditions[i],
       condition_text: condTexts[i],
       precipitation_mm: 0,
-      humidity_pct: 22,
+      humidity_pct: 55,
       wind_speed_kmh: 12,
-      uv_index: 10,
-      advisory: i === 0
-        ? 'Extreme heat — ensure adequate irrigation and avoid fieldwork 12–3 PM.'
-        : 'Hot weather — irrigate in the early morning or evening.',
+      uv_index: 8,
     };
   });
 
   return {
-    location: { latitude: 22.7196, longitude: 75.8577, city: 'Indore', state: 'Madhya Pradesh' },
+    // No hardcoded city — leave blank so the UI shows "Locating..."
+    location: { latitude: null, longitude: null, city: '', state: '' },
     current: {
-      temperature_c: 42.5,
-      feels_like_c: 44,
-      humidity_pct: 22,
+      temperature_c: 35,
+      feels_like_c: 37,
+      humidity_pct: 55,
       wind_speed_kmh: 12,
-      wind_direction: 'NNW',
-      condition: 'cloudy',
-      condition_text: 'Overcast',
-      uv_index: 10,
+      wind_direction: 'NW',
+      condition: 'partly_cloudy',
+      condition_text: 'Partly Cloudy',
+      uv_index: 8,
       visibility_km: 10,
-      pressure_hpa: 944,
+      pressure_hpa: 1005,
     },
     daily,
   };
@@ -98,7 +95,7 @@ const setCachedWeather = (data) => {
 /**
  * Return the best available instant weather:
  * 1. localStorage cache (real data from a recent session)
- * 2. Freshly generated mock (always valid)
+ * 2. Freshly generated mock (always valid, no hardcoded city)
  */
 const getInstantWeather = () => getCachedWeather() || buildMockWeather();
 
@@ -135,74 +132,12 @@ const withFallback = (fn, fallback) => async (...args) => {
 /**
  * useWeather — instant weather on every page load, zero flash.
  *
- * Lifecycle:
- * Frame 0   → placeholderData (localStorage cache or mock) renders instantly
- * ~0-8s     → Geolocation resolves (or times out)
- * ~0-45s    → Backend responds with live data → replaces placeholder seamlessly
- *              + caches the fresh data to localStorage
- * On error  → placeholder stays visible — user never sees "unavailable"
+ * Delegates GPS logic entirely to useLocation (single source of truth).
+ * Renders placeholder data from frame 0 while geolocation + backend resolve.
  */
 export const useWeather = () => {
-  const [coords, setCoords] = useState(() => {
-    const cached = localStorage.getItem('cached_location');
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached);
-        return { lat: parsed.lat, lon: parsed.lon };
-      } catch (e) { /* ignore */ }
-    }
-    return null;
-  });
-  const [locationStatus, setStatus] = useState(coords ? 'success' : 'pending');
-
-  useEffect(() => {
-    if (coords) return;
-
-    if ('geolocation' in navigator) {
-      const askLocation = () => {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const newCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-            localStorage.setItem('cached_location', JSON.stringify(newCoords));
-            localStorage.setItem('location_asked', 'true');
-            setCoords(newCoords);
-            setStatus('success');
-          },
-          () => {
-            localStorage.setItem('location_asked', 'true');
-            setStatus('error');
-          },
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-      };
-
-      if (navigator.permissions && navigator.permissions.query) {
-        navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-          if (result.state === 'granted') {
-            askLocation();
-          } else if (result.state === 'prompt') {
-            if (!localStorage.getItem('location_asked')) {
-              askLocation();
-            } else {
-              // eslint-disable-next-line react-hooks/set-state-in-effect
-              setStatus('error');
-            }
-          } else {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setStatus('error');
-          }
-        });
-      } else if (!localStorage.getItem('location_asked')) {
-        askLocation();
-      } else {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setStatus('error');
-      }
-    } else {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setStatus('error');
-    }
-  }, []);
+  // ← All GPS logic now lives in useLocation. No duplication.
+  const { coords, status: locationStatus } = useLocation();
 
   return useQuery({
     queryKey: DASHBOARD_KEYS.weather(coords),
@@ -216,15 +151,12 @@ export const useWeather = () => {
       return data;
     },
     // ── Instant display: show cached/mock data from frame 0 ──
-    // placeholderData is shown while the real query is in-flight,
-    // preventing the "unavailable" flash during geolocation wait
-    // and Render cold-start delays.
     placeholderData: getInstantWeather,
     staleTime: 1000 * 60 * 10,        // 10 min — don't refetch if fresh
     gcTime:    1000 * 60 * 30,         // 30 min — keep in memory
     refetchInterval: 1000 * 60 * 15,   // Auto-refresh every 15 min
-    retry: 0,                          // Don't retry — fall back instantly
-    enabled: locationStatus !== 'pending',
+    retry: 0,
+    enabled: locationStatus !== 'loading',
   });
 };
 
@@ -239,6 +171,6 @@ export const useMandiPrices = (filters = {}) => {
     staleTime: 1000 * 60 * 5,
     gcTime:    1000 * 60 * 20,
     refetchInterval: 1000 * 60 * 10,
-    retry: 0,                          // Don't retry — fall back instantly
+    retry: 0,
   });
 };

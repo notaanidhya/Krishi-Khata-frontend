@@ -49,6 +49,9 @@
     "emptyState": "Fetching latest market prices... No data available for your region yet.",
     "bhav": "BHAV",
     "tickerTitle": "Aaj ke Mandi Bhav",
+    "marketOverview": "Market Overview",
+    "noOverviewData": "No recent markets found for this crop. Prices may be loading — please try again in a moment.",
+    "govApiError": "The government price server is currently unavailable. Please try again in a few minutes.",
     "commodities": {
       "Wheat": "Wheat",
       "Soybean": "Soybean",
@@ -182,6 +185,24 @@
     "createFailed": "Failed to create crop. Please try again.",
     "planting": "Planting...",
     "plantCrop": "Plant Crop",
+    "aboutCrop": "About this crop",
+    "cropDoctorTitle": "Crop Doctor",
+    "day": "Day",
+    "doctorPlaceholder": "Describe an issue (e.g., yellow leaves, insects)...",
+    "photo": "Photo",
+    "comingSoon": "Coming soon!",
+    "asking": "Asking",
+    "askDoctor": "Ask Doctor",
+    "doctorThinking": "Doctor is thinking...",
+    "doctorAnalyzing": "Analyzing your {{cropName}} on Day {{day}}",
+    "aiAdvice": "AI Advice",
+    "diary": "Crop Diary",
+    "addLogBtn": "Add Log",
+    "noLogs": "No diary entries yet. Add one to track progress!",
+    "addLogTitle": "Add Diary Entry",
+    "addLogPlaceholder": "E.g., Sprayed neem oil today because I saw whiteflies...",
+    "saveLog": "Save to Diary",
+    "saveFailed": "Failed to save log.",
     "schedule": {
       "title": "Smart Schedule",
       "completed": "completed",
@@ -336,6 +357,12 @@
     "startFarming": "Start Farming",
     "back": "← Back",
     "step1Footer": "Your data is protected with a PIN",
-    "step2Footer": "Write down your PIN — there is no recovery yet"
+    "step2Footer": "Write down your PIN — there is no recovery yet",
+    "loginTitle": "Welcome back, {{name}}!",
+    "loginSubtitle": "Enter your PIN to unlock your account.",
+    "unlocking": "Unlocking...",
+    "unlockAccount": "Unlock Account",
+    "differentUser": "Different User",
+    "wrongPin": "Wrong PIN. Please try again."
   }
 }

@@ -176,7 +176,7 @@ const CropTrackingPage = () => {
                 className="text-xl font-bold font-serif-accent"
                 style={{ color: 'var(--color-forest)' }}
               >
-                {activeCrop.crop_name}
+                {i18n.language?.startsWith('hi') ? (activeCrop.crop_name_hi || activeCrop.crop_name) : activeCrop.crop_name}
               </h3>
               {activeCrop.is_processing && (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold animate-pulse shadow-sm" style={{ background: 'var(--color-warning-soft)', color: 'var(--color-warning)', border: '1px solid var(--color-harvest)' }}>
@@ -268,7 +268,7 @@ const CropTrackingPage = () => {
           <CropVisualizer growth_stage={activeCrop.current_stage} cropName={activeCrop.crop_name} />
 
           {/* About Crop (AI Generated Summary) */}
-          <AboutCrop cropId={activeCrop.id} />
+          <AboutCrop cropId={activeCrop.id} isProcessing={activeCrop.is_processing} />
 
           {/* AI Crop Doctor */}
           <CropDoctor
@@ -283,6 +283,7 @@ const CropTrackingPage = () => {
             cropName={activeCrop.crop_name}
             daysSincePlanting={activeCrop.days_since_planting}
             plantingDate={activeCrop.planting_date}
+            isProcessing={activeCrop.is_processing}
           />
 
           {/* Crop Diary Section */}

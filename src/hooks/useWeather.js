@@ -27,6 +27,7 @@ export const useWeatherDashboard = (lat, lon, city, state) => {
     staleTime: 1000 * 60 * 10, // 10 minutes
     initialData, // Instantly load last known weather
     refetchOnWindowFocus: false,
+    enabled: !!lat && !!lon,
   });
 };
 
@@ -88,12 +89,12 @@ export const useWeatherAdvisory = (lat, lon, city, state, cropName, daysSincePla
 
       return data;
     },
-    // Fallback initial data → retry soon; real Gemini data → relax
-    staleTime: initialData?.is_fallback
-      ? 1000 * 60 * 5   // retry fallbacks after 5 min
-      : 1000 * 60 * 60, // real responses: 1 hour
+    // Fallback initial data → ALWAYS refetch in background (staleTime: 0)
+    // Real Gemini data → Keep fresh for 1 hour
+    staleTime: initialData?.is_fallback ? 0 : 1000 * 60 * 60,
     initialData,
     refetchOnWindowFocus: false,
+    enabled: !!lat && !!lon,
     retry: 2,
     retryDelay: 3000,
   });

@@ -72,7 +72,7 @@ const WelcomeScreen = ({ onRegister, onLogin }) => {
     try {
       await onLogin(name.trim(), pin);
     } catch (err) {
-      let errorMsg = 'Wrong PIN. Please try again.';
+      let errorMsg = t('welcome.wrongPin');
       const detail = err.response?.data?.detail;
       if (typeof detail === 'string') {
         errorMsg = detail;
@@ -360,11 +360,11 @@ const WelcomeScreen = ({ onRegister, onLogin }) => {
               <div className="flex items-center gap-2 mb-1">
                 <Lock size={18} style={{ color: 'var(--color-forest-muted)' }} />
                 <h2 className="text-lg font-bold" style={{ color: 'var(--color-forest)' }}>
-                  Welcome back, {name.split(' ')[0]}!
+                  {t('welcome.loginTitle', { name: name.split(' ')[0] })}
                 </h2>
               </div>
               <p className="text-sm mb-5" style={{ color: 'var(--color-muted)' }}>
-                Enter your PIN to unlock your account.
+                {t('welcome.loginSubtitle')}
               </p>
               <form onSubmit={handleLoginSubmit}>
                 <div className="relative">
@@ -408,12 +408,12 @@ const WelcomeScreen = ({ onRegister, onLogin }) => {
                   {isSubmitting ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
-                      Unlocking...
+                      {t('welcome.unlocking')}
                     </>
                   ) : (
                     <>
                       <Lock size={16} />
-                      Unlock Account
+                      {t('welcome.unlockAccount')}
                     </>
                   )}
                 </button>
@@ -424,7 +424,7 @@ const WelcomeScreen = ({ onRegister, onLogin }) => {
                   className="w-full mt-2 py-2 text-sm transition-colors"
                   style={{ color: 'var(--color-muted)' }}
                 >
-                  Different User
+                  {t('welcome.differentUser')}
                 </button>
               </form>
             </>

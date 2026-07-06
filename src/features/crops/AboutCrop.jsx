@@ -4,7 +4,7 @@ import { Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../api/apiClient';
 
-const AboutCrop = ({ cropId }) => {
+const AboutCrop = ({ cropId, isProcessing }) => {
   const { t } = useTranslation();
   const { data, isLoading, error } = useQuery({
     queryKey: ['crop-about', cropId],
@@ -13,9 +13,10 @@ const AboutCrop = ({ cropId }) => {
       return res.data;
     },
     staleTime: 1000 * 60 * 60, // Cache for 1 hour to save API calls
+    enabled: !isProcessing && !!cropId,
   });
 
-  if (isLoading) {
+  if (isLoading || isProcessing) {
     return (
       <div className="krishi-card p-4 mt-4 bg-stone-50 border border-stone-200 shadow-sm animate-pulse">
         <div className="h-4 bg-stone-200 rounded w-1/4 mb-2"></div>
