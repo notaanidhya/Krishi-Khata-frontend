@@ -1,14 +1,6 @@
-/**
- * Crop API Layer — uses centralized apiClient with JWT interceptor.
- * All requests target /api/v1 on the FastAPI backend.
- */
 
 import apiClient from './apiClient';
 
-/**
- * Fetch the currently active crop for a farm (with calculated stage).
- * Returns null if 404 (no active crop).
- */
 export const getActiveCrop = async (farmId) => {
   try {
     const { data } = await apiClient.get(`/api/v1/farms/${farmId}/active_crop`);
@@ -20,7 +12,6 @@ export const getActiveCrop = async (farmId) => {
 };
 
 /**
- * Fetch all crop cycles for a farm (includes logs).
  * @param {number} farmId
  * @param {string} [statusFilter] - Optional: "ACTIVE" | "HARVESTED"
  */
@@ -32,9 +23,8 @@ export const getCrops = async (farmId, statusFilter) => {
 };
 
 /**
- * Plant a new crop cycle on a farm.
  * @param {number} farmId
- * @param {Object} cropData - { crop_name, planting_date }
+ * @param {Object} cropData 
  */
 export const createCrop = async (farmId, cropData) => {
   const { data } = await apiClient.post(`/api/v1/farms/${farmId}/crops`, cropData);
@@ -42,7 +32,6 @@ export const createCrop = async (farmId, cropData) => {
 };
 
 /**
- * Delete a crop.
  * @param {number} cropId
  */
 export const deleteCrop = async (cropId) => {
@@ -50,16 +39,12 @@ export const deleteCrop = async (cropId) => {
   return data;
 };
 
-/**
- * Fetch crop name presets for the Add Crop dropdown.
- */
 export const getCropPresets = async () => {
   const { data } = await apiClient.get('/api/v1/crop-presets');
   return data;
 };
 
 /**
- * Retry AI validation for a crop that failed processing.
  * @param {number} cropId
  */
 export const retryCropValidation = async (cropId) => {
@@ -69,9 +54,8 @@ export const retryCropValidation = async (cropId) => {
 
 
 /**
- * Ask the AI Crop Doctor a question about a specific crop.
  * @param {number} cropId
- * @param {string} query - The farmer's question or issue description
+ * @param {string} query 
  * @returns {{ answer: string, crop_name: string, days_since_planting: number, current_stage: string }}
  */
 export const askCropAI = async (cropId, query) => {
@@ -80,9 +64,8 @@ export const askCropAI = async (cropId, query) => {
 };
 
 /**
- * Add a new diary log for a crop.
  * @param {number} cropId
- * @param {Object} logData - { raw_content, log_date, input_type }
+ * @param {Object} logData 
  */
 export const addCropLog = async (cropId, logData) => {
   const { data } = await apiClient.post(`/api/v1/crops/${cropId}/logs`, logData);

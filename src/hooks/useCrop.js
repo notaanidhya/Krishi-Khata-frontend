@@ -1,13 +1,4 @@
-/**
- * TanStack Query hooks for crop tracking & farm diary.
- *
- * useActiveCrop  — fetches the single active crop for a farm
- * useCrops       — fetches all crop cycles for a farm
- * useCropPresets — fetches known crop names for dropdown
- * useCreateCrop  — mutation to plant a new crop
- * useHarvestCrop — mutation to mark crop as harvested
- * useAddCropLog  — mutation that submits a diary entry
- */
+
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -28,9 +19,7 @@ const CROP_KEYS = {
   logs: (cropId) => ['cropLogs', cropId],
 };
 
-/**
- * Fetch the active crop for a farm (null if none).
- */
+
 export const useActiveCrop = (farmId) => {
   return useQuery({
     queryKey: CROP_KEYS.activeCrop(farmId),
@@ -40,9 +29,6 @@ export const useActiveCrop = (farmId) => {
   });
 };
 
-/**
- * Fetch all crop cycles for a farm.
- */
 export const useCrops = (farmId) => {
   return useQuery({
     queryKey: CROP_KEYS.crops(farmId),
@@ -52,27 +38,22 @@ export const useCrops = (farmId) => {
     refetchInterval: (query) => {
       const data = query.state.data;
       if (Array.isArray(data) && data.some((c) => c.is_processing)) {
-        return 3000; // Poll every 3 seconds while crop is processing
+        return 3000;
       }
       return false;
     },
   });
 };
 
-/**
- * Fetch crop name presets for the dropdown.
- */
+
 export const useCropPresets = () => {
   return useQuery({
     queryKey: CROP_KEYS.presets(),
     queryFn: getCropPresets,
-    staleTime: 1000 * 60 * 60, // cache for 1 hour
+    staleTime: 1000 * 60 * 60,
   });
 };
 
-/**
- * Mutation: plant a new crop.
- */
 export const useCreateCrop = () => {
   const queryClient = useQueryClient();
 
@@ -95,7 +76,7 @@ export const useCreateCrop = () => {
         expected_harvest_date: cropData.expected_harvest_date || null,
         status: 'ACTIVE',
         is_active: true,
-        is_processing: true, // Backend AI validation processing
+        is_processing: true,
         is_syncing: true,
         logs: [],
       };
@@ -136,9 +117,6 @@ export const useCreateCrop = () => {
   });
 };
 
-/**
- * Mutation: delete crop.
- */
 export const useDeleteCrop = () => {
   const queryClient = useQueryClient();
 
@@ -151,7 +129,7 @@ export const useDeleteCrop = () => {
       const previousActiveCrop = queryClient.getQueriesData({ queryKey: ['activeCrop'] });
       const previousCrops = queryClient.getQueriesData({ queryKey: ['crops'] });
 
-      // If active crop is deleted, set to null
+
       queryClient.setQueriesData({ queryKey: ['activeCrop'] }, (old) => {
         if (old?.id === cropId) return null;
         return old;
@@ -180,9 +158,6 @@ export const useDeleteCrop = () => {
   });
 };
 
-/**
- * Mutation: add crop log
- */
 export const useAddCropLog = () => {
   const queryClient = useQueryClient();
 
@@ -206,7 +181,7 @@ export const useAddCropLog = () => {
         is_syncing: true,
       };
 
-      // Optimistically add to activeCrop's logs
+
       queryClient.setQueriesData({ queryKey: ['activeCrop'] }, (old) => {
         if (old?.id === cropId) {
           return { ...old, logs: [optimisticLog, ...(old.logs || [])] };
@@ -214,7 +189,7 @@ export const useAddCropLog = () => {
         return old;
       });
 
-      // Optimistically add to crops list
+
       queryClient.setQueriesData({ queryKey: ['crops'] }, (old) => {
         if (!Array.isArray(old)) return old;
         return old.map(c => c.id === cropId ? { ...c, logs: [optimisticLog, ...(c.logs || [])] } : c);
@@ -245,7 +220,7 @@ export const useAddCropLog = () => {
 
       queryClient.setQueriesData({ queryKey: ['crops'] }, (old) => {
         if (!Array.isArray(old)) return old;
-        return old.map(c => c.id === variables.cropId 
+        return old.map(c => c.id === variables.cropId
           ? { ...c, logs: (c.logs || []).map(l => l.id === context.tempId ? savedLog : l) }
           : c
         );
@@ -254,9 +229,7 @@ export const useAddCropLog = () => {
   });
 };
 
-/**
- * Mutation: retry crop validation
- */
+
 export const useRetryCropValidation = () => {
   const queryClient = useQueryClient();
 

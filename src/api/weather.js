@@ -1,14 +1,9 @@
-/**
- * Weather API Layer — Axios fetchers for weather data.
- * All requests target /api/v1/weather on the FastAPI backend.
- */
 
 import apiClient from './apiClient';
 
 /**
- * Fetch current weather conditions + 7-day forecast.
- * @param {Object} coords - Optional { lat, lon }
- * @returns {Promise<Object>} WeatherResponse — { location, current, daily[] }
+ * @param {Object} coords 
+ * @returns {Promise<Object>} 
  */
 export const getCurrentWeather = async (coords = null) => {
   const params = coords ? { lat: coords.lat, lon: coords.lon } : {};
@@ -17,10 +12,9 @@ export const getCurrentWeather = async (coords = null) => {
 };
 
 /**
- * Fetch 7-day forecast only.
- * @param {number} lat — Latitude
- * @param {number} lon — Longitude
- * @returns {Promise<Object>} { location, daily[] }
+ * @param {number} lat 
+ * @param {number} lon 
+ * @returns {Promise<Object>} 
  */
 export const getForecast = async (lat = 23.2599, lon = 77.4126) => {
   const { data } = await apiClient.get('/api/v1/weather/forecast', {
@@ -30,13 +24,11 @@ export const getForecast = async (lat = 23.2599, lon = 77.4126) => {
 };
 
 /**
- * Fetch the comprehensive weather dashboard data.
- * Includes AI summary, spraying windows, soil insights, and 7-day forecast.
- * @param {number} [lat] - Latitude of the farm
- * @param {number} [lon] - Longitude of the farm
- * @param {string} [city] - City name
- * @param {string} [state] - State name
- * @returns {Object} Full dashboard payload
+ * @param {number} [lat] 
+ * @param {number} [lon] 
+ * @param {string} [city] 
+ * @param {string} [state]
+ * @returns {Object} 
  */
 export const getWeatherDashboard = async (lat, lon, city, state) => {
   const params = {};
@@ -49,13 +41,12 @@ export const getWeatherDashboard = async (lat, lon, city, state) => {
 };
 
 /**
- * Fetch the AI-generated agricultural weather advisory.
- * Separated from the dashboard for faster initial load.
- * @param {number} [lat] - Latitude
- * @param {number} [lon] - Longitude
- * @param {string} [city] - City name
- * @param {string} [state] - State name
- * @returns {Object} { ai_summary: string }
+ 
+ * @param {number} [lat] 
+ * @param {number} [lon] 
+ * @param {string} [city]
+ * @param {string} [state]
+ * @returns {Object} 
  */
 export const getWeatherAdvisory = async (lat, lon, city, state, cropName, daysSincePlanting, currentStage) => {
   const params = {};
@@ -70,9 +61,7 @@ export const getWeatherAdvisory = async (lat, lon, city, state, cropName, daysSi
   return data;
 };
 
-/**
- * Perform reverse geocoding to get the exact village/locality name.
- */
+
 export const getExactLocationDetails = async (lat, lon) => {
   try {
     const res = await fetch(

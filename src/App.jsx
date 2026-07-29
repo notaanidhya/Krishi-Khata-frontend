@@ -33,11 +33,11 @@ import { useFarms } from './hooks/useFarm';
 import { useGhostAuth } from './hooks/useGhostAuth';
 
 const NAV_ITEMS = [
-  { to: '/',          end: true,  icon: BookOpen,        labelKey: 'nav.khata'   },
-  { to: '/crops',     end: false, icon: Sprout,          labelKey: 'nav.crops'   },
-  { to: '/mandi',     end: false, icon: TrendingUp,      labelKey: 'nav.mandi'   },
-  { to: '/community', end: false, icon: Users,           labelKey: 'nav.chaupal' },
-  { to: '/weather',   end: false, icon: CloudSun,        labelKey: 'nav.mausam'  },
+  { to: '/', end: true, icon: BookOpen, labelKey: 'nav.khata' },
+  { to: '/crops', end: false, icon: Sprout, labelKey: 'nav.crops' },
+  { to: '/mandi', end: false, icon: TrendingUp, labelKey: 'nav.mandi' },
+  { to: '/community', end: false, icon: Users, labelKey: 'nav.chaupal' },
+  { to: '/weather', end: false, icon: CloudSun, labelKey: 'nav.mausam' },
 ];
 
 function App() {
@@ -56,7 +56,6 @@ function App() {
 
   const { data: farmsData, isLoading: farmsQueryLoading } = useFarms();
 
-  // Sync fetched farms into the ActiveFarmContext
   useEffect(() => {
     if (!farmsQueryLoading && farmsData) {
       setFarms(farmsData);
@@ -64,12 +63,10 @@ function App() {
     }
   }, [farmsData, farmsQueryLoading, setFarms, setIsLoading]);
 
-  // ── Auth Gate: New User → WelcomeScreen ─────────────────────
   if (isNewUser) {
     return <WelcomeScreen onRegister={register} onLogin={login} />;
   }
 
-  // ── Auth Gate: Returning User → PIN Entry ────────────────────
   if (needsPin) {
     return (
       <PinEntryScreen
@@ -81,7 +78,6 @@ function App() {
     );
   }
 
-  // ── Authenticated but loading farms ──────────────────────────
   if (!isAuthenticated || farmsQueryLoading || farmContextLoading) {
     return (
       <div
@@ -96,7 +92,6 @@ function App() {
 
   return (
     <Router>
-      {/* Refined Earth paper-white background fills the entire screen */}
       <div className="min-h-screen pb-20" style={{ backgroundColor: 'var(--color-soil)' }}>
         <TopBar />
         <Toaster
@@ -125,18 +120,16 @@ function App() {
         />
 
         <main>
-          {/* ── Animated page routes ──────────────────────── */}
           <AnimatedRoutes>
-            <Route path="/"          element={<KhataPage />} />
-            <Route path="/crops"     element={<CropTrackingPage />} />
-            <Route path="/mandi"     element={<MandiDashboard />} />
-            <Route path="/weather"   element={<WeatherPage />} />
+            <Route path="/" element={<KhataPage />} />
+            <Route path="/crops" element={<CropTrackingPage />} />
+            <Route path="/mandi" element={<MandiDashboard />} />
+            <Route path="/weather" element={<WeatherPage />} />
             <Route path="/community" element={<CommunityPage />} />
-            <Route path="*"          element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </AnimatedRoutes>
         </main>
 
-        {/* ── Mobile Bottom Navigation ── */}
         <nav
           className="fixed bottom-0 left-0 right-0 px-2 py-1.5 flex justify-around items-center h-16 z-40"
           style={{
@@ -158,7 +151,6 @@ function App() {
             >
               {({ isActive }) => (
                 <>
-                  {/* Sliding active pill via shared layoutId */}
                   {isActive && (
                     <motion.div
                       layoutId="nav-active-pill"

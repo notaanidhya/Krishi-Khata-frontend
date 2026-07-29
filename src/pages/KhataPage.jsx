@@ -1,15 +1,3 @@
-/**
- * KhataPage — "The Digital Bahi-Khata" Krishi redesign.
- *
- * - bg-stone-50 warm background
- * - Tab toggle: "General Hisab" | "Labor Hisab"
- * - Premium dark forest green Net Profit card (emerald-950)
- * - Massive clean white numbers on dark card
- * - Serif "Mera Hisab" screen title
- * - Clean transaction list with precise red/green indicators
- * - Add Transaction button: deep emerald-800
- */
-
 import { useState } from 'react';
 import {
   Plus, TrendingUp, TrendingDown, Wallet,
@@ -26,23 +14,22 @@ import PageShell from '../components/layout/PageShell';
 import EmptyStateUI from '../components/ui/EmptyState';
 import { staggerContainer, fadeUp } from '../components/motion/motionPresets';
 
-// ── Category label + emoji map ─────────────────────────────────
 const CATEGORY_META = {
-  seeds:         { label: 'Seeds',        icon: '🌱' },
-  fertilizer:    { label: 'Fertilizer',   icon: '🧪' },
-  pesticide:     { label: 'Pesticide',    icon: '🐛' },
-  labor:         { label: 'Labor',        icon: '👷' },
-  labor_wage:    { label: 'Labor Wage',   icon: '👷' },
-  labor_payment: { label: 'Labor Payment',icon: '💸' },
-  tractor_rent:  { label: 'Tractor Rent', icon: '🚜' },
-  equipment:     { label: 'Equipment',    icon: '🔧' },
-  irrigation:    { label: 'Irrigation',   icon: '💧' },
-  transport:     { label: 'Transport',    icon: '🚚' },
-  other_expense: { label: 'Other',        icon: '📦' },
-  mandi_sale:    { label: 'मंडी बिक्री',         icon: '🏪' },
-  trader_sale:   { label: 'व्यापारी को बिक्री',   icon: '🤝' },
-  subsidy:       { label: 'Subsidy',      icon: '🏛️' },
-  other_income:  { label: 'Other Income', icon: '💰' },
+  seeds: { label: 'Seeds', icon: '🌱' },
+  fertilizer: { label: 'Fertilizer', icon: '🧪' },
+  pesticide: { label: 'Pesticide', icon: '🐛' },
+  labor: { label: 'Labor', icon: '👷' },
+  labor_wage: { label: 'Labor Wage', icon: '👷' },
+  labor_payment: { label: 'Labor Payment', icon: '💸' },
+  tractor_rent: { label: 'Tractor Rent', icon: '🚜' },
+  equipment: { label: 'Equipment', icon: '🔧' },
+  irrigation: { label: 'Irrigation', icon: '💧' },
+  transport: { label: 'Transport', icon: '🚚' },
+  other_expense: { label: 'Other', icon: '📦' },
+  mandi_sale: { label: 'मंडी बिक्री', icon: '🏪' },
+  trader_sale: { label: 'व्यापारी को बिक्री', icon: '🤝' },
+  subsidy: { label: 'Subsidy', icon: '🏛️' },
+  other_income: { label: 'Other Income', icon: '💰' },
 };
 
 const formatINR = (value) =>
@@ -51,60 +38,52 @@ const formatINR = (value) =>
 const formatDate = (dateStr, language = 'en') =>
   new Date(dateStr).toLocaleDateString(language === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
-// ═══════════════════════════════════════════════════════════════
-//  TAB TOGGLE — "General Hisab" | "Labor Hisab"
-// ═══════════════════════════════════════════════════════════════
+
 const TabToggle = ({ activeTab, onTabChange }) => {
   const { t } = useTranslation();
   const isLabor = activeTab === 'labor';
   return (
-  <div
-    className="flex rounded-xl p-1 gap-1 relative"
-    style={{ background: 'var(--color-soil-dark)' }}
-  >
-    {/* Sliding pill indicator */}
     <div
-      className="absolute top-1 bottom-1 rounded-lg transition-all duration-300 ease-out"
-      style={{
-        left: isLabor ? 'calc(50% + 2px)' : '4px',
-        width: 'calc(50% - 6px)',
-        background: isLabor
-          ? 'linear-gradient(135deg, #c97b4a, #b85c4a)'
-          : 'linear-gradient(135deg, var(--color-forest-muted), var(--color-forest))',
-        boxShadow: isLabor
-          ? '0 2px 12px rgba(201,123,74,0.28)'
-          : '0 2px 12px rgba(107,123,79,0.28)',
-      }}
-    />
-    <button
-      onClick={() => onTabChange('general')}
-      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-bold text-sm transition-colors duration-300 relative z-10 ${
-        activeTab === 'general'
-          ? 'text-white'
-          : 'text-stone-500 hover:text-stone-700'
-      }`}
+      className="flex rounded-xl p-1 gap-1 relative"
+      style={{ background: 'var(--color-soil-dark)' }}
     >
-      <BookOpen size={16} strokeWidth={activeTab === 'general' ? 2.5 : 2} />
-      {t('khata.generalTab')}
-    </button>
-    <button
-      onClick={() => onTabChange('labor')}
-      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-bold text-sm transition-colors duration-300 relative z-10 ${
-        activeTab === 'labor'
-          ? 'text-white'
-          : 'text-stone-500 hover:text-stone-700'
-      }`}
-    >
-      <Users size={16} strokeWidth={activeTab === 'labor' ? 2.5 : 2} />
-      {t('khata.laborTab')}
-    </button>
-  </div>
+      <div
+        className="absolute top-1 bottom-1 rounded-lg transition-all duration-300 ease-out"
+        style={{
+          left: isLabor ? 'calc(50% + 2px)' : '4px',
+          width: 'calc(50% - 6px)',
+          background: isLabor
+            ? 'linear-gradient(135deg, #c97b4a, #b85c4a)'
+            : 'linear-gradient(135deg, var(--color-forest-muted), var(--color-forest))',
+          boxShadow: isLabor
+            ? '0 2px 12px rgba(201,123,74,0.28)'
+            : '0 2px 12px rgba(107,123,79,0.28)',
+        }}
+      />
+      <button
+        onClick={() => onTabChange('general')}
+        className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-bold text-sm transition-colors duration-300 relative z-10 ${activeTab === 'general'
+            ? 'text-white'
+            : 'text-stone-500 hover:text-stone-700'
+          }`}
+      >
+        <BookOpen size={16} strokeWidth={activeTab === 'general' ? 2.5 : 2} />
+        {t('khata.generalTab')}
+      </button>
+      <button
+        onClick={() => onTabChange('labor')}
+        className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-bold text-sm transition-colors duration-300 relative z-10 ${activeTab === 'labor'
+            ? 'text-white'
+            : 'text-stone-500 hover:text-stone-700'
+          }`}
+      >
+        <Users size={16} strokeWidth={activeTab === 'labor' ? 2.5 : 2} />
+        {t('khata.laborTab')}
+      </button>
+    </div>
   );
 };
 
-// ═══════════════════════════════════════════════════════════════
-//  SUMMARY CARD — Deep matte forest green, massive numbers
-// ═══════════════════════════════════════════════════════════════
 const SummaryCard = ({ summary, isLoading }) => {
   const { t } = useTranslation();
   if (isLoading) {
@@ -170,9 +149,7 @@ const SummaryCard = ({ summary, isLoading }) => {
   );
 };
 
-// ═══════════════════════════════════════════════════════════════
-//  TRANSACTION CARD — Clean, precise red/green indicators
-// ═══════════════════════════════════════════════════════════════
+
 const TransactionCard = ({ txn, onEdit, onDelete, isDeleting }) => {
   const { t, i18n } = useTranslation();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -278,9 +255,7 @@ const EmptyState = () => {
   );
 };
 
-// ═══════════════════════════════════════════════════════════════
-//  KHATA PAGE
-// ═══════════════════════════════════════════════════════════════
+
 const KhataPage = () => {
   const { t } = useTranslation();
   const { activeFarm } = useActiveFarm();
@@ -296,9 +271,9 @@ const KhataPage = () => {
   const transactions = (() => {
     const generalTxns = rawTransactions.filter(t => !['labor_wage', 'labor_payment'].includes(t.type) && t.category !== 'labor');
     const laborTxns = rawTransactions.filter(t => ['labor_wage', 'labor_payment'].includes(t.type) || t.category === 'labor');
-    
+
     const totalLaborCost = laborTxns.filter(t => t.type === 'labor_wage' || (t.category === 'labor' && t.type === 'expense')).reduce((sum, t) => sum + Number(t.amount || 0), 0);
-    
+
     if (totalLaborCost > 0 || laborTxns.length > 0) {
       generalTxns.unshift({
         id: 'general-labor-aggregate',
@@ -329,96 +304,96 @@ const KhataPage = () => {
         className="px-4 py-5 max-w-lg mx-auto space-y-5 pb-28"
       >
 
-      {/* ── Screen Title (Serif) ──────────────────────────── */}
-      <motion.h1
-        variants={fadeUp}
-        className="text-2xl font-bold font-serif-accent leading-tight"
-        style={{ color: 'var(--color-forest)' }}
-      >
-        {t('khata.title')}
-      </motion.h1>
+        {/* ── Screen Title (Serif) ──────────────────────────── */}
+        <motion.h1
+          variants={fadeUp}
+          className="text-2xl font-bold font-serif-accent leading-tight"
+          style={{ color: 'var(--color-forest)' }}
+        >
+          {t('khata.title')}
+        </motion.h1>
 
-      {/* ── Tab Toggle ────────────────────────────────────── */}
-      <motion.div variants={fadeUp}>
-        <TabToggle activeTab={activeTab} onTabChange={setActiveTab} />
-      </motion.div>
+        {/* ── Tab Toggle ────────────────────────────────────── */}
+        <motion.div variants={fadeUp}>
+          <TabToggle activeTab={activeTab} onTabChange={setActiveTab} />
+        </motion.div>
 
-      {/* ── General Hisab Tab ─────────────────────────────── */}
-      {activeTab === 'general' && (
-        <div className="space-y-5">
-          {/* ── Summary Card ─────────────────────────────────── */}
-          <motion.div variants={fadeUp}>
-            <SummaryCard summary={summary} isLoading={summaryLoading} />
-          </motion.div>
+        {/* ── General Hisab Tab ─────────────────────────────── */}
+        {activeTab === 'general' && (
+          <div className="space-y-5">
+            {/* ── Summary Card ─────────────────────────────────── */}
+            <motion.div variants={fadeUp}>
+              <SummaryCard summary={summary} isLoading={summaryLoading} />
+            </motion.div>
 
-          {/* ── Add Transaction Button ───────────────────────── */}
-          <motion.button
-            variants={fadeUp}
-            onClick={() => { setEditingTransaction(null); setIsFormOpen(true); }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full py-4 text-white font-bold text-base rounded-2xl flex items-center justify-center gap-2 transition-all"
-            style={{
-              background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
-              boxShadow: '0 6px 20px -4px rgba(92,122,85,0.45)',
-            }}
-          >
-            <Plus size={20} strokeWidth={3} />
-            {t('khata.addTransaction')}
-          </motion.button>
+            {/* ── Add Transaction Button ───────────────────────── */}
+            <motion.button
+              variants={fadeUp}
+              onClick={() => { setEditingTransaction(null); setIsFormOpen(true); }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full py-4 text-white font-bold text-base rounded-2xl flex items-center justify-center gap-2 transition-all"
+              style={{
+                background: 'linear-gradient(135deg, var(--color-forest-mid), var(--color-forest))',
+                boxShadow: '0 6px 20px -4px rgba(92,122,85,0.45)',
+              }}
+            >
+              <Plus size={20} strokeWidth={3} />
+              {t('khata.addTransaction')}
+            </motion.button>
 
-          {/* ── Transaction List ─────────────────────────────── */}
-          <motion.div variants={fadeUp}>
-            <h2 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--color-muted)' }}>
-              {t('khata.recentEntries')}
-            </h2>
+            {/* ── Transaction List ─────────────────────────────── */}
+            <motion.div variants={fadeUp}>
+              <h2 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--color-muted)' }}>
+                {t('khata.recentEntries')}
+              </h2>
 
-            {txnLoading && (
-              <div className="flex justify-center py-12">
-                <Loader2 size={28} className="animate-spin" style={{ color: 'var(--color-forest-muted)' }} />
-              </div>
-            )}
+              {txnLoading && (
+                <div className="flex justify-center py-12">
+                  <Loader2 size={28} className="animate-spin" style={{ color: 'var(--color-forest-muted)' }} />
+                </div>
+              )}
 
-            {txnError && (
-              <div className="flex items-center gap-2 p-4 rounded-2xl border" style={{ background: 'var(--color-danger-soft)', color: 'var(--color-danger)', borderColor: 'rgba(184,92,74,0.2)' }}>
-                <AlertCircle size={18} />
-                <p className="text-sm">{t('khata.errorLoad')}</p>
-              </div>
-            )}
+              {txnError && (
+                <div className="flex items-center gap-2 p-4 rounded-2xl border" style={{ background: 'var(--color-danger-soft)', color: 'var(--color-danger)', borderColor: 'rgba(184,92,74,0.2)' }}>
+                  <AlertCircle size={18} />
+                  <p className="text-sm">{t('khata.errorLoad')}</p>
+                </div>
+              )}
 
-            {!txnLoading && !txnError && transactions.length === 0 && <EmptyState />}
+              {!txnLoading && !txnError && transactions.length === 0 && <EmptyState />}
 
-            {!txnLoading && !txnError && transactions.length > 0 && (
-              <div className="space-y-3">
-                {transactions.map((txn, index) => (
-                  <div
-                    key={txn.id}
-                    className="animate-list-item"
-                    style={{ '--item-index': index }}
-                  >
-                    <TransactionCard
-                      txn={txn}
-                      onEdit={(t) => { setEditingTransaction(t); setIsFormOpen(true); }}
-                      onDelete={handleDelete}
-                      isDeleting={deletingId === txn.id}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </motion.div>
-        </div>
-      )}
+              {!txnLoading && !txnError && transactions.length > 0 && (
+                <div className="space-y-3">
+                  {transactions.map((txn, index) => (
+                    <div
+                      key={txn.id}
+                      className="animate-list-item"
+                      style={{ '--item-index': index }}
+                    >
+                      <TransactionCard
+                        txn={txn}
+                        onEdit={(t) => { setEditingTransaction(t); setIsFormOpen(true); }}
+                        onDelete={handleDelete}
+                        isDeleting={deletingId === txn.id}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
 
-      {/* ── Labor Hisab Tab ───────────────────────────────── */}
-      {activeTab === 'labor' && <LaborDashboard onAddWage={() => { setIsLaborFormMode(true); setIsFormOpen(true); }} />}
+        {/* ── Labor Hisab Tab ───────────────────────────────── */}
+        {activeTab === 'labor' && <LaborDashboard onAddWage={() => { setIsLaborFormMode(true); setIsFormOpen(true); }} />}
 
-      {/* ── Transaction Form Modal ───────────────────────── */}
-      <TransactionForm 
-        isOpen={isFormOpen} 
-        initialData={editingTransaction}
-        isLaborMode={isLaborFormMode}
-        onClose={() => { setIsFormOpen(false); setEditingTransaction(null); setIsLaborFormMode(false); }} 
-      />
+        {/* ── Transaction Form Modal ───────────────────────── */}
+        <TransactionForm
+          isOpen={isFormOpen}
+          initialData={editingTransaction}
+          isLaborMode={isLaborFormMode}
+          onClose={() => { setIsFormOpen(false); setEditingTransaction(null); setIsLaborFormMode(false); }}
+        />
       </motion.div>
     </PageShell>
   );

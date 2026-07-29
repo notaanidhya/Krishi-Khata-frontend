@@ -1,6 +1,3 @@
-/**
- * Auth API — Register and Login with device ID + PIN.
- */
 
 import apiClient from './apiClient';
 
@@ -16,9 +13,9 @@ export const checkUsername = async (username) => {
 
 /**
  * Register a new device with a PIN.
- * @param {string} deviceId - UUID
- * @param {string} pin - 4-digit PIN
- * @param {string} displayName - User's name
+ * @param {string} deviceId 
+ * @param {string} pin 
+ * @param {string} displayName 
  * @returns {Promise<{token: string, user: object}>}
  */
 export const registerDevice = async (deviceId, pin, displayName) => {
