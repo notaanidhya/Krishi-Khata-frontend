@@ -27,8 +27,18 @@ export const useFarms = () => {
     queryKey: FARM_KEYS.all(),
     queryFn: async () => {
       try {
-        return await getFarms();
+        const data = await getFarms();
+        return Array.isArray(data) ? data : [];
       } catch {
+        // If network failed, fallback to cached farm in localStorage so farm is not lost
+        const saved = localStorage.getItem('agroo_active_farm');
+        if (saved) {
+          try {
+            return [JSON.parse(saved)];
+          } catch {
+            // ignore
+          }
+        }
         return [];
       }
     },

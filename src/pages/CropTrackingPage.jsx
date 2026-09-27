@@ -28,7 +28,7 @@ import { staggerContainer, fadeUp } from '../components/motion/motionPresets';
 
 const CropTrackingPage = () => {
   const { t, i18n } = useTranslation();
-  const { activeFarm } = useActiveFarm();
+  const { activeFarm, isLoading: farmLoading } = useActiveFarm();
   const farmId = activeFarm?.id;
 
   const { data: allCrops, isLoading } = useCrops(farmId);
@@ -45,21 +45,8 @@ const CropTrackingPage = () => {
     deleteMutation.mutate({ cropId }, { onSuccess: () => setShowDeleteConfirm(null) });
   };
 
-  // ── No farm selected ─────────────────────────────────────
-  if (!activeFarm) {
-    return (
-      <PageShell ambient="crops">
-        <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: 'var(--color-soil-dark)' }}>
-            <Sprout size={28} style={{ color: 'var(--color-muted)' }} />
-          </div>
-          <p className="text-sm font-medium" style={{ color: 'var(--color-muted)' }}>{t('crops.selectFarm')}</p>
-        </div>
-      </PageShell>
-    );
-  }
-
-  if (isLoading) {
+  // ── Show skeleton while farm or crops are loading ──────────
+  if (farmLoading || (isLoading && activeFarm)) {
     return (
       <PageShell ambient="crops">
         <div className="px-4 pt-4 pb-24 max-w-lg mx-auto space-y-4">
@@ -79,6 +66,20 @@ const CropTrackingPage = () => {
             <div className="rounded-2xl skeleton-shimmer" style={{ height: '120px' }} />
             <div className="rounded-2xl skeleton-shimmer" style={{ height: '160px' }} />
           </div>
+        </div>
+      </PageShell>
+    );
+  }
+
+  // ── No farm available (only after loading has completely finished) ──
+  if (!activeFarm) {
+    return (
+      <PageShell ambient="crops">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: 'var(--color-soil-dark)' }}>
+            <Sprout size={28} style={{ color: 'var(--color-muted)' }} />
+          </div>
+          <p className="text-sm font-medium" style={{ color: 'var(--color-muted)' }}>{t('crops.selectFarm')}</p>
         </div>
       </PageShell>
     );

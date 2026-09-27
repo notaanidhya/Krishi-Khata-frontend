@@ -2,22 +2,34 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ActiveFarmContext = createContext();
 
+const ACTIVE_FARM_KEY = 'agroo_active_farm';
+
 export const ActiveFarmProvider = ({ children }) => {
-  const [activeFarm, setActiveFarm] = useState(null);
-  const [farms, setFarms] = useState([]); // Populated by useFarms hook via App.jsx
-  const [isLoading, setIsLoading] = useState(true); // True until farms are first loaded
+  const [activeFarm, setActiveFarm] = useState(() => {
+    try {
+      const saved = localStorage.getItem(ACTIVE_FARM_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [farms, setFarms] = useState(() => (activeFarm ? [activeFarm] : []));
+  const [isLoading, setIsLoading] = useState(!activeFarm);
 
   useEffect(() => {
     if (farms.length > 0) {
       // Always select the first farm (Hidden Farm architecture)
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveFarm(farms[0]);
-    } else {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setActiveFarm(null);
+      try {
+        localStorage.setItem(ACTIVE_FARM_KEY, JSON.stringify(farms[0]));
+      } catch {
+        // Ignore localStorage quota errors
+      }
+      setIsLoading(false);
+    } else if (isLoading && !activeFarm) {
+      setIsLoading(false);
     }
-    setIsLoading(false);
-  }, [farms]);
+  }, [farms, activeFarm, isLoading]);
 
   return (
     <ActiveFarmContext.Provider value={{
