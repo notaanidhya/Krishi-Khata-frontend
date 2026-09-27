@@ -2,7 +2,7 @@
 
 A mobile-first Progressive Web App (PWA) built for Indian farmers. It brings together a digital farm ledger (khata), live mandi prices, crop tracking, weather forecasts, and a community chat — all in one place, in Hindi and English.
 
-Deployed on **Vercel**. Works offline after the first load.
+Deployed on **Vercel**: [https://krishi-khata.vercel.app/home](https://krishi-khata.vercel.app/home). Works offline after the first load.
 
 ---
 
@@ -87,6 +87,7 @@ graph TD
 
 | Route | Page | What it does |
 |---|---|---|
+| `/home` | Home / Intro | Official landing page with feature overviews, APK download, and web app launcher |
 | `/` | Khata | Farm income/expense ledger with category filters |
 | `/crops` | Crop Tracking | Sow, monitor, and close crop seasons with photo uploads |
 | `/mandi` | Mandi Dashboard | Live and historical market prices with charts |
@@ -219,6 +220,7 @@ client/
 │   │   ├── useVoiceInput.js      # Web Speech API voice input
 │   │   └── useModalAnimation.js  # Shared modal open/close animation state
 │   ├── pages/
+│   │   ├── HomePage.jsx          # Public landing/intro page
 │   │   ├── KhataPage.jsx         # Farm ledger
 │   │   ├── CropTrackingPage.jsx  # Crop seasons
 │   │   ├── MandiDashboard.jsx    # Market prices
