@@ -13,7 +13,8 @@
  */
 
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Navigate, NavLink } from 'react-router-dom';
+import { Route, Navigate, NavLink, useLocation } from 'react-router-dom';
+import HomePage from './pages/HomePage';
 import { BookOpen, CloudSun, Sprout, Users, Loader2, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -42,6 +43,13 @@ const NAV_ITEMS = [
 
 function App() {
   const { t } = useTranslation();
+  const location = useLocation();
+
+  // Public standalone intro page — ONLY shown if user specifically visits /home
+  if (location.pathname === '/home' || location.pathname === '/home/') {
+    return <HomePage />;
+  }
+
   const { setFarms, setIsLoading, isLoading: farmContextLoading } = useActiveFarm();
   const {
     isNewUser,
@@ -91,8 +99,7 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="min-h-screen pb-20" style={{ backgroundColor: 'var(--color-soil)' }}>
+    <div className="min-h-screen pb-20" style={{ backgroundColor: 'var(--color-soil)' }}>
         <TopBar />
         <Toaster
           position="bottom-center"
@@ -178,7 +185,6 @@ function App() {
         </nav>
 
       </div>
-    </Router>
   );
 }
 
