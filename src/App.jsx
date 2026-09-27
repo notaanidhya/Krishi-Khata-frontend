@@ -41,15 +41,8 @@ const NAV_ITEMS = [
   { to: '/weather', end: false, icon: CloudSun, labelKey: 'nav.mausam' },
 ];
 
-function App() {
+function MainApp() {
   const { t } = useTranslation();
-  const location = useLocation();
-
-  // Public standalone intro page — ONLY shown if user specifically visits /home
-  if (location.pathname === '/home' || location.pathname === '/home/') {
-    return <HomePage />;
-  }
-
   const { setFarms, setIsLoading, isLoading: farmContextLoading } = useActiveFarm();
   const {
     isNewUser,
@@ -100,92 +93,102 @@ function App() {
 
   return (
     <div className="min-h-screen pb-20" style={{ backgroundColor: 'var(--color-soil)' }}>
-        <TopBar />
-        <Toaster
-          position="bottom-center"
-          toastOptions={{
+      <TopBar />
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          style: {
+            background: 'var(--color-ink)',
+            color: '#fff',
+            borderRadius: '14px',
+            padding: '12px 16px',
+            boxShadow: 'var(--shadow-elevated)',
+          },
+          success: {
             style: {
-              background: 'var(--color-ink)',
+              background: 'var(--color-forest-mid)',
               color: '#fff',
-              borderRadius: '14px',
-              padding: '12px 16px',
-              boxShadow: 'var(--shadow-elevated)',
             },
-            success: {
-              style: {
-                background: 'var(--color-forest-mid)',
-                color: '#fff',
-              },
+          },
+          error: {
+            style: {
+              background: 'var(--color-danger)',
+              color: '#fff',
             },
-            error: {
-              style: {
-                background: 'var(--color-danger)',
-                color: '#fff',
-              },
-            },
-          }}
-        />
+          },
+        }}
+      />
 
-        <main>
-          <AnimatedRoutes>
-            <Route path="/" element={<KhataPage />} />
-            <Route path="/crops" element={<CropTrackingPage />} />
-            <Route path="/mandi" element={<MandiDashboard />} />
-            <Route path="/weather" element={<WeatherPage />} />
-            <Route path="/community" element={<CommunityPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </AnimatedRoutes>
-        </main>
+      <main>
+        <AnimatedRoutes>
+          <Route path="/" element={<KhataPage />} />
+          <Route path="/crops" element={<CropTrackingPage />} />
+          <Route path="/mandi" element={<MandiDashboard />} />
+          <Route path="/weather" element={<WeatherPage />} />
+          <Route path="/community" element={<CommunityPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </AnimatedRoutes>
+      </main>
 
-        <nav
-          className="fixed bottom-0 left-0 right-0 px-2 py-1.5 flex justify-around items-center h-16 z-40"
-          style={{
-            backgroundColor: 'var(--color-cream)',
-            borderTop: '1px solid var(--border-subtle)',
-            boxShadow: '0 -4px 24px -6px rgba(61, 58, 36, 0.1)',
-          }}
-        >
-          {NAV_ITEMS.map(({ to, end, icon: Icon, labelKey }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              aria-label={t(labelKey)}
-              className="relative flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-colors duration-200"
-              style={({ isActive }) => ({
-                color: isActive ? 'var(--color-forest-muted)' : 'var(--color-muted)',
-              })}
-            >
-              {({ isActive }) => (
-                <>
-                  {isActive && (
-                    <motion.div
-                      layoutId="nav-active-pill"
-                      className="absolute top-1/2 left-1/2 rounded-xl"
-                      style={{
-                        width: 40,
-                        height: 32,
-                        x: '-50%',
-                        y: '-50%',
-                        backgroundColor: 'var(--color-forest-light)',
-                      }}
-                      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                    />
-                  )}
-                  <div className="relative z-10 p-1 rounded-lg">
-                    <Icon size={20} strokeWidth={isActive ? 2.4 : 1.8} />
-                  </div>
-                  <span className={`relative z-10 text-[10px] font-bold uppercase tracking-wide ${isActive ? '' : 'opacity-70'}`}>
-                    {t(labelKey)}
-                  </span>
-                </>
-              )}
-            </NavLink>
-          ))}
-        </nav>
-
-      </div>
+      <nav
+        className="fixed bottom-0 left-0 right-0 px-2 py-1.5 flex justify-around items-center h-16 z-40"
+        style={{
+          backgroundColor: 'var(--color-cream)',
+          borderTop: '1px solid var(--border-subtle)',
+          boxShadow: '0 -4px 24px -6px rgba(61, 58, 36, 0.1)',
+        }}
+      >
+        {NAV_ITEMS.map(({ to, end, icon: Icon, labelKey }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            aria-label={t(labelKey)}
+            className="relative flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-colors duration-200"
+            style={({ isActive }) => ({
+              color: isActive ? 'var(--color-forest-muted)' : 'var(--color-muted)',
+            })}
+          >
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <motion.div
+                    layoutId="nav-active-pill"
+                    className="absolute top-1/2 left-1/2 rounded-xl"
+                    style={{
+                      width: 40,
+                      height: 32,
+                      x: '-50%',
+                      y: '-50%',
+                      backgroundColor: 'var(--color-forest-light)',
+                    }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <div className="relative z-10 p-1 rounded-lg">
+                  <Icon size={20} strokeWidth={isActive ? 2.4 : 1.8} />
+                </div>
+                <span className={`relative z-10 text-[10px] font-bold uppercase tracking-wide ${isActive ? '' : 'opacity-70'}`}>
+                  {t(labelKey)}
+                </span>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+    </div>
   );
+}
+
+function App() {
+  const location = useLocation();
+
+  // Public standalone intro page — ONLY shown if user specifically visits /home
+  if (location.pathname === '/home' || location.pathname === '/home/') {
+    return <HomePage />;
+  }
+
+  return <MainApp />;
 }
 
 export default App;
